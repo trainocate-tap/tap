@@ -4,7 +4,7 @@ import * as XLSX from "xlsx"
 import { supabase } from "../../lib/supabase"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "../../context/AuthContext"
-import { checkBorrowReminders, sendBorrowUpdateEmail, sendNewBorrowAdminEmail, sendBorrowStatusAdminEmail, getAdminEmails } from "../../lib/emailService"
+import { sendBorrowUpdateEmail, sendNewBorrowAdminEmail, sendBorrowStatusAdminEmail, getAdminEmails } from "../../lib/emailService"
 import { createNotification, notifyAdmins, notifyUserByIdentifier } from "../../lib/notifications"
 import { EmptyState, LoadingSkeleton } from "../../components/EmptyState"
 import { getLastNMonths, getYears, matchesMonth } from "../../lib/dateFilters"
@@ -157,7 +157,6 @@ export default function Borrow() {
   useEffect(() => {
     if (userProfile !== null && userProfile !== undefined) {
       fetchBorrows()
-      checkBorrowReminders()
     }
   }, [userProfile])
 

@@ -102,33 +102,38 @@ function badge(text, color) {
   return `<span style="display:inline-block;background:${color}22;border:1px solid ${color}55;border-radius:100px;padding:3px 14px;color:${color};font-size:12px;font-weight:600;">${text}</span>`
 }
 
-// Warranty expiry email
-function warrantyHtml(asset, days, expiryDate) {
-  const accentColor = days <= 0 ? "#ef4444" : days <= 7 ? "#f59e0b" : "#3b82f6"
-  const emoji = days <= 0 ? "🚨" : days <= 7 ? "⚠️" : "📅"
-  const urgency = days <= 0 ? "EXPIRES TODAY" : `${days} DAY${days === 1 ? "" : "S"} LEFT`
-  const action = days <= 0
-    ? "This warranty has expired. Arrange renewal immediately."
-    : "Please arrange renewal before the warranty expires."
+// Weekly warranty digest email — table of all assets expiring within 30 days
+function warrantyDigestHtml(assets) {
+  const today = new Date(new Date().toDateString())
+  const rows = assets.map((asset) => {
+    const days = Math.ceil((new Date(asset.warranty_expiry) - today) / 86400000)
+    const color = days <= 0 ? "#ef4444" : days <= 7 ? "#f59e0b" : "#f9fafb"
+    return `<tr>
+      <td style="color:#f9fafb;font-size:13px;padding:9px 8px;border-bottom:1px solid #1a2744;">${asset.name}</td>
+      <td style="color:#9ca3af;font-size:13px;padding:9px 8px;border-bottom:1px solid #1a2744;">${asset.serial_number || "—"}</td>
+      <td style="color:${color};font-size:13px;font-weight:600;padding:9px 8px;border-bottom:1px solid #1a2744;text-align:right;">${fmtDate(asset.warranty_expiry)}</td>
+    </tr>`
+  }).join("")
 
-  return baseTemplate(accentColor, `
+  return baseTemplate("#3b82f6", `
     <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:44px;margin-bottom:10px;">${emoji}</div>
-      <div style="color:#fff;font-size:19px;font-weight:700;margin-bottom:8px;">Warranty Expiry Alert</div>
-      ${badge(urgency, accentColor)}
+      <div style="font-size:44px;margin-bottom:10px;">📅</div>
+      <div style="color:#fff;font-size:19px;font-weight:700;margin-bottom:8px;">Weekly Warranty Digest</div>
+      <p style="color:#9ca3af;font-size:14px;margin:0;">${assets.length} asset${assets.length === 1 ? "" : "s"} with warranty expiring in the next 30 days.</p>
     </div>
-    <div style="background:#060d1c;border:1px solid #1a2744;border-radius:10px;padding:16px;margin-bottom:20px;">
-      <div style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Asset Details</div>
+    <div style="background:#060d1c;border:1px solid #1a2744;border-radius:10px;padding:12px;margin-bottom:20px;overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;">
-        ${detailRow("Asset Name", asset.name)}
-        ${asset.asset_tag ? detailRow("Asset Tag", asset.asset_tag) : ""}
-        ${asset.serial_number ? detailRow("Serial No.", asset.serial_number) : ""}
-        ${detailRow("Warranty Expiry", fmtDate(expiryDate), accentColor)}
-        ${asset.assigned_user ? detailRow("Assigned To", asset.assigned_user) : ""}
-        ${asset.location ? detailRow("Location", asset.location) : ""}
+        <thead>
+          <tr>
+            <th style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-align:left;padding:0 8px 8px;">Asset Name</th>
+            <th style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-align:left;padding:0 8px 8px;">Serial Number</th>
+            <th style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-align:right;padding:0 8px 8px;">Warranty Expiry</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
       </table>
     </div>
-    <p style="color:#6b7280;font-size:13px;text-align:center;margin:0;">${action}</p>
+    <p style="color:#6b7280;font-size:13px;text-align:center;margin:0;">Please arrange renewals for assets nearing expiry.</p>
   `)
 }
 
@@ -154,38 +159,6 @@ function licenseHtml(asset, days, expiryDate) {
       </table>
     </div>
     <p style="color:#6b7280;font-size:13px;text-align:center;margin:0;">Please renew the license before it expires to avoid service disruption.</p>
-  `)
-}
-
-// Borrow reminder email
-function borrowHtml({ assetName, borrowerName, dueDate, days, isAdmin, isOverdue }) {
-  const accentColor = isOverdue ? "#ef4444" : days === 0 ? "#f59e0b" : "#3b82f6"
-  const emoji = isOverdue ? "🚨" : days === 0 ? "⏰" : "📅"
-  const title = isOverdue ? "Asset Overdue!" : days === 0 ? "Return Due Today!" : "Return Reminder"
-  const subtitle = isOverdue
-    ? `${assetName} is ${Math.abs(days)} day(s) overdue.`
-    : days === 0
-    ? `${assetName} must be returned today.`
-    : `${assetName} is due back in ${days} day(s).`
-  const note = isAdmin
-    ? "Please follow up with the borrower to arrange the return."
-    : "Please return the asset to the IT office as soon as possible. Thank you!"
-
-  return baseTemplate(accentColor, `
-    <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:44px;margin-bottom:10px;">${emoji}</div>
-      <div style="color:#fff;font-size:19px;font-weight:700;margin-bottom:8px;">${title}</div>
-      <p style="color:#9ca3af;font-size:14px;margin:0;">${subtitle}</p>
-    </div>
-    <div style="background:#060d1c;border:1px solid #1a2744;border-radius:10px;padding:16px;margin-bottom:20px;">
-      <div style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Borrow Details</div>
-      <table style="width:100%;border-collapse:collapse;">
-        ${detailRow("Asset", assetName)}
-        ${detailRow("Borrowed By", borrowerName)}
-        ${detailRow("Return Date", fmtDate(dueDate), accentColor)}
-      </table>
-    </div>
-    <p style="color:#6b7280;font-size:13px;text-align:center;margin:0;">${note}</p>
   `)
 }
 
@@ -420,46 +393,37 @@ export async function sendWelcomeEmail(toEmail, name, role, tempPassword) {
 // ---------------------------------------------------------------------------
 // Warranty Alerts — called from Dashboard on load
 // ---------------------------------------------------------------------------
-export async function checkWarrantyAlerts() {
+export async function checkWarrantyDigest() {
   const adminEmails = await getAdminEmails()
   if (!adminEmails.length) return
 
   const today = new Date()
-  const in31Days = new Date(today)
-  in31Days.setDate(today.getDate() + 31)
+  if (today.getDay() !== 1) return // only send the digest on Mondays
+
+  const weekKey = today.toISOString().split("T")[0]
+  const type = `warranty_digest_${weekKey}`
+  const sent = await getSentTypes([weekKey])
+  if (sent.has(type)) return
+
+  const in30Days = new Date(today)
+  in30Days.setDate(today.getDate() + 30)
 
   const { data: assets } = await supabase
     .from("assets")
-    .select("id, name, asset_tag, serial_number, warranty_expiry, assigned_user, location")
+    .select("id, name, serial_number, warranty_expiry")
     .not("warranty_expiry", "is", null)
-    .lte("warranty_expiry", in31Days.toISOString().split("T")[0])
+    .lte("warranty_expiry", in30Days.toISOString().split("T")[0])
+    .gte("warranty_expiry", today.toISOString().split("T")[0])
+    .order("warranty_expiry", { ascending: true })
 
   if (!assets?.length) return
 
-  const ids = assets.map((a) => a.id)
-  const sent = await getSentTypes(ids)
-
-  for (const asset of assets) {
-    const days = Math.ceil(
-      (new Date(asset.warranty_expiry) - new Date(today.toDateString())) / 86400000
-    )
-
-    const checks = []
-    if (days <= 0)  checks.push({ key: `warranty_expired_${asset.id}`, daysLabel: 0 })
-    if (days <= 7 && days > 0)  checks.push({ key: `warranty_7_${asset.id}`, daysLabel: days })
-    if (days <= 30 && days > 7) checks.push({ key: `warranty_30_${asset.id}`, daysLabel: days })
-
-    for (const { key, daysLabel } of checks) {
-      if (sent.has(key)) continue
-      const subjectDays = daysLabel <= 0 ? "TODAY" : `in ${daysLabel} day${daysLabel === 1 ? "" : "s"}`
-      await sendEmail(
-        adminEmails,
-        `${daysLabel <= 0 ? "🚨" : daysLabel <= 7 ? "⚠️" : "📅"} Warranty Expiry ${daysLabel <= 0 ? "— TODAY" : `in ${daysLabel}d`}: ${asset.name}`,
-        warrantyHtml(asset, daysLabel, asset.warranty_expiry)
-      )
-      await logEmail(key, asset.id)
-    }
-  }
+  await sendEmail(
+    adminEmails,
+    `📅 Weekly Warranty Digest — ${assets.length} asset${assets.length === 1 ? "" : "s"} expiring in the next 30 days`,
+    warrantyDigestHtml(assets)
+  )
+  await logEmail(type, weekKey)
 }
 
 // ---------------------------------------------------------------------------
@@ -503,87 +467,6 @@ export async function checkLicenseAlerts() {
         licenseHtml(asset, days, asset.license_expiry)
       )
       await logEmail(key, asset.id)
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Borrow Reminders — called from Borrow page on load
-// ---------------------------------------------------------------------------
-export async function checkBorrowReminders() {
-  const adminEmails = await getAdminEmails()
-
-  const { data: borrows } = await supabase
-    .from("borrow_history")
-    .select("id, asset_id, due_date, borrower_name, borrower_email, category, quantity, assets(name)")
-    .is("returned_at", null)
-    .not("due_date", "is", null)
-    .eq("status", "approved")
-
-  if (!borrows?.length) return
-
-  const ids = borrows.map((b) => b.id)
-  const sent = await getSentTypes(ids)
-
-  const today = new Date(new Date().toDateString())
-
-  for (const borrow of borrows) {
-    const assetName = borrow.assets?.name || (borrow.category ? `${borrow.quantity || 1}x ${borrow.category}` : "Asset")
-    const borrowerName = borrow.borrower_name || "Team Member"
-    const borrowerEmail = borrow.borrower_email || null
-    const due = new Date(borrow.due_date)
-    const days = Math.ceil((due - today) / 86400000)
-
-    // 2 days before — email borrower only
-    if (days <= 2 && days > 0) {
-      const key = `borrow_2d_${borrow.id}`
-      if (!sent.has(key) && borrowerEmail) {
-        await sendEmail(
-          borrowerEmail,
-          `📅 Return Reminder: ${assetName} due in ${days} day${days === 1 ? "" : "s"}`,
-          borrowHtml({ assetName, borrowerName, dueDate: borrow.due_date, days, isAdmin: false, isOverdue: false })
-        )
-        await logEmail(key, borrow.id)
-      }
-    }
-
-    // Due today — email both
-    if (days === 0) {
-      if (borrowerEmail) {
-        const key = `borrow_due_emp_${borrow.id}`
-        if (!sent.has(key)) {
-          await sendEmail(
-            borrowerEmail,
-            `⏰ Return Due Today: ${assetName}`,
-            borrowHtml({ assetName, borrowerName, dueDate: borrow.due_date, days: 0, isAdmin: false, isOverdue: false })
-          )
-          await logEmail(key, borrow.id)
-        }
-      }
-      if (adminEmails.length) {
-        const key = `borrow_due_admin_${borrow.id}`
-        if (!sent.has(key)) {
-          await sendEmail(
-            adminEmails,
-            `⏰ Asset Return Due Today: ${assetName} (${borrowerName})`,
-            borrowHtml({ assetName, borrowerName, dueDate: borrow.due_date, days: 0, isAdmin: true, isOverdue: false })
-          )
-          await logEmail(key, borrow.id)
-        }
-      }
-    }
-
-    // Overdue — email admin only (once)
-    if (days < 0 && adminEmails.length) {
-      const key = `borrow_overdue_${borrow.id}`
-      if (!sent.has(key)) {
-        await sendEmail(
-          adminEmails,
-          `🚨 OVERDUE: ${assetName} not returned (${borrowerName})`,
-          borrowHtml({ assetName, borrowerName, dueDate: borrow.due_date, days, isAdmin: true, isOverdue: true })
-        )
-        await logEmail(key, borrow.id)
-      }
     }
   }
 }
