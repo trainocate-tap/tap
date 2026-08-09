@@ -106,14 +106,15 @@ export default function ImportAssets() {
         const category = row[2] ? String(row[2]).trim() : "Laptop"
         const status = row[3] ? String(row[3]).trim().toLowerCase() : "available"
         const usage = row[4] ? String(row[4]).trim() : null
-        const assetTag = row[5] ? String(row[5]).trim() : null
-        const remarks = row[6] ? String(row[6]).trim() : null
-        const location = row[7] ? String(row[7]).trim() : null
-        const warrantyExpiry = excelDateToISO(typeof row[8] === "string" ? row[8].trim() : row[8])
-        const purchasePrice = row[9] !== undefined && row[9] !== null && row[9] !== ""
-          ? parseFloat(row[9])
+        const department = row[5] ? String(row[5]).trim() : null
+        const assetTag = row[6] ? String(row[6]).trim() : null
+        const remarks = row[7] ? String(row[7]).trim() : null
+        const location = row[8] ? String(row[8]).trim() : null
+        const warrantyExpiry = excelDateToISO(typeof row[9] === "string" ? row[9].trim() : row[9])
+        const purchasePrice = row[10] !== undefined && row[10] !== null && row[10] !== ""
+          ? parseFloat(row[10])
           : null
-        const purchaseDate = excelDateToISO(typeof row[10] === "string" ? row[10].trim() : row[10])
+        const purchaseDate = excelDateToISO(typeof row[11] === "string" ? row[11].trim() : row[11])
 
         if (serial && seenSerials.has(serial)) {
           serial = `${serial}_${i}`
@@ -124,6 +125,7 @@ export default function ImportAssets() {
           name: name.trim(),
           serial_number: serial || null,
           assigned_user: usage || null,
+          department: department || null,
           asset_tag: assetTag || null,
           remarks: remarks || null,
           category,
@@ -149,12 +151,12 @@ export default function ImportAssets() {
 
   const downloadTemplate = () => {
     const headers = [
-      "Asset Name", "Serial Number", "Category", "Status", "Assigned User",
+      "Asset Name", "Serial Number", "Category", "Status", "Assigned User", "Department",
       "Asset Tag", "Remarks", "Location", "Warranty Expiry", "Purchase Price",
       "Useful Life (years)",
     ]
     const example = [
-      "MacBook Pro 14\"", "SN123456789", "Laptop", "available", "John Tan",
+      "MacBook Pro 14\"", "SN123456789", "Laptop", "available", "John Tan", "Engineering",
       "AST-0001", "Assigned for development work", "Singapore", "2027-06-30", 2499,
       5,
     ]
