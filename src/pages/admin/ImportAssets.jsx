@@ -101,8 +101,10 @@ export default function ImportAssets() {
 
         const name = row[0]
         if (!name || typeof name !== "string") continue
+        if (name.trim().toLowerCase() === "microsoft surface 1") continue
 
         let serial = row[1] ? String(row[1]).trim() : null
+        if (serial && (serial.toUpperCase() === "N/A" || serial.toUpperCase() === "NA")) serial = null
         const category = row[2] ? String(row[2]).trim() : "Laptop"
         const status = row[3] ? String(row[3]).trim().toLowerCase() : "available"
         const usage = row[4] ? String(row[4]).trim() : null
@@ -116,14 +118,16 @@ export default function ImportAssets() {
           : null
         const purchaseDate = excelDateToISO(typeof row[11] === "string" ? row[11].trim() : row[11])
 
-        if (serial && seenSerials.has(serial)) {
-          serial = `${serial}_${i}`
+        // No usable serial — fall back to asset tag, then a name+row synthetic id, as the unique identifier
+        let uniqueId = serial || assetTag || `${name.trim()}_ROW${i + 1}`
+        if (seenSerials.has(uniqueId)) {
+          uniqueId = `${uniqueId}_${i}`
         }
-        if (serial) seenSerials.add(serial)
+        seenSerials.add(uniqueId)
 
         assets.push({
           name: name.trim(),
-          serial_number: serial || null,
+          serial_number: uniqueId,
           assigned_user: usage || null,
           department: department || null,
           asset_tag: assetTag || null,
