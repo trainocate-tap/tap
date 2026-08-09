@@ -1105,6 +1105,10 @@ const emailMap = {}
                   <span className="text-white text-sm font-medium capitalize">{detailUser.role?.replace("_", " ") || "—"}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-gray-800">
+                  <span className="text-gray-500 text-sm">Department</span>
+                  <span className="text-white text-sm font-medium">{detailUser.department || "Not assigned"}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-800">
                   <span className="text-gray-500 text-sm">Country</span>
                   <span className="text-white text-sm font-medium">🌏 {detailUser.country || "—"}</span>
                 </div>
