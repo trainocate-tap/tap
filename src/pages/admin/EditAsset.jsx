@@ -49,6 +49,7 @@ export default function EditAsset() {
     warranty_expiry: "", license_key: "", license_seats: "", license_expiry: "", licensed_to: "",
     remarks: "", country: "Singapore",
   })
+  const originalAssetRef = useRef(null)
 
   useEffect(() => {
     fetchAsset()
@@ -57,6 +58,7 @@ export default function EditAsset() {
   const fetchAsset = async () => {
     const { data } = await supabase.from("assets").select("*").eq("id", id).single()
     if (data) {
+      originalAssetRef.current = data
       setForm({
         name: data.name || "",
         category: data.category || "",
@@ -117,6 +119,10 @@ export default function EditAsset() {
       if (form.license_expiry) cleanForm.license_expiry = form.license_expiry
     }
     if (form.remarks) cleanForm.remarks = form.remarks
+
+    if (form.status === "borrowed" && originalAssetRef.current?.status !== "borrowed") {
+      cleanForm.prev_borrower = originalAssetRef.current?.assigned_user || null
+    }
 
     const { error } = await supabase.from("assets").update(cleanForm).eq("id", id)
     if (!error) {

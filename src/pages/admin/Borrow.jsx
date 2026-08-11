@@ -329,17 +329,30 @@ export default function Borrow() {
     if (!error) {
       if (borrow.asset_id) {
         const hadPermanentOwner = borrow.prev_status === "assigned" && borrow.prev_assigned_user
-        await supabase.from("assets").update(
-          hadPermanentOwner
-            ? { status: "assigned", assigned_user: borrow.prev_assigned_user }
-            : { status: "available", assigned_user: null }
-        ).eq("id", borrow.asset_id)
+        if (hadPermanentOwner) {
+          await supabase.from("assets")
+            .update({ status: "assigned", assigned_user: borrow.prev_assigned_user })
+            .eq("id", borrow.asset_id)
+        } else {
+          const { data: assetRow } = await supabase.from("assets")
+            .select("prev_borrower").eq("id", borrow.asset_id).single()
+          await supabase.from("assets")
+            .update({ status: "available", assigned_user: assetRow?.prev_borrower || null, prev_borrower: null })
+            .eq("id", borrow.asset_id)
+        }
       }
       if (borrow.borrower_name) {
-        await supabase.from("assets")
-          .update({ status: "available", assigned_user: null })
+        const { data: matchedAssets } = await supabase.from("assets")
+          .select("id, prev_borrower")
           .eq("status", "borrowed")
           .eq("assigned_user", borrow.borrower_name)
+        if (matchedAssets?.length) {
+          await Promise.all(matchedAssets.map(a =>
+            supabase.from("assets")
+              .update({ status: "available", assigned_user: a.prev_borrower || null, prev_borrower: null })
+              .eq("id", a.id)
+          ))
+        }
       }
       notifyUserByIdentifier(borrow.signed_off_email || borrow.signed_off_by, "✅ Return Approved", "Your return has been approved", "info")
       const toEmail = borrow.signed_off_email || borrow.borrower_email
