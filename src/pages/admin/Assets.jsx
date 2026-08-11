@@ -532,7 +532,7 @@ export default function Assets() {
                     <p className="text-white font-medium truncate">{asset.name}</p>
                     <p className="text-gray-500 text-xs mt-1">{asset.category}</p>
                     <p className="text-gray-400 text-sm mt-1">{asset.serial_number || "No serial"}</p>
-                    <p className="text-gray-400 text-sm">{asset.assigned_user || "Unassigned"}</p>
+                    <p className="text-gray-400 text-sm">{asset.status === "available" ? "Unassigned" : (asset.assigned_user || "Unassigned")}</p>
                     <div className="mt-2 flex items-center gap-1.5">
                       {!asset.warranty_expiry ? (
                         <>
@@ -627,7 +627,7 @@ export default function Assets() {
                       <p className="text-gray-500 text-sm truncate">{asset.category}</p>
                     </td>
                     <td className="px-3 py-4 text-gray-400 text-sm truncate" style={{ maxWidth: 100 }}>{asset.serial_number || "—"}</td>
-                    <td className="px-3 py-4 text-gray-400 text-sm truncate" style={{ maxWidth: 120 }}>{asset.assigned_user || "—"}</td>
+                    <td className="px-3 py-4 text-gray-400 text-sm truncate" style={{ maxWidth: 120 }}>{asset.status === "available" ? "" : (asset.assigned_user || "—")}</td>
                     <td className="px-3 py-4" style={{ maxWidth: 90 }}>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[asset.status] || "bg-gray-500/20 text-gray-400"}`}>
                         {statusLabel(asset.status)}
