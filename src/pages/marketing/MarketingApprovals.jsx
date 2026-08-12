@@ -75,7 +75,7 @@ export default function MarketingApprovals() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
-  const [form, setForm] = useState({ item_id: "", quantity: "", reason: "", request_type: "stock_request" })
+  const [form, setForm] = useState({ item_id: "", quantity: "", reason: "", request_type: "stock_request", requester_name: "", event_name: "", request_date: "" })
 
   const showSuccess = (msg) => {
     setSuccessMsg(msg)
@@ -183,16 +183,18 @@ export default function MarketingApprovals() {
   }
 
   const handleSubmitRequest = async () => {
-    if (!form.item_id || !form.quantity || !form.reason) return
+    if (!form.item_id || !form.quantity || !form.reason || !form.requester_name.trim() || !form.event_name.trim() || !form.request_date) return
     setSaving(true)
     setSaveError(null)
     const { error } = await supabase.from("marketing_approvals").insert({
       request_type: form.request_type,
       requested_by: userProfile.id,
-      requested_by_name: userProfile?.name || userProfile?.email,
+      requested_by_name: form.requester_name.trim(),
       item_id: form.item_id,
       quantity: parseInt(form.quantity),
       reason: form.reason,
+      event_name: form.event_name.trim(),
+      request_date: form.request_date,
       status: "pending",
     })
     if (error) {
@@ -205,7 +207,7 @@ export default function MarketingApprovals() {
     setSaveError(null)
     const submittedItemName = items.find(i => i.id === form.item_id)?.name || "item"
     const submittedQty = form.quantity
-    setForm({ item_id: "", quantity: "", reason: "", request_type: "stock_request" })
+    setForm({ item_id: "", quantity: "", reason: "", request_type: "stock_request", requester_name: "", event_name: "", request_date: "" })
     showSuccess("✅ Request submitted successfully!")
     if (userProfile?.id) {
       await supabase.from("marketing_notifications").insert({
@@ -249,7 +251,7 @@ export default function MarketingApprovals() {
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>✅ Approvals</h1>
           <p style={{ color: C.sub, fontSize: "15px" }}>{approvals.length} pending requests</p>
         </div>
-        <button onClick={() => { setShowRequestModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}>
+        <button onClick={() => { setForm(f => ({ ...f, requester_name: f.requester_name || userProfile?.name || userProfile?.email || "" })); setShowRequestModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}>
           + New Request
         </button>
       </div>
@@ -291,6 +293,13 @@ export default function MarketingApprovals() {
                     <p style={{ color: C.sub, fontSize: "15px" }}>
                       Requesting: <b style={{ color: C.text }}>{items.find(i => i.id === req.item_id)?.name || "Unknown item"}</b> × {req.quantity}
                     </p>
+                    {(req.event_name || req.request_date) && (
+                      <p style={{ color: C.sub, fontSize: "14px", marginTop: "2px" }}>
+                        {req.event_name && <>Event: <b style={{ color: C.text }}>{req.event_name}</b></>}
+                        {req.event_name && req.request_date && "  ·  "}
+                        {req.request_date && <>Date: <b style={{ color: C.text }}>{new Date(req.request_date).toLocaleDateString()}</b></>}
+                      </p>
+                    )}
                     {req.quantity > 30 && <p style={{ color: C.warning, fontSize: "13px", marginTop: "2px" }}>⚠️ Large quantity — requires senior approval (April)</p>}
                     {req.reason && <p style={{ color: C.sub, fontSize: "14px", marginTop: "4px", fontStyle: "italic" }}>Reason: {req.reason}</p>}
                     <p style={{ color: C.sub, fontSize: "13px", marginTop: "4px" }}>
@@ -338,6 +347,13 @@ export default function MarketingApprovals() {
                       </p>
                       {isOverdue && <span style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "999px", padding: "1px 9px", fontSize: "12px", fontWeight: "700" }}>⚠️ {days}d overdue</span>}
                     </div>
+                    {(req.event_name || req.request_date) && (
+                      <p style={{ color: C.sub, fontSize: "14px", marginTop: "2px" }}>
+                        {req.event_name && <>Event: <b style={{ color: C.text }}>{req.event_name}</b></>}
+                        {req.event_name && req.request_date && "  ·  "}
+                        {req.request_date && <>Date: <b style={{ color: C.text }}>{new Date(req.request_date).toLocaleDateString()}</b></>}
+                      </p>
+                    )}
                     {req.reason && <p style={{ color: C.sub, fontSize: "14px", marginTop: "2px" }}>Reason: {req.reason}</p>}
                     {req.rejection_reason && <p style={{ color: C.error, fontSize: "14px", marginTop: "2px" }}>Rejected: {req.rejection_reason}</p>}
                     <p style={{ color: C.sub, fontSize: "13px", marginTop: "4px" }}>{new Date(req.created_at).toLocaleDateString()}</p>
@@ -371,6 +387,15 @@ export default function MarketingApprovals() {
                     {saveError}
                   </div>
                 )}
+                <Field label="Requester Name *">
+                  <input type="text" value={form.requester_name} onChange={e => setForm({ ...form, requester_name: e.target.value })} placeholder="Your name" style={inputStyle} />
+                </Field>
+                <Field label="Event Name *">
+                  <input type="text" value={form.event_name} onChange={e => setForm({ ...form, event_name: e.target.value })} placeholder="e.g. AWS Cloud Practitioner Workshop" style={inputStyle} />
+                </Field>
+                <Field label="Date *">
+                  <input type="date" value={form.request_date} onChange={e => setForm({ ...form, request_date: e.target.value })} style={inputStyle} />
+                </Field>
                 <Field label="Request Type">
                   <select value={form.request_type} onChange={e => setForm({ ...form, request_type: e.target.value })} style={inputStyle}>
                     <option value="stock_request">Stock Request</option>
@@ -397,7 +422,7 @@ export default function MarketingApprovals() {
                 </Field>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button onClick={() => { setShowRequestModal(false); setSaveError(null) }} style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: "none", borderRadius: "10px", padding: "10px", cursor: "pointer" }}>Cancel</button>
-                  <button onClick={handleSubmitRequest} disabled={saving || !form.item_id || !form.quantity || !form.reason} style={{ flex: 2, background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px", fontWeight: "600", cursor: "pointer", opacity: saving ? 0.6 : 1 }}>{saving ? "Submitting..." : "Submit Request"}</button>
+                  <button onClick={handleSubmitRequest} disabled={saving || !form.item_id || !form.quantity || !form.reason || !form.requester_name.trim() || !form.event_name.trim() || !form.request_date} style={{ flex: 2, background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px", fontWeight: "600", cursor: "pointer", opacity: saving ? 0.6 : 1 }}>{saving ? "Submitting..." : "Submit Request"}</button>
                 </div>
               </div>
             </motion.div>
