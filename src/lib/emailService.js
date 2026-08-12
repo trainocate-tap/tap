@@ -20,12 +20,16 @@ export async function sendEmail(to, subject, html) {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-export async function getAdminEmails() {
+export async function getAdminEmails(country) {
   try {
-    const { data } = await supabase
+    let query = supabase
       .from("user_profiles")
       .select("email")
       .eq("role", "admin")
+    if (country) {
+      query = query.eq("country", country)
+    }
+    const { data } = await query
     return data?.map((u) => u.email).filter(Boolean) ?? []
   } catch {
     return []

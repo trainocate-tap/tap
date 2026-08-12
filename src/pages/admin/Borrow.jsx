@@ -230,7 +230,7 @@ export default function Borrow() {
     if (!error) {
       createNotification(userProfile?.id, "📦 Borrow Request Submitted", `"${label}" is pending admin approval`, "info", userProfile?.country)
       notifyAdmins(userProfile?.country, "📦 New Borrow Request", `${borrowerName || userProfile?.name || "A user"} requested "${label}"`, "info")
-      getAdminEmails().then(adminEmails => {
+      getAdminEmails(userProfile?.country).then(adminEmails => {
         if (adminEmails?.length) {
           sendNewBorrowAdminEmail(adminEmails, borrowerName || userProfile?.name || "A user", label, form.due_date)
         }
@@ -306,7 +306,7 @@ export default function Borrow() {
     if (!error) {
       notifyAdmins(userProfile?.country, "🔄 Return Requested", `${borrow.borrower_name || "A user"} requested to return "${label}"`, "info")
       createNotification(userProfile?.id, "🔄 Return Requested", `Your return request for "${label}" is pending admin approval`, "info", userProfile?.country, userProfile?.id)
-      getAdminEmails().then(adminEmails => {
+      getAdminEmails(userProfile?.country).then(adminEmails => {
         if (adminEmails?.length) {
           sendBorrowStatusAdminEmail(adminEmails, borrow.borrower_name || "A user", label, "return requested")
         }
@@ -357,7 +357,7 @@ export default function Borrow() {
       notifyUserByIdentifier(borrow.signed_off_email || borrow.signed_off_by, "✅ Return Approved", "Your return has been approved", "info")
       const toEmail = borrow.signed_off_email || borrow.borrower_email
       if (toEmail) sendBorrowUpdateEmail(toEmail, label, "returned")
-      getAdminEmails().then(adminEmails => {
+      getAdminEmails(userProfile?.country).then(adminEmails => {
         if (adminEmails?.length) {
           sendBorrowStatusAdminEmail(adminEmails, borrow.borrower_name || "A user", label, "returned")
         }
@@ -399,7 +399,7 @@ export default function Borrow() {
       const label = borrowLabel(borrow)
       notifyAdmins(userProfile?.country, "📅 Extension Requested", `${borrow.borrower_name || "A user"} requested to extend "${label}" to ${formatDate(extendDate)}`, "info")
       createNotification(userProfile?.id, "📅 Extension Requested", `Your extension request for "${label}" is pending admin approval`, "info", userProfile?.country, userProfile?.id)
-      getAdminEmails().then(adminEmails => {
+      getAdminEmails(userProfile?.country).then(adminEmails => {
         if (adminEmails?.length) {
           sendBorrowStatusAdminEmail(adminEmails, borrow.borrower_name || "A user", label, `has requested an extension until ${formatDate(extendDate)}`)
         }

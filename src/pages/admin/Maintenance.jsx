@@ -222,7 +222,7 @@ export default function Maintenance() {
     if (!error) {
       createNotification(userProfile?.id, "🔧 Maintenance Scheduled", `Maintenance scheduled for "${form.asset_name}"`, "info", userProfile?.country)
       notifyAdmins(userProfile?.country, "🔧 New Maintenance Request", `${userProfile?.name || userProfile?.email || "A user"} scheduled maintenance for "${form.asset_name}"`, "info")
-      getAdminEmails().then(adminEmails => {
+      getAdminEmails(userProfile?.country).then(adminEmails => {
         if (adminEmails?.length) {
           sendNewMaintenanceAdminEmail(adminEmails, userProfile?.name || userProfile?.email || "A user", form.maintenance_type, form.asset_name, form.priority, form.scheduled_date)
         }

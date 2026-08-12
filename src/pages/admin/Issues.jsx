@@ -139,7 +139,7 @@ export default function Issues() {
       const selectedAssetName = assets.find(a => a.id === form.asset_id)?.name || "an asset"
       createNotification(userProfile?.id, "⚠️ Issue Submitted", `Your ${form.issue_type} issue for ${selectedAssetName} was submitted successfully`, "warning", userProfile?.country, userProfile?.id)
       notifyAdmins(userProfile?.country, "⚠️ New Issue Reported", `${userProfile?.name} reported a ${form.issue_type} issue for ${selectedAssetName}`, "warning")
-      getAdminEmails().then(adminEmails => {
+      getAdminEmails(userProfile?.country).then(adminEmails => {
         if (adminEmails?.length) {
           sendNewIssueAdminEmail(adminEmails, userProfile?.name, form.issue_type, selectedAssetName, form.priority, form.description)
         }
@@ -164,7 +164,7 @@ export default function Issues() {
     }).eq("id", id)
     const resolvedMessage = `${reportedBy || "Someone"}'s ${issueType || "issue"} issue for ${assetName || "an asset"} has been resolved`
     notifyAdmins(userProfile?.country, "✅ Issue Resolved", resolvedMessage, "success")
-    getAdminEmails().then(adminEmails => {
+    getAdminEmails(userProfile?.country).then(adminEmails => {
       if (adminEmails?.length) {
         sendEmail(adminEmails, "Issue Resolved", `<p>${resolvedMessage}</p>`)
       }
