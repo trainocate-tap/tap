@@ -106,7 +106,7 @@ export default function MarketingItem() {
       <div className="p-8 flex flex-col items-center justify-center min-h-64">
         <span className="text-5xl mb-4">🔒</span>
         <h2 className="text-white text-xl font-bold mb-2">Access Denied</h2>
-        <p className="text-gray-400 text-sm">Marketing module is only available to Marketing team members.</p>
+        <p className="text-gray-400 text-base">Marketing module is only available to Marketing team members.</p>
       </div>
     )
   }
@@ -358,13 +358,13 @@ export default function MarketingItem() {
         {success && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             className="mb-4 bg-green-500/10 border border-green-500/40 rounded-xl p-3 flex items-center gap-2">
-            <span>✅</span><p className="text-green-400 text-sm font-medium">{success}</p>
+            <span>✅</span><p className="text-green-400 text-base font-medium">{success}</p>
           </motion.div>
         )}
         {error && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             className="mb-4 bg-red-500/10 border border-red-500/40 rounded-xl p-3 flex items-center gap-2">
-            <span>❌</span><p className="text-red-400 text-sm font-medium">{error}</p>
+            <span>❌</span><p className="text-red-400 text-base font-medium">{error}</p>
             <button onClick={() => setError("")} className="ml-auto text-gray-500 hover:text-white">✕</button>
           </motion.div>
         )}
@@ -373,16 +373,16 @@ export default function MarketingItem() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate("/admin/marketing")}
-          className="text-gray-400 hover:text-white transition-colors text-sm">← Back</button>
+          className="text-gray-400 hover:text-white transition-colors text-base">← Back</button>
         <div className="flex-1 min-w-0">
           <h1 className="text-xl md:text-2xl font-bold text-white truncate">
             {isNew ? "Add Marketing Item" : item.name}
           </h1>
-          {!isNew && <p className="text-gray-500 text-xs mt-0.5">Added {fmtDate(item.created_at)} · {item.created_by_name}</p>}
+          {!isNew && <p className="text-gray-500 text-sm mt-0.5">Added {fmtDate(item.created_at)} · {item.created_by_name}</p>}
         </div>
         {!isNew && (
           <button onClick={handleDelete}
-            className="text-red-400/60 hover:text-red-400 text-sm border border-red-400/20 hover:border-red-400/40 px-3 py-1.5 rounded-lg transition-all shrink-0">
+            className="text-red-400/60 hover:text-red-400 text-base border border-red-400/20 hover:border-red-400/40 px-3 py-1.5 rounded-lg transition-all shrink-0">
             Delete
           </button>
         )}
@@ -398,9 +398,9 @@ export default function MarketingItem() {
             { label: "Closing Stock", value: closingStock, color: closingStock <= 5 ? "text-red-400" : "text-green-400" },
           ].map(s => (
             <div key={s.label} className="bg-gray-900/80 rounded-xl border border-gray-800 p-4 text-center">
-              <p className="text-gray-500 text-xs mb-1">{s.label}</p>
+              <p className="text-gray-500 text-sm mb-1">{s.label}</p>
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-gray-600 text-xs">{item.unit_of_measurement}</p>
+              <p className="text-gray-600 text-sm">{item.unit_of_measurement}</p>
             </div>
           ))}
         </div>
@@ -416,7 +416,7 @@ export default function MarketingItem() {
             { key: "qr", label: "🔲 QR Code" },
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab.key ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
               }`}>
               {tab.label}
@@ -432,36 +432,36 @@ export default function MarketingItem() {
             <h2 className="text-white font-semibold mb-4">Section A — Item Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="text-gray-400 text-sm mb-1.5 block">Item Name *</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Item Name *</label>
                 <input required value={item.name} onChange={e => setItem({ ...item, name: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                   placeholder="e.g. Branded Polo T-Shirt" />
               </div>
               <div>
-                <label className="text-gray-400 text-sm mb-1.5 block">Category *</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Category *</label>
                 <select value={item.category} onChange={e => setItem({ ...item, category: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm">
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base">
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-gray-400 text-sm mb-1.5 block">Vendor</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Vendor</label>
                 <input value={item.vendor || ""} onChange={e => setItem({ ...item, vendor: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                   placeholder="e.g. ABC Printing Pte Ltd" />
               </div>
               <div>
-                <label className="text-gray-400 text-sm mb-1.5 block">Unit of Measurement *</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Unit of Measurement *</label>
                 <select value={item.unit_of_measurement} onChange={e => setItem({ ...item, unit_of_measurement: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm">
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base">
                   {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="text-gray-400 text-sm mb-1.5 block">Description</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Description</label>
                 <textarea value={item.description || ""} onChange={e => setItem({ ...item, description: e.target.value })}
                   rows={2}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm resize-none"
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base resize-none"
                   placeholder="Brief description of the item…" />
               </div>
             </div>
@@ -477,23 +477,23 @@ export default function MarketingItem() {
                 { field: "reserved_stock", label: "Reserved Stock" },
               ].map(({ field, label }) => (
                 <div key={field}>
-                  <label className="text-gray-400 text-sm mb-1.5 block">{label}</label>
+                  <label className="text-gray-400 text-base mb-1.5 block">{label}</label>
                   <input type="number" min="0" value={item[field]}
                     onChange={e => setItem({ ...item, [field]: e.target.value })}
-                    className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm" />
+                    className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base" />
                 </div>
               ))}
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="bg-gray-800/60 rounded-lg p-3 text-center">
-                <p className="text-gray-500 text-xs mb-1">Available Stock</p>
+                <p className="text-gray-500 text-sm mb-1">Available Stock</p>
                 <p className="text-white font-bold text-xl">{availableStock}</p>
-                <p className="text-gray-600 text-xs">Opening + Purchased − Damaged</p>
+                <p className="text-gray-600 text-sm">Opening + Purchased − Damaged</p>
               </div>
               <div className="bg-gray-800/60 rounded-lg p-3 text-center">
-                <p className="text-gray-500 text-xs mb-1">Closing Stock</p>
+                <p className="text-gray-500 text-sm mb-1">Closing Stock</p>
                 <p className={`font-bold text-xl ${closingStock <= 5 ? "text-red-400" : "text-green-400"}`}>{closingStock}</p>
-                <p className="text-gray-600 text-xs">Available − Reserved − Distributed</p>
+                <p className="text-gray-600 text-sm">Available − Reserved − Distributed</p>
               </div>
             </div>
           </div>
@@ -502,23 +502,23 @@ export default function MarketingItem() {
             <h2 className="text-white font-semibold mb-4">Section D — Cost Tracking</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-gray-400 text-sm mb-1.5 block">Cost per Unit (S$)</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Cost per Unit (S$)</label>
                 <input type="number" min="0" step="0.01" value={item.cost_per_unit}
                   onChange={e => setItem({ ...item, cost_per_unit: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                   placeholder="0.00" />
               </div>
               <div>
-                <label className="text-gray-400 text-sm mb-1.5 block">Budget Allocated (S$)</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Budget Allocated (S$)</label>
                 <input type="number" min="0" step="0.01" value={item.budget_allocated}
                   onChange={e => setItem({ ...item, budget_allocated: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                   placeholder="0.00" />
               </div>
               <div>
-                <label className="text-gray-400 text-sm mb-1.5 block">Cost Center</label>
+                <label className="text-gray-400 text-base mb-1.5 block">Cost Center</label>
                 <input value={item.cost_center || ""} onChange={e => setItem({ ...item, cost_center: e.target.value })}
-                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                  className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                   placeholder="e.g. MKT-2026" />
               </div>
             </div>
@@ -526,11 +526,11 @@ export default function MarketingItem() {
 
           <div className="flex gap-3">
             <button type="submit" disabled={saving}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium">
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-base font-medium">
               {saving ? "Saving…" : isNew ? "Create Item" : "Save Changes"}
             </button>
             <button type="button" onClick={() => navigate("/admin/marketing")}
-              className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg text-sm">
+              className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg text-base">
               Cancel
             </button>
           </div>
@@ -543,7 +543,7 @@ export default function MarketingItem() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-white font-semibold">Section C — Distribution Records</h2>
             <button onClick={() => setShowDistForm(!showDistForm)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-base font-medium">
               + Request Distribution
             </button>
           </div>
@@ -557,57 +557,57 @@ export default function MarketingItem() {
                 onSubmit={handleDistSubmit}
                 className="bg-gray-900/80 rounded-xl border border-gray-800 p-5 mb-5"
               >
-                <h3 className="text-white font-medium mb-4 text-sm">New Distribution Request</h3>
+                <h3 className="text-white font-medium mb-4 text-base">New Distribution Request</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Distributed To *</label>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Distributed To *</label>
                     <input required value={distForm.distributed_to}
                       onChange={e => setDistForm({ ...distForm, distributed_to: e.target.value })}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                       placeholder="e.g. Annual Conference 2026" />
                   </div>
                   <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Quantity * ({item.unit_of_measurement})</label>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Quantity * ({item.unit_of_measurement})</label>
                     <input required type="number" min="1" value={distForm.quantity}
                       onChange={e => setDistForm({ ...distForm, quantity: e.target.value })}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                       placeholder="0" />
                   </div>
                   <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Date *</label>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Date *</label>
                     <input required type="date" value={distForm.date_of_distribution}
                       onChange={e => setDistForm({ ...distForm, date_of_distribution: e.target.value })}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm" />
+                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-base" />
                   </div>
                   <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Batch Cost (S$)</label>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Batch Cost (S$)</label>
                     <input type="number" min="0" step="0.01" value={distForm.cost_per_batch}
                       onChange={e => setDistForm({ ...distForm, cost_per_batch: e.target.value })}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                       placeholder="0.00" />
                   </div>
                   <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Purpose</label>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Purpose</label>
                     <input value={distForm.purpose}
                       onChange={e => setDistForm({ ...distForm, purpose: e.target.value })}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                       placeholder="e.g. Client gifts" />
                   </div>
                   <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Recipient Details</label>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Recipient Details</label>
                     <input value={distForm.recipient_details}
                       onChange={e => setDistForm({ ...distForm, recipient_details: e.target.value })}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 border border-gray-700 focus:border-blue-500 focus:outline-none text-base"
                       placeholder="e.g. VIP attendees, 50 pax" />
                   </div>
                 </div>
                 <div className="flex gap-3 mt-4">
                   <button type="submit" disabled={submittingDist}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg text-sm font-medium">
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg text-base font-medium">
                     {submittingDist ? "Submitting…" : "Submit for Approval"}
                   </button>
                   <button type="button" onClick={() => setShowDistForm(false)}
-                    className="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2 rounded-lg text-sm">
+                    className="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2 rounded-lg text-base">
                     Cancel
                   </button>
                 </div>
@@ -616,28 +616,28 @@ export default function MarketingItem() {
           </AnimatePresence>
 
           {distributions.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-12">No distributions recorded yet.</p>
+            <p className="text-gray-500 text-base text-center py-12">No distributions recorded yet.</p>
           ) : (
             <div className="space-y-3">
               {distributions.map(dist => (
                 <div key={dist.id} className="bg-gray-900/80 rounded-xl border border-gray-800 p-4">
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
-                      <p className="text-white font-medium text-sm">{dist.distributed_to}</p>
-                      <p className="text-gray-500 text-xs mt-0.5">
+                      <p className="text-white font-medium text-base">{dist.distributed_to}</p>
+                      <p className="text-gray-500 text-sm mt-0.5">
                         {dist.quantity} {item.unit_of_measurement} · {fmtDate(dist.date_of_distribution)}
                         {dist.purpose && ` · ${dist.purpose}`}
                       </p>
                       {dist.recipient_details && (
-                        <p className="text-gray-600 text-xs mt-0.5">{dist.recipient_details}</p>
+                        <p className="text-gray-600 text-sm mt-0.5">{dist.recipient_details}</p>
                       )}
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 capitalize ${STATUS_COLORS[dist.status] || STATUS_COLORS.pending}`}>
+                    <span className={`text-sm px-2 py-0.5 rounded-full border font-medium shrink-0 capitalize ${STATUS_COLORS[dist.status] || STATUS_COLORS.pending}`}>
                       {dist.status}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-gray-600">
+                  <div className="flex items-center justify-between text-sm text-gray-600">
                     <span>By {dist.created_by_name} · {fmtDate(dist.created_at)}</span>
                     {dist.cost_per_batch != null && (
                       <span>S${Number(dist.cost_per_batch).toFixed(2)}</span>
@@ -645,7 +645,7 @@ export default function MarketingItem() {
                   </div>
 
                   {dist.admin_response && (
-                    <p className="mt-2 text-xs text-red-400/80 bg-red-500/5 border border-red-500/10 rounded-lg px-3 py-2">
+                    <p className="mt-2 text-sm text-red-400/80 bg-red-500/5 border border-red-500/10 rounded-lg px-3 py-2">
                       Reason: {dist.admin_response}
                     </p>
                   )}
@@ -658,18 +658,18 @@ export default function MarketingItem() {
                             value={rejectReason}
                             onChange={e => setRejectReason(e.target.value)}
                             placeholder="Reason for rejection…"
-                            className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-1.5 border border-gray-700 focus:border-red-500 focus:outline-none text-xs"
+                            className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-1.5 border border-gray-700 focus:border-red-500 focus:outline-none text-sm"
                           />
                           <button
                             onClick={() => handleReject(dist)}
                             disabled={actioningId === dist.id}
-                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
+                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
                           >
                             {actioningId === dist.id ? "…" : "Confirm"}
                           </button>
                           <button
                             onClick={() => { setRejectingId(null); setRejectReason("") }}
-                            className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-xs"
+                            className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm"
                           >
                             Cancel
                           </button>
@@ -679,13 +679,13 @@ export default function MarketingItem() {
                           <button
                             onClick={() => handleApprove(dist)}
                             disabled={actioningId === dist.id}
-                            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg text-xs font-medium"
+                            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg text-sm font-medium"
                           >
                             {actioningId === dist.id ? "…" : "✓ Approve"}
                           </button>
                           <button
                             onClick={() => setRejectingId(dist.id)}
-                            className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-1.5 rounded-lg text-xs font-medium"
+                            className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-1.5 rounded-lg text-sm font-medium"
                           >
                             ✕ Reject
                           </button>
@@ -713,8 +713,8 @@ export default function MarketingItem() {
               { label: "Cost Center", value: item.cost_center || "—" },
             ].map(row => (
               <div key={row.label} className="flex justify-between py-2.5 border-b border-gray-800/70">
-                <span className="text-gray-400 text-sm">{row.label}</span>
-                <span className="text-white text-sm font-medium">{row.value}</span>
+                <span className="text-gray-400 text-base">{row.label}</span>
+                <span className="text-white text-base font-medium">{row.value}</span>
               </div>
             ))}
           </div>
@@ -734,11 +734,11 @@ export default function MarketingItem() {
           </div>
           <div className="text-center">
             <p className="text-white font-semibold text-lg">{item.name}</p>
-            <p className="text-gray-400 text-sm mt-1">Closing Stock: {closingStock} {item.unit_of_measurement}</p>
-            <p className="text-gray-500 text-xs mt-0.5">{item.category}</p>
+            <p className="text-gray-400 text-base mt-1">Closing Stock: {closingStock} {item.unit_of_measurement}</p>
+            <p className="text-gray-500 text-sm mt-0.5">{item.category}</p>
           </div>
           <button onClick={handlePrintQR}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-medium">
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-base font-medium">
             🖨️ Print QR Code
           </button>
         </div>

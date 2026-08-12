@@ -18,13 +18,13 @@ const PURPOSES = [
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#fff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )
@@ -239,7 +239,7 @@ export default function MarketingStock() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "rgba(16,185,129,0.95)", color: "#fff", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: "600", boxShadow: "0 8px 30px rgba(0,0,0,0.3)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "rgba(16,185,129,0.95)", color: "#fff", borderRadius: "12px", padding: "12px 24px", fontSize: "16px", fontWeight: "600", boxShadow: "0 8px 30px rgba(0,0,0,0.3)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -248,14 +248,14 @@ export default function MarketingStock() {
 
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>📊 Stock In / Out</h1>
-        <p style={{ color: C.sub, fontSize: "13px" }}>Record stock receipts and disbursements</p>
+        <p style={{ color: C.sub, fontSize: "15px" }}>Record stock receipts and disbursements</p>
       </div>
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: "6px", marginBottom: "24px" }}>
         {[["in", "📥 Stock In"], ["out", "📤 Stock Out"], ["history", "📋 Movement History"]].map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)} style={{
-            padding: "9px 18px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "13px",
+            padding: "9px 18px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "15px",
             background: tab === t ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(6,182,212,0.08)",
             color: tab === t ? "#fff" : C.sub,
           }}>{label}</button>
@@ -268,7 +268,7 @@ export default function MarketingStock() {
           style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "24px" }}>
           <h2 style={{ color: C.text, fontSize: "16px", fontWeight: "700", marginBottom: "20px" }}>📥 Record Stock In</h2>
           {saveError && tab === "in" && (
-            <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "4px", color: C.error, fontSize: "13px" }}>
+            <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "4px", color: C.error, fontSize: "15px" }}>
               ⚠️ {saveError}
             </div>
           )}
@@ -314,7 +314,7 @@ export default function MarketingStock() {
             <Field label="Notes">
               <textarea value={formIn.notes} onChange={e => setFormIn({ ...formIn, notes: e.target.value })} rows={2} placeholder="Additional notes..." style={{ ...inputStyle, resize: "vertical" }} />
             </Field>
-            <button type="submit" disabled={saving} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "12px", fontWeight: "700", fontSize: "14px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}>
+            <button type="submit" disabled={saving} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "12px", fontWeight: "700", fontSize: "16px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}>
               {saving ? "Saving..." : "📥 Record Stock In"}
             </button>
           </form>
@@ -327,7 +327,7 @@ export default function MarketingStock() {
           style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "24px" }}>
           <h2 style={{ color: C.text, fontSize: "16px", fontWeight: "700", marginBottom: "20px" }}>📤 Record Stock Out</h2>
           {saveError && tab === "out" && (
-            <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "4px", color: C.error, fontSize: "13px" }}>
+            <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "4px", color: C.error, fontSize: "15px" }}>
               ⚠️ {saveError}
             </div>
           )}
@@ -392,7 +392,7 @@ export default function MarketingStock() {
             <Field label="Notes">
               <textarea value={formOut.notes} onChange={e => setFormOut({ ...formOut, notes: e.target.value })} rows={2} placeholder="Reason / additional details..." style={{ ...inputStyle, resize: "vertical" }} />
             </Field>
-            <button type="submit" disabled={saving} style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff", border: "none", borderRadius: "10px", padding: "12px", fontWeight: "700", fontSize: "14px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}>
+            <button type="submit" disabled={saving} style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)", color: "#fff", border: "none", borderRadius: "10px", padding: "12px", fontWeight: "700", fontSize: "16px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.6 : 1 }}>
               {saving ? "Saving..." : "📤 Record Stock Out"}
             </button>
           </form>
@@ -405,7 +405,7 @@ export default function MarketingStock() {
           <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
             {["All", "Stock In", "Stock Out"].map(t => (
               <button key={t} onClick={() => setFilterType(t)} style={{
-                padding: "7px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: "600",
+                padding: "7px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600",
                 background: filterType === t ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(6,182,212,0.08)",
                 color: filterType === t ? "#fff" : C.sub,
               }}>{t}</button>
@@ -418,7 +418,7 @@ export default function MarketingStock() {
                 <div style={{ textAlign: "center", padding: "60px", color: C.sub }}>
                   <p style={{ fontSize: "36px", marginBottom: "12px" }}>📋</p>
                   <p style={{ fontWeight: "600", marginBottom: "4px" }}>No movements found</p>
-                  <p style={{ fontSize: "12px" }}>Record a Stock In or Stock Out to see history here</p>
+                  <p style={{ fontSize: "14px" }}>Record a Stock In or Stock Out to see history here</p>
                 </div>
               )}
               {filteredMovements.map(mv => {
@@ -439,34 +439,34 @@ export default function MarketingStock() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           {/* Item name + quantity */}
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
-                            <p style={{ color: C.text, fontSize: "13px", fontWeight: "700" }}>{itemName}</p>
-                            <span style={{ background: isIn ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isIn ? C.success : C.error, border: `1px solid ${isIn ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`, borderRadius: "6px", padding: "1px 8px", fontSize: "12px", fontWeight: "700" }}>
+                            <p style={{ color: C.text, fontSize: "15px", fontWeight: "700" }}>{itemName}</p>
+                            <span style={{ background: isIn ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isIn ? C.success : C.error, border: `1px solid ${isIn ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`, borderRadius: "6px", padding: "1px 8px", fontSize: "14px", fontWeight: "700" }}>
                               {isIn ? "+" : "-"}{mv.quantity} {itemUnit}
                             </span>
-                            <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid rgba(6,182,212,0.2)`, borderRadius: "6px", padding: "1px 8px", fontSize: "11px", fontWeight: "600" }}>
+                            <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid rgba(6,182,212,0.2)`, borderRadius: "6px", padding: "1px 8px", fontSize: "13px", fontWeight: "600" }}>
                               {isIn ? "Stock In" : "Stock Out"}
                             </span>
                           </div>
                           {/* Location + reason */}
                           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                             {locName && (
-                              <span style={{ color: C.sub, fontSize: "11px" }}>📍 {locName}</span>
+                              <span style={{ color: C.sub, fontSize: "13px" }}>📍 {locName}</span>
                             )}
                             {mv.reason && (
-                              <span style={{ color: C.sub, fontSize: "11px" }}>🏷️ {mv.reason}</span>
+                              <span style={{ color: C.sub, fontSize: "13px" }}>🏷️ {mv.reason}</span>
                             )}
                             {mv.performed_by_name && (
-                              <span style={{ color: C.sub, fontSize: "11px" }}>👤 {mv.performed_by_name}</span>
+                              <span style={{ color: C.sub, fontSize: "13px" }}>👤 {mv.performed_by_name}</span>
                             )}
                           </div>
                           {/* Notes */}
                           {mv.notes && (
-                            <p style={{ color: C.sub, fontSize: "11px", marginTop: "4px", fontStyle: "italic" }}>{mv.notes}</p>
+                            <p style={{ color: C.sub, fontSize: "13px", marginTop: "4px", fontStyle: "italic" }}>{mv.notes}</p>
                           )}
                         </div>
                       </div>
                       {/* Date */}
-                      <p style={{ color: C.sub, fontSize: "11px", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      <p style={{ color: C.sub, fontSize: "13px", whiteSpace: "nowrap", flexShrink: 0 }}>
                         {new Date(mv.created_at).toLocaleString("en-SG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>

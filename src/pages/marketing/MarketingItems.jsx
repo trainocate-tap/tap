@@ -32,9 +32,9 @@ function catBadge(cat) {
 }
 
 function StatusBadge({ qty, min }) {
-  if (qty <= 0) return <span style={{ background: "rgba(239,68,68,0.15)", color: C.error, border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🔴 Out of Stock</span>
-  if (qty <= min && min > 0) return <span style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🟡 Low Stock</span>
-  return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🟢 In Stock</span>
+  if (qty <= 0) return <span style={{ background: "rgba(239,68,68,0.15)", color: C.error, border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🔴 Out of Stock</span>
+  if (qty <= min && min > 0) return <span style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟡 Low Stock</span>
+  return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟢 In Stock</span>
 }
 
 export default function MarketingItems() {
@@ -296,7 +296,7 @@ export default function MarketingItems() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "rgba(16,185,129,0.95)", color: "#fff", borderRadius: "12px", padding: "12px 24px", fontSize: "14px", fontWeight: "600", boxShadow: "0 8px 30px rgba(0,0,0,0.3)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "rgba(16,185,129,0.95)", color: "#fff", borderRadius: "12px", padding: "12px 24px", fontSize: "16px", fontWeight: "600", boxShadow: "0 8px 30px rgba(0,0,0,0.3)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -307,7 +307,7 @@ export default function MarketingItems() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>📦 Marketing Items</h1>
-          <p style={{ color: C.sub, fontSize: "13px" }}>{items.length} items tracked</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>{items.length} items tracked</p>
         </div>
         {isAdmin && (
           <div style={{ display: "flex", gap: "10px" }}>
@@ -317,19 +317,19 @@ export default function MarketingItems() {
             />
             <button
               onClick={handleDownloadTemplate}
-              style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
+              style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}
             >
               📄 Download Template
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
+              style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}
             >
               📥 Import Items
             </button>
             <button
               onClick={() => setShowModal(true)}
-              style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
+              style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}
             >
               + Add New Item
             </button>
@@ -342,15 +342,15 @@ export default function MarketingItems() {
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search by name or code..."
-          style={{ flex: "1 1 200px", background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "13px", outline: "none" }}
+          style={{ flex: "1 1 200px", background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "15px", outline: "none" }}
         />
         <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
-          style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "13px" }}>
+          style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "15px" }}>
           <option>All</option>
           {CATEGORIES.map(c => <option key={c}>{c}</option>)}
         </select>
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-          style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "13px" }}>
+          style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "15px" }}>
           {["All", "In Stock", "Low Stock", "Out of Stock"].map(s => <option key={s}>{s}</option>)}
         </select>
       </div>
@@ -387,9 +387,9 @@ export default function MarketingItems() {
                 </div>
 
                 {/* Name & code */}
-                <p style={{ color: C.text, fontWeight: "700", fontSize: "15px", marginBottom: "4px" }}>{item.name}</p>
+                <p style={{ color: C.text, fontWeight: "700", fontSize: "17px", marginBottom: "4px" }}>{item.name}</p>
                 {item.item_code && (
-                  <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: "600" }}>
+                  <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 7px", fontSize: "12px", fontWeight: "600" }}>
                     #{item.item_code}
                   </span>
                 )}
@@ -397,7 +397,7 @@ export default function MarketingItems() {
                 {/* Category */}
                 {item.category && (
                   <div style={{ marginTop: "8px" }}>
-                    <span style={{ ...catBadge(item.category), borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>
+                    <span style={{ ...catBadge(item.category), borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>
                       {item.category}
                     </span>
                   </div>
@@ -410,7 +410,7 @@ export default function MarketingItems() {
                       <span key={v.id} title={`${v.variant_name}${v.color ? " · " + v.color : ""}${v.size ? " · " + v.size : ""}`}
                         style={{ width: "20px", height: "20px", borderRadius: "50%", background: v.color || C.accent, border: "2px solid rgba(255,255,255,0.2)", display: "inline-block", cursor: "help" }} />
                     ))}
-                    <span style={{ color: C.sub, fontSize: "11px", alignSelf: "center" }}>
+                    <span style={{ color: C.sub, fontSize: "13px", alignSelf: "center" }}>
                       {itemVariants.length} variant{itemVariants.length !== 1 ? "s" : ""}
                     </span>
                   </div>
@@ -420,15 +420,15 @@ export default function MarketingItems() {
 
                 {/* Stock info */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                  <span style={{ color: C.sub, fontSize: "12px" }}>Total Stock</span>
-                  <span style={{ color: qty <= (item.minimum_stock_level || 0) && qty > 0 ? C.warning : qty <= 0 ? C.error : C.success, fontWeight: "700", fontSize: "15px" }}>
+                  <span style={{ color: C.sub, fontSize: "14px" }}>Total Stock</span>
+                  <span style={{ color: qty <= (item.minimum_stock_level || 0) && qty > 0 ? C.warning : qty <= 0 ? C.error : C.success, fontWeight: "700", fontSize: "17px" }}>
                     {qty} {item.unit || "pcs"}
                   </span>
                 </div>
                 {item.minimum_stock_level > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <span style={{ color: C.sub, fontSize: "11px" }}>Min. level</span>
-                    <span style={{ color: C.sub, fontSize: "11px" }}>{item.minimum_stock_level} {item.unit || "pcs"}</span>
+                    <span style={{ color: C.sub, fontSize: "13px" }}>Min. level</span>
+                    <span style={{ color: C.sub, fontSize: "13px" }}>{item.minimum_stock_level} {item.unit || "pcs"}</span>
                   </div>
                 )}
 
@@ -437,8 +437,8 @@ export default function MarketingItems() {
                   <div style={{ marginTop: "8px" }}>
                     {Object.entries(stockByLoc).map(([loc, qty]) => (
                       <div key={loc} style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
-                        <span style={{ color: C.sub, fontSize: "11px" }}>{loc}</span>
-                        <span style={{ color: C.accent, fontSize: "11px", fontWeight: "600" }}>{qty}</span>
+                        <span style={{ color: C.sub, fontSize: "13px" }}>{loc}</span>
+                        <span style={{ color: C.accent, fontSize: "13px", fontWeight: "600" }}>{qty}</span>
                       </div>
                     ))}
                   </div>
@@ -448,13 +448,13 @@ export default function MarketingItems() {
                 {showCost && item.cost_per_unit && (
                   <div style={{ marginTop: "10px", padding: "8px", background: "rgba(6,182,212,0.06)", borderRadius: "8px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: C.sub, fontSize: "11px" }}>Cost/unit</span>
-                      <span style={{ color: C.text, fontSize: "12px", fontWeight: "600" }}>${item.cost_per_unit}</span>
+                      <span style={{ color: C.sub, fontSize: "13px" }}>Cost/unit</span>
+                      <span style={{ color: C.text, fontSize: "14px", fontWeight: "600" }}>${item.cost_per_unit}</span>
                     </div>
                     {item.supplier_name && (
                       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
-                        <span style={{ color: C.sub, fontSize: "11px" }}>Supplier</span>
-                        <span style={{ color: C.sub, fontSize: "11px" }}>{item.supplier_name}</span>
+                        <span style={{ color: C.sub, fontSize: "13px" }}>Supplier</span>
+                        <span style={{ color: C.sub, fontSize: "13px" }}>{item.supplier_name}</span>
                       </div>
                     )}
                   </div>
@@ -462,7 +462,7 @@ export default function MarketingItems() {
 
                 {/* Expiry */}
                 {item.expiry_date && (
-                  <div style={{ marginTop: "8px", color: new Date(item.expiry_date) < new Date() ? C.error : C.warning, fontSize: "11px" }}>
+                  <div style={{ marginTop: "8px", color: new Date(item.expiry_date) < new Date() ? C.error : C.warning, fontSize: "13px" }}>
                     ⏰ Expires: {item.expiry_date}
                   </div>
                 )}
@@ -502,7 +502,7 @@ export default function MarketingItems() {
 
               {/* Error banner */}
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px", color: C.error, fontSize: "15px" }}>
                   ⚠️ {saveError}
                 </div>
               )}
@@ -549,12 +549,12 @@ export default function MarketingItems() {
 
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <input type="checkbox" id="free_vendor" checked={form.is_free_from_vendor} onChange={e => handleFormChange("is_free_from_vendor", e.target.checked)} />
-                  <label htmlFor="free_vendor" style={{ color: C.sub, fontSize: "13px", cursor: "pointer" }}>Free from vendor (no cost)</label>
+                  <label htmlFor="free_vendor" style={{ color: C.sub, fontSize: "15px", cursor: "pointer" }}>Free from vendor (no cost)</label>
                 </div>
 
                 {!form.is_free_from_vendor && (
                   <div style={{ background: "rgba(6,182,212,0.04)", border: `1px solid ${C.border}`, borderRadius: "12px", padding: "14px" }}>
-                    <p style={{ color: C.accent, fontSize: "12px", fontWeight: "600", marginBottom: "10px" }}>Costing (Admin only)</p>
+                    <p style={{ color: C.accent, fontSize: "14px", fontWeight: "600", marginBottom: "10px" }}>Costing (Admin only)</p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                       <Field label="Cost/Unit ($)">
                         <input type="number" value={form.cost_per_unit} onChange={e => handleFormChange("cost_per_unit", e.target.value)} placeholder="0.00" step="0.01" style={inputStyle} />
@@ -575,18 +575,18 @@ export default function MarketingItems() {
                 {/* Variants */}
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                    <p style={{ color: C.sub, fontSize: "13px", fontWeight: "600" }}>Variants / Colors</p>
+                    <p style={{ color: C.sub, fontSize: "15px", fontWeight: "600" }}>Variants / Colors</p>
                     <button onClick={() => setFormVariants(prev => [...prev, { variant_name: "", color: "", size: "" }])}
-                      style={{ color: C.accent, background: "none", border: "none", cursor: "pointer", fontSize: "12px" }}>+ Add Variant</button>
+                      style={{ color: C.accent, background: "none", border: "none", cursor: "pointer", fontSize: "14px" }}>+ Add Variant</button>
                   </div>
                   {formVariants.map((v, i) => (
                     <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px 30px", gap: "6px", marginBottom: "6px", alignItems: "center" }}>
                       <input value={v.variant_name} onChange={e => { const arr = [...formVariants]; arr[i].variant_name = e.target.value; setFormVariants(arr) }}
-                        placeholder="Variant name" style={{ ...inputStyle, fontSize: "12px", padding: "6px 10px" }} />
+                        placeholder="Variant name" style={{ ...inputStyle, fontSize: "14px", padding: "6px 10px" }} />
                       <input value={v.color} onChange={e => { const arr = [...formVariants]; arr[i].color = e.target.value; setFormVariants(arr) }}
-                        placeholder="Color" style={{ ...inputStyle, fontSize: "12px", padding: "6px 10px" }} />
+                        placeholder="Color" style={{ ...inputStyle, fontSize: "14px", padding: "6px 10px" }} />
                       <input value={v.size} onChange={e => { const arr = [...formVariants]; arr[i].size = e.target.value; setFormVariants(arr) }}
-                        placeholder="Size" style={{ ...inputStyle, fontSize: "12px", padding: "6px 10px" }} />
+                        placeholder="Size" style={{ ...inputStyle, fontSize: "14px", padding: "6px 10px" }} />
                       {formVariants.length > 1 && (
                         <button onClick={() => setFormVariants(prev => prev.filter((_, idx) => idx !== i))}
                           style={{ color: C.error, background: "none", border: "none", cursor: "pointer", fontSize: "16px" }}>✕</button>
@@ -597,11 +597,11 @@ export default function MarketingItems() {
 
                 <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
                   <button onClick={() => { setShowModal(false); resetForm() }}
-                    style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                    style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
                     Cancel
                   </button>
                   <button onClick={handleSave} disabled={saving || !form.name}
-                    style={{ flex: 2, background: saving ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "13px", fontWeight: "600", cursor: saving ? "not-allowed" : "pointer" }}>
+                    style={{ flex: 2, background: saving ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: saving ? "not-allowed" : "pointer" }}>
                     {saving ? "Saving..." : "Save Item"}
                   </button>
                 </div>
@@ -634,14 +634,14 @@ export default function MarketingItems() {
               </div>
 
               {importError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px", color: C.error, fontSize: "15px" }}>
                   ⚠️ {importError}
                 </div>
               )}
 
               {importRows.length > 0 && (
                 <>
-                  <p style={{ color: C.sub, fontSize: "13px", marginBottom: "12px" }}>
+                  <p style={{ color: C.sub, fontSize: "15px", marginBottom: "12px" }}>
                     {importRows.filter(r => r.name).length} item{importRows.filter(r => r.name).length !== 1 ? "s" : ""} ready to import
                     {importRows.some(r => !r.name) && (
                       <span style={{ color: C.warning }}> · {importRows.filter(r => !r.name).length} row{importRows.filter(r => !r.name).length !== 1 ? "s" : ""} skipped (missing name)</span>
@@ -672,8 +672,8 @@ export default function MarketingItems() {
                               <td style={{ color: C.sub, padding: "7px 10px" }}>{row.tax || "—"}</td>
                               <td style={{ padding: "7px 10px" }}>
                                 {row.name
-                                  ? <span style={{ color: C.success, fontSize: "12px" }}>✅</span>
-                                  : <span style={{ color: C.error, fontSize: "12px" }}>⚠️ skip</span>}
+                                  ? <span style={{ color: C.success, fontSize: "14px" }}>✅</span>
+                                  : <span style={{ color: C.error, fontSize: "14px" }}>⚠️ skip</span>}
                               </td>
                             </tr>
                           ))}
@@ -686,11 +686,11 @@ export default function MarketingItems() {
 
               <div style={{ display: "flex", gap: "10px" }}>
                 <button onClick={() => { setShowImportModal(false); setImportRows([]); setImportError(null) }} disabled={importing}
-                  style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                  style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
                   Cancel
                 </button>
                 <button onClick={handleConfirmImport} disabled={importing || importRows.filter(r => r.name).length === 0}
-                  style={{ flex: 2, background: importing ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "13px", fontWeight: "600", cursor: importing ? "not-allowed" : "pointer" }}>
+                  style={{ flex: 2, background: importing ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: importing ? "not-allowed" : "pointer" }}>
                   {importing ? "Importing..." : `Import ${importRows.filter(r => r.name).length || ""} Item${importRows.filter(r => r.name).length !== 1 ? "s" : ""}`}
                 </button>
               </div>
@@ -705,13 +705,13 @@ export default function MarketingItems() {
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#ffffff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )

@@ -97,7 +97,7 @@ export default function MarketingHistory() {
     <div style={{ padding: "24px" }}>
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>📜 History</h1>
-        <p style={{ color: C.sub, fontSize: "13px" }}>
+        <p style={{ color: C.sub, fontSize: "15px" }}>
           {canManageMarketing ? "Full audit trail — all users" : "Your activity only"}
         </p>
       </div>
@@ -110,7 +110,7 @@ export default function MarketingHistory() {
           ["stocktake", `🔢 Stocktake (${stocktakes.length})`],
         ].map(([t, label]) => (
           <button key={t} onClick={() => setActiveTab(t)} style={{
-            padding: "8px 16px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "13px",
+            padding: "8px 16px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "15px",
             background: activeTab === t ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(6,182,212,0.08)",
             color: activeTab === t ? "#fff" : C.sub,
           }}>{label}</button>
@@ -120,18 +120,18 @@ export default function MarketingHistory() {
       {/* Date filters */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <span style={{ color: C.sub, fontSize: "12px" }}>From</span>
+          <span style={{ color: C.sub, fontSize: "14px" }}>From</span>
           <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)}
-            style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "13px", outline: "none" }} />
+            style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <span style={{ color: C.sub, fontSize: "12px" }}>To</span>
+          <span style={{ color: C.sub, fontSize: "14px" }}>To</span>
           <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)}
-            style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "13px", outline: "none" }} />
+            style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }} />
         </div>
         {(filterFrom || filterTo) && (
           <button onClick={() => { setFilterFrom(""); setFilterTo("") }}
-            style={{ background: "rgba(239,68,68,0.1)", color: C.error, border: "none", borderRadius: "8px", padding: "8px 12px", fontSize: "12px", cursor: "pointer" }}>
+            style={{ background: "rgba(239,68,68,0.1)", color: C.error, border: "none", borderRadius: "8px", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>
             Clear
           </button>
         )}
@@ -154,23 +154,23 @@ export default function MarketingHistory() {
                       <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                         <span style={{ fontSize: "20px", flexShrink: 0, marginTop: "1px" }}>{isIn ? "📥" : "📤"}</span>
                         <div>
-                          <p style={{ color: C.text, fontSize: "13px", fontWeight: "600" }}>
+                          <p style={{ color: C.text, fontSize: "15px", fontWeight: "600" }}>
                             {itemName(m.item_id)}
                             {" · "}
                             <span style={{ color: isIn ? C.success : C.error }}>
                               {isIn ? "+" : "-"}{m.quantity} {items.find(i => i.id === m.item_id)?.unit || "units"}
                             </span>
                           </p>
-                          <p style={{ color: C.sub, fontSize: "11px", marginTop: "3px" }}>
+                          <p style={{ color: C.sub, fontSize: "13px", marginTop: "3px" }}>
                             {isIn ? "Stock In" : "Stock Out"}
                             {loc ? ` · 📍 ${loc}` : ""}
                             {m.performed_by_name ? ` · by ${m.performed_by_name}` : ""}
                             {m.reason ? ` · ${m.reason}` : ""}
                           </p>
-                          {m.notes && <p style={{ color: C.sub, fontSize: "11px", fontStyle: "italic", marginTop: "2px" }}>{m.notes}</p>}
+                          {m.notes && <p style={{ color: C.sub, fontSize: "13px", fontStyle: "italic", marginTop: "2px" }}>{m.notes}</p>}
                         </div>
                       </div>
-                      <p style={{ color: C.sub, fontSize: "11px", flexShrink: 0 }}>{fmtDate(m.created_at)}</p>
+                      <p style={{ color: C.sub, fontSize: "13px", flexShrink: 0 }}>{fmtDate(m.created_at)}</p>
                     </div>
                   </motion.div>
                 )
@@ -188,21 +188,21 @@ export default function MarketingHistory() {
                 <div key={a.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "14px 16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
                     <div>
-                      <p style={{ color: C.text, fontSize: "13px", fontWeight: "600" }}>
+                      <p style={{ color: C.text, fontSize: "15px", fontWeight: "600" }}>
                         {a.requested_by_name || "Unknown"} requested {itemName(a.item_id)} × {a.quantity}
                       </p>
-                      {a.reason && <p style={{ color: C.sub, fontSize: "11px", marginTop: "3px" }}>Reason: {a.reason}</p>}
-                      {a.rejection_reason && <p style={{ color: C.error, fontSize: "11px", marginTop: "2px" }}>Rejected: {a.rejection_reason}</p>}
-                      {a.approver_name && <p style={{ color: C.sub, fontSize: "11px", marginTop: "2px" }}>Reviewed by: {a.approver_name}</p>}
+                      {a.reason && <p style={{ color: C.sub, fontSize: "13px", marginTop: "3px" }}>Reason: {a.reason}</p>}
+                      {a.rejection_reason && <p style={{ color: C.error, fontSize: "13px", marginTop: "2px" }}>Rejected: {a.rejection_reason}</p>}
+                      {a.approver_name && <p style={{ color: C.sub, fontSize: "13px", marginTop: "2px" }}>Reviewed by: {a.approver_name}</p>}
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
                       <span style={{
                         background: a.status === "approved" ? "rgba(16,185,129,0.15)" : a.status === "rejected" ? "rgba(239,68,68,0.12)" : "rgba(245,158,11,0.15)",
                         color: a.status === "approved" ? C.success : a.status === "rejected" ? C.error : C.warning,
                         border: a.status === "approved" ? "1px solid rgba(16,185,129,0.3)" : a.status === "rejected" ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(245,158,11,0.3)",
-                        borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600", textTransform: "capitalize",
+                        borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600", textTransform: "capitalize",
                       }}>{a.status}</span>
-                      <p style={{ color: C.sub, fontSize: "11px" }}>{fmtDate(a.created_at)}</p>
+                      <p style={{ color: C.sub, fontSize: "13px" }}>{fmtDate(a.created_at)}</p>
                     </div>
                   </div>
                 </div>
@@ -222,11 +222,11 @@ export default function MarketingHistory() {
                   <div key={s.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "14px 16px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
                       <div>
-                        <p style={{ color: C.text, fontSize: "13px", fontWeight: "600" }}>
+                        <p style={{ color: C.text, fontSize: "15px", fontWeight: "600" }}>
                           {itemName(s.item_id)}
                           {loc && <span style={{ color: C.sub, fontWeight: "400" }}> · 📍 {loc}</span>}
                         </p>
-                        <p style={{ color: C.sub, fontSize: "12px", marginTop: "3px" }}>
+                        <p style={{ color: C.sub, fontSize: "14px", marginTop: "3px" }}>
                           System: <b style={{ color: C.text }}>{s.system_quantity}</b>
                           {" · "}Actual: <b style={{ color: C.text }}>{s.actual_quantity}</b>
                           {" · "}Discrepancy:{" "}
@@ -234,10 +234,10 @@ export default function MarketingHistory() {
                             {s.discrepancy >= 0 ? "+" : ""}{s.discrepancy}
                           </b>
                         </p>
-                        {s.notes && <p style={{ color: C.sub, fontSize: "11px", fontStyle: "italic", marginTop: "2px" }}>{s.notes}</p>}
-                        {s.performed_by_name && <p style={{ color: C.sub, fontSize: "11px", marginTop: "2px" }}>by {s.performed_by_name}</p>}
+                        {s.notes && <p style={{ color: C.sub, fontSize: "13px", fontStyle: "italic", marginTop: "2px" }}>{s.notes}</p>}
+                        {s.performed_by_name && <p style={{ color: C.sub, fontSize: "13px", marginTop: "2px" }}>by {s.performed_by_name}</p>}
                       </div>
-                      <p style={{ color: C.sub, fontSize: "11px", flexShrink: 0 }}>{s.stocktake_date || fmtDate(s.created_at)}</p>
+                      <p style={{ color: C.sub, fontSize: "13px", flexShrink: 0 }}>{s.stocktake_date || fmtDate(s.created_at)}</p>
                     </div>
                   </div>
                 )

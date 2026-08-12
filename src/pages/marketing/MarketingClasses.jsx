@@ -15,25 +15,25 @@ const CLASS_TYPES = ["AWS", "CISCO", "Microsoft", "Red Hat", "Soft Skills", "PMI
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#fff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )
 }
 
 function PackingBadge({ gifts }) {
-  if (!gifts?.length) return <span style={{ background: "rgba(148,163,184,0.1)", color: "#94a3b8", border: "1px solid rgba(148,163,184,0.2)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px" }}>No gifts</span>
+  if (!gifts?.length) return <span style={{ background: "rgba(148,163,184,0.1)", color: "#94a3b8", border: "1px solid rgba(148,163,184,0.2)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px" }}>No gifts</span>
   const allDist = gifts.every(g => g.is_distributed)
   const allPacked = gifts.every(g => g.is_packed)
-  if (allDist) return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🟢 Distributed</span>
-  if (allPacked) return <span style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🟡 Packed</span>
-  return <span style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🔴 Not Packed</span>
+  if (allDist) return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟢 Distributed</span>
+  if (allPacked) return <span style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟡 Packed</span>
+  return <span style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🔴 Not Packed</span>
 }
 
 const emptyForm = { class_name: "", class_type: "", class_date: "", end_date: "", pax_count: 0, pax_confirmed: 0, account_manager: "", person_in_charge: "", classroom: "", trainer_name: "", notes: "" }
@@ -343,7 +343,7 @@ export default function MarketingClasses() {
         {successMsg && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "14px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "16px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -353,10 +353,10 @@ export default function MarketingClasses() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>🎁 Class Gifts</h1>
-          <p style={{ color: C.sub, fontSize: "13px" }}>{classes.length} classes total</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>{classes.length} classes total</p>
         </div>
         {canManageMarketing && (
-          <button onClick={() => { setShowAddModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}>
+          <button onClick={() => { setShowAddModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}>
             + Add Class
           </button>
         )}
@@ -365,7 +365,7 @@ export default function MarketingClasses() {
       {/* This week's classes */}
       {weekClasses.length > 0 && (
         <div style={{ marginBottom: "28px" }}>
-          <h2 style={{ color: C.accent, fontSize: "15px", fontWeight: "700", marginBottom: "12px" }}>📅 This Week's Classes</h2>
+          <h2 style={{ color: C.accent, fontSize: "17px", fontWeight: "700", marginBottom: "12px" }}>📅 This Week's Classes</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {weekClasses.map(cls => <ClassCard key={cls.id} cls={cls} onAssign={() => { setShowGiftModal(cls); setGiftList([{ item_id: "", variant_id: "", quantity: 1 }]); setSaveError(null) }} onTrackReviews={() => { setShowReviewModal(cls); setReviewRows([{ attendee_name: "", left_review: false, gift_item_id: "" }]); setSaveError(null) }} onTiming={() => openTimingModal(cls)} onAttendance={() => openAttendanceModal(cls)} onPacked={() => handleMarkPacked(cls.id, cls.marketing_class_gifts)} onDistributed={() => handleMarkDistributed(cls.id, cls.marketing_class_gifts)} canManage={canManageMarketing} items={items} variants={variants} getItemStock={getItemStock} reviews={getClassReviews(cls.id)} timing={getClassTiming(cls.id)} attendance={getClassAttendance(cls.id)} />)}
           </div>
@@ -374,7 +374,7 @@ export default function MarketingClasses() {
 
       {/* All classes */}
       <div>
-        <h2 style={{ color: "#e2e8f0", fontSize: "15px", fontWeight: "700", marginBottom: "12px" }}>All Classes</h2>
+        <h2 style={{ color: "#e2e8f0", fontSize: "17px", fontWeight: "700", marginBottom: "12px" }}>All Classes</h2>
         {loading ? <p style={{ color: C.sub }}>Loading...</p> : (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {classes.length === 0 && <p style={{ color: C.sub, textAlign: "center", padding: "40px" }}>No classes yet. Add a class to get started.</p>}
@@ -389,7 +389,7 @@ export default function MarketingClasses() {
           <Modal title="Add New Class" onClose={() => { setShowAddModal(false); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
@@ -428,7 +428,7 @@ export default function MarketingClasses() {
           <Modal title={`Assign Gifts — ${showGiftModal.class_name}`} onClose={() => { setShowGiftModal(null); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
@@ -455,7 +455,7 @@ export default function MarketingClasses() {
                 </div>
               ))}
               <button onClick={() => setGiftList(prev => [...prev, { item_id: "", variant_id: "", quantity: 1 }])}
-                style={{ background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "12px", cursor: "pointer", fontWeight: "600" }}>
+                style={{ background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "14px", cursor: "pointer", fontWeight: "600" }}>
                 + Add Another Item
               </button>
               <div style={{ display: "flex", gap: "10px" }}>
@@ -473,14 +473,14 @@ export default function MarketingClasses() {
           <Modal title={`🎁 Track Google Reviews — ${showReviewModal.class_name}`} onClose={() => { setShowReviewModal(null); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
 
               {getClassReviews(showReviewModal.id).length > 0 && (
                 <div>
-                  <p style={{ color: C.sub, fontSize: "12px", fontWeight: "600", marginBottom: "8px" }}>Tracked attendees</p>
+                  <p style={{ color: C.sub, fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>Tracked attendees</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                     {getClassReviews(showReviewModal.id).map(r => {
                       const giftName = items.find(it => it.id === r.gift_item_id)?.name
@@ -490,7 +490,7 @@ export default function MarketingClasses() {
                             {r.attendee_name} — {r.left_review ? <span style={{ color: C.success }}>⭐ Left review</span> : <span style={{ color: C.sub }}>No review yet</span>}
                             {giftName && <span style={{ color: C.sub }}> · Gift: {giftName}</span>}
                           </span>
-                          <button onClick={() => handleDeleteReview(r.id)} style={{ color: C.error, background: "none", border: "none", cursor: "pointer", fontSize: "14px" }}>✕</button>
+                          <button onClick={() => handleDeleteReview(r.id)} style={{ color: C.error, background: "none", border: "none", cursor: "pointer", fontSize: "16px" }}>✕</button>
                         </div>
                       )
                     })}
@@ -499,13 +499,13 @@ export default function MarketingClasses() {
               )}
 
               <div>
-                <p style={{ color: C.sub, fontSize: "12px", fontWeight: "600", marginBottom: "8px" }}>Add attendees</p>
+                <p style={{ color: C.sub, fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>Add attendees</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {reviewRows.map((r, i) => (
                     <div key={i} style={{ display: "grid", gridTemplateColumns: "1.2fr 90px 1.2fr 30px", gap: "6px", alignItems: "center" }}>
                       <input value={r.attendee_name} onChange={e => { const arr = [...reviewRows]; arr[i].attendee_name = e.target.value; setReviewRows(arr) }}
                         placeholder="Attendee name" style={inputStyle} />
-                      <label style={{ display: "flex", alignItems: "center", gap: "5px", color: C.sub, fontSize: "11px", cursor: "pointer" }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: "5px", color: C.sub, fontSize: "13px", cursor: "pointer" }}>
                         <input type="checkbox" checked={r.left_review} onChange={e => { const arr = [...reviewRows]; arr[i].left_review = e.target.checked; setReviewRows(arr) }} />
                         Reviewed
                       </label>
@@ -522,7 +522,7 @@ export default function MarketingClasses() {
                   ))}
                 </div>
                 <button onClick={() => setReviewRows(prev => [...prev, { attendee_name: "", left_review: false, gift_item_id: "" }])}
-                  style={{ marginTop: "8px", background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "12px", cursor: "pointer", fontWeight: "600", width: "100%" }}>
+                  style={{ marginTop: "8px", background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "14px", cursor: "pointer", fontWeight: "600", width: "100%" }}>
                   + Add Attendee
                 </button>
               </div>
@@ -542,7 +542,7 @@ export default function MarketingClasses() {
           <Modal title={`⏱️ Trainer Timing — ${showTimingModal.class_name}`} onClose={() => { setShowTimingModal(null); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
@@ -578,7 +578,7 @@ export default function MarketingClasses() {
           <Modal title={`👥 Attendance — ${showAttendanceModal.class_name}`} onClose={() => { setShowAttendanceModal(null); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
@@ -586,12 +586,12 @@ export default function MarketingClasses() {
               <Field label="Paste comma-separated names (optional)">
                 <div style={{ display: "flex", gap: "8px" }}>
                   <input value={bulkPasteText} onChange={e => setBulkPasteText(e.target.value)} placeholder="e.g. John Tan, Mary Lim, Ahmad Faiz" style={inputStyle} />
-                  <button onClick={handleAddFromPaste} style={{ background: "rgba(6,182,212,0.15)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "0 14px", fontSize: "12px", fontWeight: "600", cursor: "pointer", whiteSpace: "nowrap" }}>Add List</button>
+                  <button onClick={handleAddFromPaste} style={{ background: "rgba(6,182,212,0.15)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "0 14px", fontSize: "14px", fontWeight: "600", cursor: "pointer", whiteSpace: "nowrap" }}>Add List</button>
                 </div>
               </Field>
 
               <div>
-                <p style={{ color: C.sub, fontSize: "12px", fontWeight: "600", marginBottom: "8px" }}>Attendees</p>
+                <p style={{ color: C.sub, fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>Attendees</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "320px", overflowY: "auto" }}>
                   {attendanceRows.map((r, i) => (
                     <div key={r.id || `new-${i}`} style={{ display: "grid", gridTemplateColumns: "1fr 110px 30px", gap: "6px", alignItems: "center" }}>
@@ -606,7 +606,7 @@ export default function MarketingClasses() {
                   ))}
                 </div>
                 <button onClick={() => setAttendanceRows(prev => [...prev, { attendee_name: "", status: "Present" }])}
-                  style={{ marginTop: "8px", background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "12px", cursor: "pointer", fontWeight: "600", width: "100%" }}>
+                  style={{ marginTop: "8px", background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "14px", cursor: "pointer", fontWeight: "600", width: "100%" }}>
                   + Add Attendee
                 </button>
               </div>
@@ -634,34 +634,34 @@ function ClassCard({ cls, onAssign, onTrackReviews, onTiming, onAttendance, onPa
     <motion.div whileHover={{ scale: 1.005 }} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "14px", padding: "16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "8px", marginBottom: "10px" }}>
         <div>
-          <p style={{ color: C.text, fontWeight: "700", fontSize: "15px" }}>{cls.class_name}</p>
+          <p style={{ color: C.text, fontWeight: "700", fontSize: "17px" }}>{cls.class_name}</p>
           <div style={{ display: "flex", gap: "8px", marginTop: "4px", flexWrap: "wrap" }}>
-            {cls.class_type && <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 8px", fontSize: "11px" }}>{cls.class_type}</span>}
+            {cls.class_type && <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 8px", fontSize: "13px" }}>{cls.class_type}</span>}
             <PackingBadge gifts={gifts} />
             {reviews?.length > 0 && (
-              <span style={{ background: "rgba(245,158,11,0.12)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "6px", padding: "1px 8px", fontSize: "11px", fontWeight: "600" }}>
+              <span style={{ background: "rgba(245,158,11,0.12)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "6px", padding: "1px 8px", fontSize: "13px", fontWeight: "600" }}>
                 ⭐ {reviewCount}/{reviews.length} reviews
               </span>
             )}
             {timing && (
-              <span style={{ background: "rgba(16,185,129,0.12)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "6px", padding: "1px 8px", fontSize: "11px", fontWeight: "600" }}>
+              <span style={{ background: "rgba(16,185,129,0.12)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "6px", padding: "1px 8px", fontSize: "13px", fontWeight: "600" }}>
                 ✅ Timing recorded
               </span>
             )}
             {attendance?.length > 0 && (
-              <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 8px", fontSize: "11px", fontWeight: "600" }}>
+              <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 8px", fontSize: "13px", fontWeight: "600" }}>
                 👥 {presentCount}/{attendance.length} attended
               </span>
             )}
           </div>
         </div>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          {canManage && <button onClick={onAssign} style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>🎁 Assign Gifts</button>}
-          {canManage && <button onClick={onTrackReviews} style={{ background: "rgba(245,158,11,0.12)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>🎁 Track Google Reviews</button>}
-          {canManage && <button onClick={onTiming} style={{ background: "rgba(16,185,129,0.12)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>⏱️ Trainer Timing</button>}
-          {canManage && <button onClick={onAttendance} style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>👥 Attendance</button>}
-          {canManage && !allPacked && gifts.length > 0 && <button onClick={onPacked} style={{ background: "rgba(245,158,11,0.12)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>📦 Mark Packed</button>}
-          {canManage && allPacked && !allDist && <button onClick={onDistributed} style={{ background: "rgba(16,185,129,0.12)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>✅ Mark Distributed</button>}
+          {canManage && <button onClick={onAssign} style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>🎁 Assign Gifts</button>}
+          {canManage && <button onClick={onTrackReviews} style={{ background: "rgba(245,158,11,0.12)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>🎁 Track Google Reviews</button>}
+          {canManage && <button onClick={onTiming} style={{ background: "rgba(16,185,129,0.12)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>⏱️ Trainer Timing</button>}
+          {canManage && <button onClick={onAttendance} style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>👥 Attendance</button>}
+          {canManage && !allPacked && gifts.length > 0 && <button onClick={onPacked} style={{ background: "rgba(245,158,11,0.12)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>📦 Mark Packed</button>}
+          {canManage && allPacked && !allDist && <button onClick={onDistributed} style={{ background: "rgba(16,185,129,0.12)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>✅ Mark Distributed</button>}
         </div>
       </div>
 
@@ -675,13 +675,13 @@ function ClassCard({ cls, onAssign, onTrackReviews, onTiming, onAttendance, onPa
 
       {gifts.length > 0 && (
         <div>
-          <p style={{ color: C.sub, fontSize: "11px", marginBottom: "5px" }}>Assigned gifts:</p>
+          <p style={{ color: C.sub, fontSize: "13px", marginBottom: "5px" }}>Assigned gifts:</p>
           <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
             {gifts.map(g => {
               const itemName = items.find(it => it.id === g.item_id)?.name || "?"
               const variantName = variants.find(v => v.id === g.variant_id)?.variant_name
               return (
-                <span key={g.id} style={{ background: "rgba(6,182,212,0.08)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "3px 10px", fontSize: "11px" }}>
+                <span key={g.id} style={{ background: "rgba(6,182,212,0.08)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "3px 10px", fontSize: "13px" }}>
                   {itemName} × {g.quantity}
                   {variantName && ` (${variantName})`}
                   {g.is_distributed ? " ✅" : g.is_packed ? " 📦" : ""}
@@ -696,7 +696,7 @@ function ClassCard({ cls, onAssign, onTrackReviews, onTiming, onAttendance, onPa
 }
 
 function Info({ icon, label }) {
-  return <span style={{ color: "#94a3b8", fontSize: "11px" }}>{icon} {label}</span>
+  return <span style={{ color: "#94a3b8", fontSize: "13px" }}>{icon} {label}</span>
 }
 
 const C_local = C

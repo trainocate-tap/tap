@@ -13,13 +13,13 @@ const C = {
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#fff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )
@@ -115,7 +115,7 @@ export default function MarketingSettings() {
         {successMsg && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: successMsg.startsWith("❌") ? "#ef4444" : "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "14px", boxShadow: "0 4px 20px rgba(0,0,0,0.3)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: successMsg.startsWith("❌") ? "#ef4444" : "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.3)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -145,17 +145,17 @@ export default function MarketingSettings() {
               }}
             >
               <p style={{ color: C.text, fontWeight: "700", fontSize: "16px", margin: "0 0 8px" }}>Delete "{deleteTarget.name}"?</p>
-              <p style={{ color: C.sub, fontSize: "13px", margin: "0 0 20px", lineHeight: 1.5 }}>This may affect stock records tied to this location. This action cannot be undone.</p>
+              <p style={{ color: C.sub, fontSize: "15px", margin: "0 0 20px", lineHeight: 1.5 }}>This may affect stock records tied to this location. This action cannot be undone.</p>
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                 <button
                   onClick={() => setDeleteTarget(null)}
-                  style={{ padding: "8px 16px", borderRadius: "8px", border: `1px solid ${C.border}`, background: "transparent", color: C.sub, fontSize: "13px", fontWeight: "600", cursor: "pointer" }}
+                  style={{ padding: "8px 16px", borderRadius: "8px", border: `1px solid ${C.border}`, background: "transparent", color: C.sub, fontSize: "15px", fontWeight: "600", cursor: "pointer" }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDeleteLocation}
-                  style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: C.error, color: "#fff", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}
+                  style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: C.error, color: "#fff", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}
                 >
                   Delete
                 </button>
@@ -167,14 +167,14 @@ export default function MarketingSettings() {
 
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>⚙️ Marketing Settings</h1>
-        <p style={{ color: C.sub, fontSize: "13px" }}>Configure approval thresholds, locations, and more</p>
+        <p style={{ color: C.sub, fontSize: "15px" }}>Configure approval thresholds, locations, and more</p>
       </div>
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: "6px", marginBottom: "24px", flexWrap: "wrap" }}>
         {[["locations", "📍 Storage Locations"], ["approvals", "✅ Approval Settings"], ["export", "📤 Export Data"]].map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)} style={{
-            padding: "9px 18px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "13px",
+            padding: "9px 18px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "15px",
             background: tab === t ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(6,182,212,0.08)",
             color: tab === t ? "#fff" : C.sub,
           }}>{label}</button>
@@ -185,9 +185,9 @@ export default function MarketingSettings() {
       {tab === "locations" && (
         <div style={{ maxWidth: "600px" }}>
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px", marginBottom: "16px" }}>
-            <p style={{ color: C.text, fontWeight: "600", fontSize: "15px", marginBottom: "16px" }}>Add New Location</p>
+            <p style={{ color: C.text, fontWeight: "600", fontSize: "17px", marginBottom: "16px" }}>Add New Location</p>
             {locationError && (
-              <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px", marginBottom: "12px" }}>
+              <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px", marginBottom: "12px" }}>
                 {locationError}
               </div>
             )}
@@ -202,7 +202,7 @@ export default function MarketingSettings() {
               <button
                 onClick={handleAddLocation}
                 disabled={saving || !newLocation.trim()}
-                style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "8px", padding: "9px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap", opacity: saving ? 0.6 : 1 }}
+                style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "8px", padding: "9px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer", whiteSpace: "nowrap", opacity: saving ? 0.6 : 1 }}
               >
                 {saving ? "Adding..." : "Add Location"}
               </button>
@@ -210,7 +210,7 @@ export default function MarketingSettings() {
           </div>
 
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px" }}>
-            <p style={{ color: C.text, fontWeight: "600", fontSize: "15px", marginBottom: "16px" }}>Storage Locations ({locations.length})</p>
+            <p style={{ color: C.text, fontWeight: "600", fontSize: "17px", marginBottom: "16px" }}>Storage Locations ({locations.length})</p>
             {loading ? <p style={{ color: C.sub }}>Loading...</p> : (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {locations.map(loc => (
@@ -218,12 +218,12 @@ export default function MarketingSettings() {
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       <span style={{ fontSize: "16px" }}>📍</span>
                       <div>
-                        <p style={{ color: C.text, fontSize: "13px", fontWeight: "500" }}>{loc.name}</p>
-                        {loc.description && <p style={{ color: C.sub, fontSize: "11px" }}>{loc.description}</p>}
+                        <p style={{ color: C.text, fontSize: "15px", fontWeight: "500" }}>{loc.name}</p>
+                        {loc.description && <p style={{ color: C.sub, fontSize: "13px" }}>{loc.description}</p>}
                       </div>
                     </div>
                     <button onClick={() => handleDeleteLocation(loc.id, loc.name)}
-                      style={{ background: "rgba(239,68,68,0.1)", color: C.error, border: "1px solid rgba(239,68,68,0.2)", borderRadius: "6px", padding: "4px 10px", fontSize: "11px", cursor: "pointer" }}>
+                      style={{ background: "rgba(239,68,68,0.1)", color: C.error, border: "1px solid rgba(239,68,68,0.2)", borderRadius: "6px", padding: "4px 10px", fontSize: "13px", cursor: "pointer" }}>
                       Delete
                     </button>
                   </div>
@@ -239,7 +239,7 @@ export default function MarketingSettings() {
       {tab === "approvals" && (
         <div style={{ maxWidth: "500px" }}>
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "24px" }}>
-            <p style={{ color: C.text, fontWeight: "600", fontSize: "15px", marginBottom: "20px" }}>Approval Thresholds</p>
+            <p style={{ color: C.text, fontWeight: "600", fontSize: "17px", marginBottom: "20px" }}>Approval Thresholds</p>
 
             <Field label="Small Quantity Threshold (items ≤ this need Vivian or Siti)">
               <input type="number" min={1} value={approvalThreshold} onChange={e => setApprovalThreshold(parseInt(e.target.value))}
@@ -247,20 +247,20 @@ export default function MarketingSettings() {
             </Field>
 
             <div style={{ background: "rgba(6,182,212,0.04)", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "14px", marginTop: "16px" }}>
-              <p style={{ color: C.accent, fontSize: "12px", fontWeight: "600", marginBottom: "8px" }}>Approval Matrix</p>
+              <p style={{ color: C.accent, fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>Approval Matrix</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: C.sub, fontSize: "12px" }}>Qty ≤ {approvalThreshold} items</span>
-                  <span style={{ color: C.text, fontSize: "12px", fontWeight: "600" }}>Vivian or Siti</span>
+                  <span style={{ color: C.sub, fontSize: "14px" }}>Qty ≤ {approvalThreshold} items</span>
+                  <span style={{ color: C.text, fontSize: "14px", fontWeight: "600" }}>Vivian or Siti</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: C.sub, fontSize: "12px" }}>Qty &gt; {approvalThreshold} items</span>
-                  <span style={{ color: C.warning, fontSize: "12px", fontWeight: "600" }}>April (senior approval)</span>
+                  <span style={{ color: C.sub, fontSize: "14px" }}>Qty &gt; {approvalThreshold} items</span>
+                  <span style={{ color: C.warning, fontSize: "14px", fontWeight: "600" }}>April (senior approval)</span>
                 </div>
               </div>
             </div>
 
-            <p style={{ color: C.sub, fontSize: "12px", marginTop: "20px" }}>Auto-reminder: Pending requests older than 3 days trigger a reminder notification to the approver.</p>
+            <p style={{ color: C.sub, fontSize: "14px", marginTop: "20px" }}>Auto-reminder: Pending requests older than 3 days trigger a reminder notification to the approver.</p>
           </div>
         </div>
       )}
@@ -269,8 +269,8 @@ export default function MarketingSettings() {
       {tab === "export" && (
         <div style={{ maxWidth: "500px" }}>
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "24px" }}>
-            <p style={{ color: C.text, fontWeight: "600", fontSize: "15px", marginBottom: "20px" }}>Export All Marketing Data</p>
-            <p style={{ color: C.sub, fontSize: "13px", marginBottom: "20px" }}>
+            <p style={{ color: C.text, fontWeight: "600", fontSize: "17px", marginBottom: "20px" }}>Export All Marketing Data</p>
+            <p style={{ color: C.sub, fontSize: "15px", marginBottom: "20px" }}>
               Export all data from the marketing module as CSV files. This includes items, stock, movements, classes, events, and approvals.
             </p>
 
@@ -283,7 +283,7 @@ export default function MarketingSettings() {
               { label: "Approvals", table: "marketing_approvals", icon: "✅" },
             ].map(({ label, table, icon }) => (
               <div key={table} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid rgba(6,182,212,0.08)` }}>
-                <span style={{ color: C.text, fontSize: "13px" }}>{icon} {label}</span>
+                <span style={{ color: C.text, fontSize: "15px" }}>{icon} {label}</span>
                 <button
                   onClick={async () => {
                     const { data } = await supabase.from(table).select("*")
@@ -295,7 +295,7 @@ export default function MarketingSettings() {
                     const a = document.createElement("a"); a.href = url; a.download = `${table}_export.csv`; a.click()
                     showSuccess(`✅ ${label} exported!`)
                   }}
-                  style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "6px 14px", fontSize: "12px", cursor: "pointer" }}>
+                  style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "6px 14px", fontSize: "14px", cursor: "pointer" }}>
                   Export CSV
                 </button>
               </div>

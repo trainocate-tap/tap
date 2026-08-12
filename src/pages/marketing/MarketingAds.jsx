@@ -21,13 +21,13 @@ const platformIcon = {
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#fff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )
@@ -39,7 +39,7 @@ function StatusBadge({ status }) {
     Paused: { bg: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)" },
     Completed: { bg: "rgba(148,163,184,0.12)", color: "#94a3b8", border: "1px solid rgba(148,163,184,0.2)" },
   }[status] || {}
-  return <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>{status}</span>
+  return <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>{status}</span>
 }
 
 function StatCard({ icon, label, value, color }) {
@@ -47,7 +47,7 @@ function StatCard({ icon, label, value, color }) {
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "14px", padding: "16px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
         <span style={{ fontSize: "16px" }}>{icon}</span>
-        <span style={{ color: C.sub, fontSize: "12px", fontWeight: "600" }}>{label}</span>
+        <span style={{ color: C.sub, fontSize: "14px", fontWeight: "600" }}>{label}</span>
       </div>
       <p style={{ color: color || C.text, fontSize: "22px", fontWeight: "800" }}>{value}</p>
     </div>
@@ -190,7 +190,7 @@ export default function MarketingAds() {
         {successMsg && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "14px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "16px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -200,9 +200,9 @@ export default function MarketingAds() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>📢 Paid Ads</h1>
-          <p style={{ color: C.sub, fontSize: "13px" }}>{ads.length} campaign{ads.length !== 1 ? "s" : ""} tracked</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>{ads.length} campaign{ads.length !== 1 ? "s" : ""} tracked</p>
         </div>
-        <button onClick={openAddModal} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}>
+        <button onClick={openAddModal} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}>
           + Add Campaign
         </button>
       </div>
@@ -235,16 +235,16 @@ export default function MarketingAds() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px", marginBottom: "10px" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                      <p style={{ color: C.text, fontWeight: "700", fontSize: "15px" }}>{ad.campaign_name}</p>
+                      <p style={{ color: C.text, fontWeight: "700", fontSize: "17px" }}>{ad.campaign_name}</p>
                       <StatusBadge status={ad.status} />
                     </div>
-                    <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>
+                    <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>
                       {platformIcon[ad.platform] || "📢"} {ad.platform}
                     </span>
                   </div>
                   <div style={{ display: "flex", gap: "6px" }}>
-                    <button onClick={() => openEditModal(ad)} style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>✏️ Edit</button>
-                    <button onClick={() => handleDelete(ad)} style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>🗑️ Delete</button>
+                    <button onClick={() => openEditModal(ad)} style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>✏️ Edit</button>
+                    <button onClick={() => handleDelete(ad)} style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>🗑️ Delete</button>
                   </div>
                 </div>
 
@@ -256,10 +256,10 @@ export default function MarketingAds() {
                 </div>
 
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                  {ad.start_date && <span style={{ color: C.sub, fontSize: "11px" }}>📅 {ad.start_date}{ad.end_date ? ` → ${ad.end_date}` : ""}</span>}
+                  {ad.start_date && <span style={{ color: C.sub, fontSize: "13px" }}>📅 {ad.start_date}{ad.end_date ? ` → ${ad.end_date}` : ""}</span>}
                 </div>
 
-                {ad.notes && <p style={{ color: C.sub, fontSize: "12px", marginTop: "8px", fontStyle: "italic" }}>{ad.notes}</p>}
+                {ad.notes && <p style={{ color: C.sub, fontSize: "14px", marginTop: "8px", fontStyle: "italic" }}>{ad.notes}</p>}
               </motion.div>
             )
           })}
@@ -284,7 +284,7 @@ export default function MarketingAds() {
               </div>
 
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "12px 14px", marginBottom: "16px", color: C.error, fontSize: "15px" }}>
                   ⚠️ {saveError}
                 </div>
               )}
@@ -335,11 +335,11 @@ export default function MarketingAds() {
 
                 <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
                   <button onClick={() => setShowModal(false)}
-                    style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                    style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
                     Cancel
                   </button>
                   <button onClick={handleSave} disabled={saving || !form.campaign_name.trim()}
-                    style={{ flex: 2, background: saving ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "13px", fontWeight: "600", cursor: saving ? "not-allowed" : "pointer" }}>
+                    style={{ flex: 2, background: saving ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: saving ? "not-allowed" : "pointer" }}>
                     {saving ? "Saving..." : editingAd ? "Save Changes" : "Add Campaign"}
                   </button>
                 </div>
@@ -356,7 +356,7 @@ function Info({ label, value, color }) {
   return (
     <div>
       <p style={{ color: C.sub, fontSize: "10.5px", textTransform: "uppercase", letterSpacing: "0.3px" }}>{label}</p>
-      <p style={{ color: color || C.text, fontSize: "13px", fontWeight: "700" }}>{value}</p>
+      <p style={{ color: color || C.text, fontSize: "15px", fontWeight: "700" }}>{value}</p>
     </div>
   )
 }

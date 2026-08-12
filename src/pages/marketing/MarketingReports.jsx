@@ -27,14 +27,14 @@ const ALL_REPORTS = [
 ]
 
 const th = (h) => (
-  <th style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+  <th style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>
     {h}
   </th>
 )
 
 function Td({ children, align = "left", color }) {
   return (
-    <td style={{ color: color || "#e2e8f0", padding: "9px 12px", textAlign: align, fontSize: "13px" }}>
+    <td style={{ color: color || "#e2e8f0", padding: "9px 12px", textAlign: align, fontSize: "15px" }}>
       {children ?? "—"}
     </td>
   )
@@ -43,8 +43,8 @@ function Td({ children, align = "left", color }) {
 function Table({ headers, children }) {
   return (
     <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-        <thead><tr>{headers.map(h => <th key={h} style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
+        <thead><tr>{headers.map(h => <th key={h} style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
         <tbody>{children}</tbody>
       </table>
     </div>
@@ -450,14 +450,14 @@ export default function MarketingReports() {
     <div style={{ padding: "24px" }}>
       <div style={{ marginBottom: "24px" }}>
         <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>📋 Reports</h1>
-        <p style={{ color: C.sub, fontSize: "13px" }}>Generate and export marketing reports</p>
+        <p style={{ color: C.sub, fontSize: "15px" }}>Generate and export marketing reports</p>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "clamp(220px, 28%, 280px) 1fr", gap: "20px", alignItems: "start", overflowX: "auto" }}>
 
         {/* ── Report selector ── */}
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "16px" }}>
-          <p style={{ color: C.sub, fontSize: "11px", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Select Report</p>
+          <p style={{ color: C.sub, fontSize: "13px", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Select Report</p>
           {visibleReports.map(r => (
             <button key={r.id} onClick={() => { setSelectedReport(r.id); setReportData(null); setError(null) }}
               style={{
@@ -466,7 +466,7 @@ export default function MarketingReports() {
                 background: selectedReport === r.id ? "rgba(6,182,212,0.15)" : "transparent",
                 border: selectedReport === r.id ? `1px solid ${C.border}` : "1px solid transparent",
                 color: selectedReport === r.id ? C.accent : C.sub,
-                cursor: "pointer", fontSize: "13px", fontWeight: selectedReport === r.id ? "600" : "400",
+                cursor: "pointer", fontSize: "15px", fontWeight: selectedReport === r.id ? "600" : "400",
                 textAlign: "left", transition: "all 0.15s",
               }}
               onMouseEnter={e => { if (selectedReport !== r.id) { e.currentTarget.style.background = "rgba(6,182,212,0.07)"; e.currentTarget.style.color = "#e2e8f0" } }}
@@ -474,7 +474,7 @@ export default function MarketingReports() {
             >
               <span>{r.icon}</span>
               <span style={{ flex: 1 }}>{r.label}</span>
-              {r.adminOnly && <span style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa", borderRadius: "4px", padding: "1px 5px", fontSize: "9px" }}>Admin</span>}
+              {r.adminOnly && <span style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa", borderRadius: "4px", padding: "1px 5px", fontSize: "11px" }}>Admin</span>}
             </button>
           ))}
         </div>
@@ -485,49 +485,49 @@ export default function MarketingReports() {
             <div>
               {/* Config panel */}
               <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px", marginBottom: "16px" }}>
-                <p style={{ color: C.text, fontWeight: "600", fontSize: "15px", marginBottom: "16px" }}>
+                <p style={{ color: C.text, fontWeight: "600", fontSize: "17px", marginBottom: "16px" }}>
                   {reportMeta?.icon} {reportMeta?.label}
                 </p>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "16px", alignItems: "flex-end" }}>
                   <div>
-                    <p style={{ color: C.sub, fontSize: "11px", marginBottom: "4px" }}>From Date</p>
+                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>From Date</p>
                     <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "13px", outline: "none" }} />
+                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }} />
                   </div>
                   <div>
-                    <p style={{ color: C.sub, fontSize: "11px", marginBottom: "4px" }}>To Date</p>
+                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>To Date</p>
                     <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "13px", outline: "none" }} />
+                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }} />
                   </div>
                   {!dateFrom && !dateTo && (
-                    <p style={{ color: C.sub, fontSize: "11px", alignSelf: "center" }}>No date selected → shows all data</p>
+                    <p style={{ color: C.sub, fontSize: "13px", alignSelf: "center" }}>No date selected → shows all data</p>
                   )}
                 </div>
 
                 {error && (
-                  <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px", marginBottom: "12px" }}>
+                  <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px", marginBottom: "12px" }}>
                     ⚠️ {error}
                   </div>
                 )}
 
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button onClick={generateReport} disabled={loading || refLoading}
-                    style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 20px", fontWeight: "600", fontSize: "13px", cursor: (loading || refLoading) ? "not-allowed" : "pointer", opacity: (loading || refLoading) ? 0.6 : 1 }}>
+                    style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 20px", fontWeight: "600", fontSize: "15px", cursor: (loading || refLoading) ? "not-allowed" : "pointer", opacity: (loading || refLoading) ? 0.6 : 1 }}>
                     {refLoading ? "Loading data..." : loading ? "Generating..." : "Generate Report"}
                   </button>
                   {reportData?.rows?.length > 0 && (<>
                     <button onClick={exportCSV}
-                      style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "10px", padding: "10px 16px", fontWeight: "600", fontSize: "13px", cursor: "pointer", transition: "all 0.15s" }}
+                      style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "10px", padding: "10px 16px", fontWeight: "600", fontSize: "15px", cursor: "pointer", transition: "all 0.15s" }}
                       onMouseEnter={e => e.currentTarget.style.background = "rgba(16,185,129,0.28)"}
                       onMouseLeave={e => e.currentTarget.style.background = "rgba(16,185,129,0.15)"}
                     >⬇️ CSV</button>
                     <button onClick={exportExcel}
-                      style={{ background: "rgba(34,197,94,0.12)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "10px", padding: "10px 16px", fontWeight: "600", fontSize: "13px", cursor: "pointer", transition: "all 0.15s" }}
+                      style={{ background: "rgba(34,197,94,0.12)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "10px", padding: "10px 16px", fontWeight: "600", fontSize: "15px", cursor: "pointer", transition: "all 0.15s" }}
                       onMouseEnter={e => e.currentTarget.style.background = "rgba(34,197,94,0.25)"}
                       onMouseLeave={e => e.currentTarget.style.background = "rgba(34,197,94,0.12)"}
                     >📊 Excel</button>
                     <button onClick={exportPDF}
-                      style={{ background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "10px 16px", fontWeight: "600", fontSize: "13px", cursor: "pointer", transition: "all 0.15s" }}
+                      style={{ background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "10px 16px", fontWeight: "600", fontSize: "15px", cursor: "pointer", transition: "all 0.15s" }}
                       onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.22)"}
                       onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,0.12)"}
                     >📄 PDF</button>
@@ -540,10 +540,10 @@ export default function MarketingReports() {
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                   style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                    <p style={{ color: C.text, fontWeight: "600", fontSize: "14px" }}>
+                    <p style={{ color: C.text, fontWeight: "600", fontSize: "16px" }}>
                       {reportData.rows.length} record{reportData.rows.length !== 1 ? "s" : ""}
                     </p>
-                    <p style={{ color: C.sub, fontSize: "11px" }}>Generated: {reportData.generatedAt}</p>
+                    <p style={{ color: C.sub, fontSize: "13px" }}>Generated: {reportData.generatedAt}</p>
                   </div>
                   <ReportTable type={reportData.type} rows={reportData.rows} />
                 </motion.div>
@@ -614,11 +614,11 @@ function ReportTable({ type, rows }) {
 
   return (
     <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
         <thead>
           <tr>
             {labels.map(l => (
-              <th key={l} style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+              <th key={l} style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                 {l}
               </th>
             ))}
@@ -628,7 +628,7 @@ function ReportTable({ type, rows }) {
           {rows.map((row, i) => (
             <tr key={i} style={{ borderBottom: "1px solid rgba(6,182,212,0.06)" }}>
               {cols.map(col => (
-                <td key={col} style={{ color: colorFor(type, col, row[col]) || "#e2e8f0", padding: "9px 12px", fontSize: "13px" }}>
+                <td key={col} style={{ color: colorFor(type, col, row[col]) || "#e2e8f0", padding: "9px 12px", fontSize: "15px" }}>
                   {row[col] ?? "—"}
                 </td>
               ))}

@@ -197,7 +197,7 @@ export default function MarketingStocktake() {
         {successMsg && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "14px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "16px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -207,20 +207,20 @@ export default function MarketingStocktake() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>🔢 Stocktake</h1>
-          <p style={{ color: C.sub, fontSize: "13px" }}>Monthly physical count — verify and override quantities</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>Monthly physical count — verify and override quantities</p>
         </div>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-          <button onClick={exportCSV} style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "10px", padding: "9px 14px", fontSize: "12px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
+          <button onClick={exportCSV} style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "10px", padding: "9px 14px", fontSize: "14px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(16,185,129,0.28)"}
             onMouseLeave={e => e.currentTarget.style.background = "rgba(16,185,129,0.15)"}>
             ⬇️ CSV
           </button>
-          <button onClick={exportExcel} style={{ background: "rgba(34,197,94,0.12)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "10px", padding: "9px 14px", fontSize: "12px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
+          <button onClick={exportExcel} style={{ background: "rgba(34,197,94,0.12)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "10px", padding: "9px 14px", fontSize: "14px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(34,197,94,0.25)"}
             onMouseLeave={e => e.currentTarget.style.background = "rgba(34,197,94,0.12)"}>
             📊 Excel
           </button>
-          <button onClick={exportPDF} style={{ background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "9px 14px", fontSize: "12px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
+          <button onClick={exportPDF} style={{ background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "9px 14px", fontSize: "14px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.22)"}
             onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,0.12)"}>
             📄 PDF
@@ -231,15 +231,15 @@ export default function MarketingStocktake() {
       {/* Location filter */}
       <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
         <select value={filterLocation} onChange={e => setFilterLocation(e.target.value)}
-          style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "13px", outline: "none" }}>
+          style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "15px", outline: "none" }}>
           <option value="All">All Locations</option>
           {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>
       </div>
 
       <div style={{ background: "rgba(6,182,212,0.06)", border: `1px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", marginBottom: "20px" }}>
-        <p style={{ color: C.accent, fontSize: "12px", fontWeight: "600" }}>How to use:</p>
-        <p style={{ color: C.sub, fontSize: "12px", marginTop: "2px" }}>
+        <p style={{ color: C.accent, fontSize: "14px", fontWeight: "600" }}>How to use:</p>
+        <p style={{ color: C.sub, fontSize: "14px", marginTop: "2px" }}>
           Enter the actual physical count in the "Actual Qty" field. The system shows the current database quantity.
           Discrepancy = Actual − System. Click "Save" to update the database and record the stocktake.
         </p>
@@ -258,15 +258,15 @@ export default function MarketingStocktake() {
 
             return (
               <div key={location.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px" }}>
-                <h3 style={{ color: C.accent, fontSize: "15px", fontWeight: "700", marginBottom: "14px" }}>
+                <h3 style={{ color: C.accent, fontSize: "17px", fontWeight: "700", marginBottom: "14px" }}>
                   📍 {location.name}
                 </h3>
                 <div style={{ overflowX: "scroll", WebkitOverflowScrolling: "touch", width: "100%", display: "block" }}>
-                  <table style={{ width: "max-content", borderCollapse: "collapse", fontSize: "13px", minWidth: "800px" }}>
+                  <table style={{ width: "max-content", borderCollapse: "collapse", fontSize: "15px", minWidth: "800px" }}>
                     <thead>
                       <tr>
                         {["Item", "Unit", "System Qty", "Actual Qty", "Discrepancy", "Notes", ""].map(h => (
-                          <th key={h} style={{ color: C.sub, textAlign: "left", padding: "8px 10px", borderBottom: `1px solid ${C.border}`, fontSize: "11px", fontWeight: "600", textTransform: "uppercase" }}>{h}</th>
+                          <th key={h} style={{ color: C.sub, textAlign: "left", padding: "8px 10px", borderBottom: `1px solid ${C.border}`, fontSize: "13px", fontWeight: "600", textTransform: "uppercase" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -284,7 +284,7 @@ export default function MarketingStocktake() {
                           <tr key={item.id} style={{ borderBottom: `1px solid rgba(6,182,212,0.08)` }}>
                             <td style={{ color: C.text, padding: "8px 10px", fontWeight: "500" }}>
                               {item.name}
-                              {rowErr && <div style={{ color: C.error, fontSize: "10px", marginTop: "2px" }}>{rowErr}</div>}
+                              {rowErr && <div style={{ color: C.error, fontSize: "12px", marginTop: "2px" }}>{rowErr}</div>}
                             </td>
                             <td style={{ color: C.sub, padding: "8px 10px" }}>{item.unit}</td>
                             <td style={{ color: C.text, padding: "8px 10px", fontWeight: "600" }}>{sysQty}</td>
@@ -293,12 +293,12 @@ export default function MarketingStocktake() {
                                 type="number" min={0} value={actual}
                                 onChange={e => setActual(item.id, location.id, e.target.value)}
                                 placeholder={String(sysQty)}
-                                style={{ width: "70px", background: "rgba(6,182,212,0.08)", color: C.text, border: `1px solid ${rowErr ? C.error : C.border}`, borderRadius: "6px", padding: "5px 8px", fontSize: "13px", outline: "none" }}
+                                style={{ width: "70px", background: "rgba(6,182,212,0.08)", color: C.text, border: `1px solid ${rowErr ? C.error : C.border}`, borderRadius: "6px", padding: "5px 8px", fontSize: "15px", outline: "none" }}
                               />
                             </td>
                             <td style={{ padding: "8px 10px" }}>
                               {actual !== "" && (
-                                <span style={{ color: discrepancy > 0 ? C.success : discrepancy < 0 ? C.error : C.sub, fontWeight: "700", fontSize: "14px" }}>
+                                <span style={{ color: discrepancy > 0 ? C.success : discrepancy < 0 ? C.error : C.sub, fontWeight: "700", fontSize: "16px" }}>
                                   {discrepancy >= 0 ? "+" : ""}{discrepancy}
                                 </span>
                               )}
@@ -309,14 +309,14 @@ export default function MarketingStocktake() {
                                 value={stocktake[key]?.notes || ""}
                                 onChange={e => setNotes(item.id, location.id, e.target.value)}
                                 placeholder="Notes..."
-                                style={{ width: "120px", background: "rgba(6,182,212,0.04)", color: C.sub, border: `1px solid rgba(6,182,212,0.1)`, borderRadius: "6px", padding: "5px 8px", fontSize: "12px", outline: "none" }}
+                                style={{ width: "120px", background: "rgba(6,182,212,0.04)", color: C.sub, border: `1px solid rgba(6,182,212,0.1)`, borderRadius: "6px", padding: "5px 8px", fontSize: "14px", outline: "none" }}
                               />
                             </td>
                             <td style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: "8px" }}>
                               <button
                                 onClick={() => handleSaveRow(item, location)}
                                 disabled={saving || actual === ""}
-                                style={{ background: actual !== "" ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(148,163,184,0.1)", color: actual !== "" ? "#fff" : C.sub, border: "none", borderRadius: "6px", padding: "5px 12px", fontSize: "11px", fontWeight: "600", cursor: actual !== "" ? "pointer" : "not-allowed", opacity: saving ? 0.6 : 1 }}
+                                style={{ background: actual !== "" ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(148,163,184,0.1)", color: actual !== "" ? "#fff" : C.sub, border: "none", borderRadius: "6px", padding: "5px 12px", fontSize: "13px", fontWeight: "600", cursor: actual !== "" ? "pointer" : "not-allowed", opacity: saving ? 0.6 : 1 }}
                               >
                                 {saving ? "..." : "Save"}
                               </button>
@@ -324,7 +324,7 @@ export default function MarketingStocktake() {
                                 {isSaved && (
                                   <motion.span
                                     initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}
-                                    style={{ color: C.success, fontSize: "14px" }}
+                                    style={{ color: C.success, fontSize: "16px" }}
                                   >
                                     ✅
                                   </motion.span>

@@ -44,7 +44,7 @@ export default function Marketing() {
       <div className="p-8 flex flex-col items-center justify-center min-h-64">
         <span className="text-5xl mb-4">🔒</span>
         <h2 className="text-white text-xl font-bold mb-2">Access Denied</h2>
-        <p className="text-gray-400 text-sm">Marketing module is only available to Marketing team members.</p>
+        <p className="text-gray-400 text-base">Marketing module is only available to Marketing team members.</p>
       </div>
     )
   }
@@ -76,13 +76,13 @@ export default function Marketing() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white">🎯 Marketing Items</h1>
-          <p className="text-gray-400 mt-1 text-sm">{items.length} item{items.length !== 1 ? "s" : ""} tracked</p>
+          <p className="text-gray-400 mt-1 text-base">{items.length} item{items.length !== 1 ? "s" : ""} tracked</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate("/admin/marketing/new")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium self-start md:self-auto"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-base font-medium self-start md:self-auto"
         >
           + Add Item
         </motion.button>
@@ -95,14 +95,14 @@ export default function Marketing() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name or vendor…"
-          className="flex-1 bg-gray-900/80 text-white rounded-xl px-4 py-2.5 border border-gray-800 focus:border-blue-500 focus:outline-none text-sm"
+          className="flex-1 bg-gray-900/80 text-white rounded-xl px-4 py-2.5 border border-gray-800 focus:border-blue-500 focus:outline-none text-base"
         />
         <div className="flex gap-2 flex-wrap">
           {["All", ...CATEGORIES].map(cat => (
             <button
               key={cat}
               onClick={() => setFilterCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
                 filterCategory === cat
                   ? "bg-blue-600 border-blue-500 text-white"
                   : "bg-gray-900/80 border-gray-800 text-gray-400 hover:text-white"
@@ -124,7 +124,7 @@ export default function Marketing() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
           <span className="text-5xl mb-4 block">🎯</span>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-base">
             {search || filterCategory !== "All" ? "No items match your filters." : "No marketing items yet. Add your first item!"}
           </p>
         </div>
@@ -150,14 +150,14 @@ export default function Marketing() {
                   {/* Top row */}
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="min-w-0">
-                      <h3 className="text-white font-semibold text-sm group-hover:text-blue-400 transition-colors truncate">
+                      <h3 className="text-white font-semibold text-base group-hover:text-blue-400 transition-colors truncate">
                         {item.name}
                       </h3>
                       {item.vendor && (
-                        <p className="text-gray-500 text-xs mt-0.5 truncate">{item.vendor}</p>
+                        <p className="text-gray-500 text-sm mt-0.5 truncate">{item.vendor}</p>
                       )}
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${categoryColors[item.category] || categoryColors.Other}`}>
+                    <span className={`text-sm px-2 py-0.5 rounded-full border font-medium shrink-0 ${categoryColors[item.category] || categoryColors.Other}`}>
                       {item.category}
                     </span>
                   </div>
@@ -184,18 +184,18 @@ export default function Marketing() {
                   {/* Footer */}
                   <div className="flex items-center justify-between">
                     {item.cost_per_unit != null ? (
-                      <p className="text-gray-500 text-xs">S${Number(item.cost_per_unit).toFixed(2)} / {item.unit_of_measurement}</p>
+                      <p className="text-gray-500 text-sm">S${Number(item.cost_per_unit).toFixed(2)} / {item.unit_of_measurement}</p>
                     ) : (
                       <span />
                     )}
                     <div className="flex gap-1.5">
                       {lowStock && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 font-medium">
+                        <span className="text-sm px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 font-medium">
                           Low Stock
                         </span>
                       )}
                       {pending > 0 && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-medium">
+                        <span className="text-sm px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-medium">
                           {pending} pending
                         </span>
                       )}

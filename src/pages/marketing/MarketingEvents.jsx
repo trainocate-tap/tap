@@ -18,13 +18,13 @@ const STATUS_OPTS = ["upcoming", "ongoing", "completed", "cancelled"]
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#fff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )
@@ -38,7 +38,7 @@ function StatusBadge({ status }) {
     cancelled: { bg: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)" },
   }[status] || {}
   return (
-    <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600", textTransform: "capitalize" }}>
+    <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600", textTransform: "capitalize" }}>
       {status}
     </span>
   )
@@ -216,7 +216,7 @@ export default function MarketingEvents() {
         {successMsg && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "14px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "16px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -226,10 +226,10 @@ export default function MarketingEvents() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>🎪 Events</h1>
-          <p style={{ color: C.sub, fontSize: "13px" }}>{events.length} events total</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>{events.length} events total</p>
         </div>
         {canManageMarketing && (
-          <button onClick={() => { setShowAddModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}>
+          <button onClick={() => { setShowAddModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}>
             + Add Event
           </button>
         )}
@@ -249,15 +249,15 @@ export default function MarketingEvents() {
                   <p style={{ color: C.text, fontWeight: "700", fontSize: "16px", marginBottom: "6px" }}>{ev.event_name}</p>
                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                     <StatusBadge status={ev.status} />
-                    {ev.partner_category && <span style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px" }}>{ev.partner_category}</span>}
-                    {ev.event_modality && <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "2px 8px", fontSize: "11px" }}>{ev.event_modality}</span>}
-                    {ev.target_group && <span style={{ background: "rgba(16,185,129,0.1)", color: C.success, border: "1px solid rgba(16,185,129,0.2)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px" }}>{ev.target_group}</span>}
+                    {ev.partner_category && <span style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px" }}>{ev.partner_category}</span>}
+                    {ev.event_modality && <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "2px 8px", fontSize: "13px" }}>{ev.event_modality}</span>}
+                    {ev.target_group && <span style={{ background: "rgba(16,185,129,0.1)", color: C.success, border: "1px solid rgba(16,185,129,0.2)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px" }}>{ev.target_group}</span>}
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "6px" }}>
                   {canManageMarketing && (
                     <button onClick={() => { setShowCollateralModal(ev); setCollaterals([{ item_id: "", variant_id: "", quantity_needed: 1 }]); setSaveError(null) }}
-                      style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "11px", fontWeight: "600", cursor: "pointer" }}>
+                      style={{ background: "rgba(6,182,212,0.12)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "5px 10px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
                       📦 Collaterals
                     </button>
                   )}
@@ -276,29 +276,29 @@ export default function MarketingEvents() {
 
               {showBudget && (ev.budget || ev.actual_cost) && (
                 <div style={{ display: "flex", gap: "12px", background: "rgba(6,182,212,0.04)", borderRadius: "8px", padding: "8px 12px", marginBottom: "10px" }}>
-                  {ev.budget && <span style={{ color: C.sub, fontSize: "12px" }}>Budget: <b style={{ color: C.text }}>${ev.budget}</b></span>}
-                  {ev.actual_cost && <span style={{ color: C.sub, fontSize: "12px" }}>Actual: <b style={{ color: ev.actual_cost > ev.budget ? C.error : C.success }}>${ev.actual_cost}</b></span>}
+                  {ev.budget && <span style={{ color: C.sub, fontSize: "14px" }}>Budget: <b style={{ color: C.text }}>${ev.budget}</b></span>}
+                  {ev.actual_cost && <span style={{ color: C.sub, fontSize: "14px" }}>Actual: <b style={{ color: ev.actual_cost > ev.budget ? C.error : C.success }}>${ev.actual_cost}</b></span>}
                 </div>
               )}
 
               {ev.marketing_event_collaterals?.length > 0 && (
                 <div>
-                  <p style={{ color: C.sub, fontSize: "11px", marginBottom: "6px" }}>Collaterals:</p>
+                  <p style={{ color: C.sub, fontSize: "13px", marginBottom: "6px" }}>Collaterals:</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     {ev.marketing_event_collaterals.map(col => {
                       const colItemName = items.find(it => it.id === col.item_id)?.name || "?"
                       const colVariantName = variants.find(v => v.id === col.variant_id)?.variant_name
                       return (
                       <div key={col.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(6,182,212,0.04)", borderRadius: "8px", padding: "6px 10px" }}>
-                        <span style={{ color: C.text, fontSize: "12px" }}>
+                        <span style={{ color: C.text, fontSize: "14px" }}>
                           {colItemName} × {col.quantity_needed}
                           {colVariantName && ` (${colVariantName})`}
                         </span>
                         <div style={{ display: "flex", gap: "4px" }}>
-                          {!col.signed_out_at && <button onClick={() => setSignModal({ collateral: col, itemName: colItemName, mode: "out" })} style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "none", borderRadius: "6px", padding: "3px 8px", fontSize: "10px", cursor: "pointer" }}>Sign Out</button>}
-                          {col.signed_out_at && !col.signed_in_at && <button onClick={() => setSignModal({ collateral: col, itemName: colItemName, mode: "in" })} style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "none", borderRadius: "6px", padding: "3px 8px", fontSize: "10px", cursor: "pointer" }}>Sign In</button>}
-                          {col.signed_in_at && <span style={{ color: C.success, fontSize: "10px" }}>✅ Returned</span>}
-                          {col.signed_out_at && !col.signed_in_at && <span style={{ color: C.warning, fontSize: "10px" }}>📤 Out</span>}
+                          {!col.signed_out_at && <button onClick={() => setSignModal({ collateral: col, itemName: colItemName, mode: "out" })} style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "none", borderRadius: "6px", padding: "3px 8px", fontSize: "12px", cursor: "pointer" }}>Sign Out</button>}
+                          {col.signed_out_at && !col.signed_in_at && <button onClick={() => setSignModal({ collateral: col, itemName: colItemName, mode: "in" })} style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "none", borderRadius: "6px", padding: "3px 8px", fontSize: "12px", cursor: "pointer" }}>Sign In</button>}
+                          {col.signed_in_at && <span style={{ color: C.success, fontSize: "12px" }}>✅ Returned</span>}
+                          {col.signed_out_at && !col.signed_in_at && <span style={{ color: C.warning, fontSize: "12px" }}>📤 Out</span>}
                         </div>
                       </div>
                     )})}
@@ -316,7 +316,7 @@ export default function MarketingEvents() {
           <Modal title="Add New Event" onClose={() => { setShowAddModal(false); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
@@ -366,7 +366,7 @@ export default function MarketingEvents() {
               {showBudget && <Field label="Budget ($)"><input type="number" value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })} step="0.01" style={inputStyle} /></Field>}
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <input type="checkbox" id="ext_fund" checked={form.external_funding} onChange={e => setForm({ ...form, external_funding: e.target.checked })} />
-                <label htmlFor="ext_fund" style={{ color: C.sub, fontSize: "13px", cursor: "pointer" }}>External funding</label>
+                <label htmlFor="ext_fund" style={{ color: C.sub, fontSize: "15px", cursor: "pointer" }}>External funding</label>
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button onClick={() => { setShowAddModal(false); setSaveError(null); setForm(emptyForm) }} style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: "none", borderRadius: "10px", padding: "10px", fontWeight: "600", cursor: "pointer" }}>Cancel</button>
@@ -383,7 +383,7 @@ export default function MarketingEvents() {
           <Modal title={`Collaterals — ${showCollateralModal.event_name}`} onClose={() => { setShowCollateralModal(null); setSaveError(null) }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                   {saveError}
                 </div>
               )}
@@ -408,7 +408,7 @@ export default function MarketingEvents() {
                 </div>
               ))}
               <button onClick={() => setCollaterals(prev => [...prev, { item_id: "", variant_id: "", quantity_needed: 1 }])}
-                style={{ background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "12px", cursor: "pointer" }}>
+                style={{ background: "rgba(6,182,212,0.08)", color: C.accent, border: `1px dashed ${C.border}`, borderRadius: "8px", padding: "8px", fontSize: "14px", cursor: "pointer" }}>
                 + Add Item
               </button>
               <div style={{ display: "flex", gap: "10px" }}>
@@ -426,11 +426,11 @@ export default function MarketingEvents() {
           <Modal title={`${signModal.mode === "out" ? "✍️ Sign Out" : "✍️ Sign In"} Collateral`} onClose={() => setSignModal(null)}>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ background: "rgba(6,182,212,0.06)", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "10px 14px" }}>
-                <p style={{ color: C.text, fontSize: "13px", fontWeight: "600" }}>{signModal.itemName}</p>
-                <p style={{ color: C.sub, fontSize: "12px" }}>Quantity: {signModal.collateral.quantity_needed}</p>
+                <p style={{ color: C.text, fontSize: "15px", fontWeight: "600" }}>{signModal.itemName}</p>
+                <p style={{ color: C.sub, fontSize: "14px" }}>Quantity: {signModal.collateral.quantity_needed}</p>
               </div>
               <div>
-                <p style={{ color: C.sub, fontSize: "12px", marginBottom: "6px" }}>Sign below:</p>
+                <p style={{ color: C.sub, fontSize: "14px", marginBottom: "6px" }}>Sign below:</p>
                 <canvas
                   ref={canvasRef}
                   width={480}
@@ -463,7 +463,7 @@ export default function MarketingEvents() {
 }
 
 function Info({ icon, label }) {
-  return <span style={{ color: "#94a3b8", fontSize: "11px" }}>{icon} {label}</span>
+  return <span style={{ color: "#94a3b8", fontSize: "13px" }}>{icon} {label}</span>
 }
 
 function Modal({ title, onClose, children }) {

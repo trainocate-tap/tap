@@ -14,13 +14,13 @@ const C = {
 const inputStyle = {
   width: "100%", background: "rgba(6,182,212,0.06)", color: "#fff",
   border: "1px solid rgba(6,182,212,0.2)", borderRadius: "8px",
-  padding: "9px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box",
+  padding: "9px 12px", fontSize: "15px", outline: "none", boxSizing: "border-box",
 }
 
 function Field({ label, children }) {
   return (
     <div>
-      <p style={{ color: "#94a3b8", fontSize: "11px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
+      <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "5px", fontWeight: "600" }}>{label}</p>
       {children}
     </div>
   )
@@ -32,7 +32,7 @@ function StatusBadge({ status }) {
     approved: { bg: "rgba(16,185,129,0.15)", color: "#10b981", border: "1px solid rgba(16,185,129,0.3)" },
     rejected: { bg: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" },
   }[status] || {}
-  return <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600", textTransform: "capitalize" }}>{status}</span>
+  return <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600", textTransform: "capitalize" }}>{status}</span>
 }
 
 export default function MarketingApprovals() {
@@ -212,7 +212,7 @@ export default function MarketingApprovals() {
         {successMsg && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "14px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
+            style={{ position: "fixed", top: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, background: "#10b981", color: "#fff", padding: "12px 24px", borderRadius: "12px", fontWeight: "600", fontSize: "16px", boxShadow: "0 4px 20px rgba(16,185,129,0.4)", whiteSpace: "nowrap" }}
           >
             {successMsg}
           </motion.div>
@@ -222,9 +222,9 @@ export default function MarketingApprovals() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>✅ Approvals</h1>
-          <p style={{ color: C.sub, fontSize: "13px" }}>{approvals.length} pending requests</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>{approvals.length} pending requests</p>
         </div>
-        <button onClick={() => { setShowRequestModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}>
+        <button onClick={() => { setShowRequestModal(true); setSaveError(null) }} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}>
           + New Request
         </button>
       </div>
@@ -233,7 +233,7 @@ export default function MarketingApprovals() {
       <div style={{ display: "flex", gap: "6px", marginBottom: "24px" }}>
         {(isBDM ? [["my", "📋 My Requests"]] : [["pending", `⏳ Pending (${approvals.length})`], ["my", "📋 My Requests"]]).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)} style={{
-            padding: "9px 18px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "13px",
+            padding: "9px 18px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "600", fontSize: "15px",
             background: tab === t ? `linear-gradient(135deg, ${C.accent}, ${C.teal})` : "rgba(6,182,212,0.08)",
             color: tab === t ? "#fff" : C.sub,
           }}>{label}</button>
@@ -244,7 +244,7 @@ export default function MarketingApprovals() {
       {tab === "pending" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {!canManageMarketing && (
-            <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "12px", padding: "12px 16px", color: C.warning, fontSize: "13px" }}>
+            <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "12px", padding: "12px 16px", color: C.warning, fontSize: "15px" }}>
               ⚠️ Only marketing admins and managers can approve requests.
             </div>
           )}
@@ -260,26 +260,26 @@ export default function MarketingApprovals() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                      <p style={{ color: C.text, fontWeight: "600", fontSize: "14px" }}>{req.requested_by_name || "Unknown"}</p>
-                      {isUrgent && <span style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "999px", padding: "1px 9px", fontSize: "10px", fontWeight: "700" }}>⚠️ {days}d overdue</span>}
+                      <p style={{ color: C.text, fontWeight: "600", fontSize: "16px" }}>{req.requested_by_name || "Unknown"}</p>
+                      {isUrgent && <span style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "999px", padding: "1px 9px", fontSize: "12px", fontWeight: "700" }}>⚠️ {days}d overdue</span>}
                     </div>
-                    <p style={{ color: C.sub, fontSize: "13px" }}>
+                    <p style={{ color: C.sub, fontSize: "15px" }}>
                       Requesting: <b style={{ color: C.text }}>{items.find(i => i.id === req.item_id)?.name || "Unknown item"}</b> × {req.quantity}
                     </p>
-                    {req.quantity > 30 && <p style={{ color: C.warning, fontSize: "11px", marginTop: "2px" }}>⚠️ Large quantity — requires senior approval (April)</p>}
-                    {req.reason && <p style={{ color: C.sub, fontSize: "12px", marginTop: "4px", fontStyle: "italic" }}>Reason: {req.reason}</p>}
-                    <p style={{ color: C.sub, fontSize: "11px", marginTop: "4px" }}>
+                    {req.quantity > 30 && <p style={{ color: C.warning, fontSize: "13px", marginTop: "2px" }}>⚠️ Large quantity — requires senior approval (April)</p>}
+                    {req.reason && <p style={{ color: C.sub, fontSize: "14px", marginTop: "4px", fontStyle: "italic" }}>Reason: {req.reason}</p>}
+                    <p style={{ color: C.sub, fontSize: "13px", marginTop: "4px" }}>
                       Submitted: {new Date(req.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   {canManageMarketing && (
                     <div style={{ display: "flex", gap: "8px" }}>
                       <button onClick={() => handleApprove(req.id)} disabled={saving}
-                        style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "7px 14px", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}>
+                        style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "7px 14px", fontSize: "14px", fontWeight: "600", cursor: "pointer" }}>
                         ✅ Approve
                       </button>
                       <button onClick={() => { setRejectModal(req); setRejectReason(""); setSaveError(null) }}
-                        style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "7px 14px", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}>
+                        style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "7px 14px", fontSize: "14px", fontWeight: "600", cursor: "pointer" }}>
                         ❌ Reject
                       </button>
                     </div>
@@ -308,14 +308,14 @@ export default function MarketingApprovals() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                      <p style={{ color: C.text, fontSize: "14px", fontWeight: "600" }}>
+                      <p style={{ color: C.text, fontSize: "16px", fontWeight: "600" }}>
                         {items.find(i => i.id === req.item_id)?.name || "Item"} × {req.quantity}
                       </p>
-                      {isOverdue && <span style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "999px", padding: "1px 9px", fontSize: "10px", fontWeight: "700" }}>⚠️ {days}d overdue</span>}
+                      {isOverdue && <span style={{ background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "999px", padding: "1px 9px", fontSize: "12px", fontWeight: "700" }}>⚠️ {days}d overdue</span>}
                     </div>
-                    {req.reason && <p style={{ color: C.sub, fontSize: "12px", marginTop: "2px" }}>Reason: {req.reason}</p>}
-                    {req.rejection_reason && <p style={{ color: C.error, fontSize: "12px", marginTop: "2px" }}>Rejected: {req.rejection_reason}</p>}
-                    <p style={{ color: C.sub, fontSize: "11px", marginTop: "4px" }}>{new Date(req.created_at).toLocaleDateString()}</p>
+                    {req.reason && <p style={{ color: C.sub, fontSize: "14px", marginTop: "2px" }}>Reason: {req.reason}</p>}
+                    {req.rejection_reason && <p style={{ color: C.error, fontSize: "14px", marginTop: "2px" }}>Rejected: {req.rejection_reason}</p>}
+                    <p style={{ color: C.sub, fontSize: "13px", marginTop: "4px" }}>{new Date(req.created_at).toLocaleDateString()}</p>
                   </div>
                   <StatusBadge status={req.status} />
                 </div>
@@ -342,7 +342,7 @@ export default function MarketingApprovals() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 {saveError && (
-                  <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px" }}>
+                  <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px" }}>
                     {saveError}
                   </div>
                 )}
@@ -363,7 +363,7 @@ export default function MarketingApprovals() {
                   <input type="number" min={1} value={form.quantity} onChange={e => setForm({ ...form, quantity: e.target.value })} style={inputStyle} />
                 </Field>
                 {form.quantity && parseInt(form.quantity) > 30 && (
-                  <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "8px", padding: "10px 12px", color: C.warning, fontSize: "12px" }}>
+                  <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "8px", padding: "10px 12px", color: C.warning, fontSize: "14px" }}>
                     ⚠️ Quantities above 30 require approval from April.
                   </div>
                 )}
@@ -389,7 +389,7 @@ export default function MarketingApprovals() {
               style={{ background: "#0f2730", border: `1px solid rgba(239,68,68,0.3)`, borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "400px" }}>
               <h2 style={{ color: C.text, fontSize: "16px", fontWeight: "700", marginBottom: "16px" }}>Reject Request</h2>
               {saveError && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "13px", marginBottom: "12px" }}>
+                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px", marginBottom: "12px" }}>
                   {saveError}
                 </div>
               )}

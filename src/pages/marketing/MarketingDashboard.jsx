@@ -31,9 +31,9 @@ function StatCard({ icon, label, value, color, sub, onClick }) {
     >
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <p style={{ color: C.sub, fontSize: "11px", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</p>
+          <p style={{ color: C.sub, fontSize: "13px", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</p>
           <p style={{ color: color || C.accent, fontSize: "34px", fontWeight: "800", lineHeight: 1 }}>{value}</p>
-          {sub && <p style={{ color: C.sub, fontSize: "11px", marginTop: "5px" }}>{sub}</p>}
+          {sub && <p style={{ color: C.sub, fontSize: "13px", marginTop: "5px" }}>{sub}</p>}
         </div>
         <span style={{ fontSize: "26px", opacity: 0.85 }}>{icon}</span>
       </div>
@@ -45,9 +45,9 @@ function Section({ title, action, children }) {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: "28px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-        <h2 style={{ color: "#e2e8f0", fontSize: "15px", fontWeight: "700" }}>{title}</h2>
+        <h2 style={{ color: "#e2e8f0", fontSize: "17px", fontWeight: "700" }}>{title}</h2>
         {action && (
-          <button onClick={action.onClick} style={{ background: "none", border: "none", color: C.accent, fontSize: "12px", cursor: "pointer", fontWeight: "600" }}>
+          <button onClick={action.onClick} style={{ background: "none", border: "none", color: C.accent, fontSize: "14px", cursor: "pointer", fontWeight: "600" }}>
             {action.label} →
           </button>
         )}
@@ -64,18 +64,18 @@ function EmptyCard({ text, icon = "📭" }) {
       borderRadius: "12px", padding: "28px", textAlign: "center", color: C.sub,
     }}>
       <p style={{ fontSize: "28px", marginBottom: "8px" }}>{icon}</p>
-      <p style={{ fontSize: "13px" }}>{text}</p>
+      <p style={{ fontSize: "15px" }}>{text}</p>
     </div>
   )
 }
 
 function PackingBadge({ gifts }) {
-  if (!gifts?.length) return <span style={{ background: "rgba(148,163,184,0.1)", color: C.sub, border: "1px solid rgba(148,163,184,0.2)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px" }}>No gifts</span>
+  if (!gifts?.length) return <span style={{ background: "rgba(148,163,184,0.1)", color: C.sub, border: "1px solid rgba(148,163,184,0.2)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px" }}>No gifts</span>
   const allDist = gifts.every(g => g.is_distributed)
   const allPacked = gifts.every(g => g.is_packed)
-  if (allDist) return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🟢 Distributed</span>
-  if (allPacked) return <span style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🟡 Packed</span>
-  return <span style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: "600" }}>🔴 Not Packed</span>
+  if (allDist) return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟢 Distributed</span>
+  if (allPacked) return <span style={{ background: "rgba(245,158,11,0.15)", color: C.warning, border: "1px solid rgba(245,158,11,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟡 Packed</span>
+  return <span style={{ background: "rgba(239,68,68,0.12)", color: C.error, border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🔴 Not Packed</span>
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -192,7 +192,7 @@ export default function MarketingDashboard() {
               <div key={delay} style={{ width: "8px", height: "8px", borderRadius: "50%", background: C.accent, animation: `bounce 1.2s ${delay}ms infinite ease-in-out` }} />
             ))}
           </div>
-          <p style={{ color: C.sub, fontSize: "13px" }}>Loading dashboard…</p>
+          <p style={{ color: C.sub, fontSize: "15px" }}>Loading dashboard…</p>
           <style>{`@keyframes bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }`}</style>
         </div>
       </div>
@@ -204,9 +204,9 @@ export default function MarketingDashboard() {
       <div style={{ padding: "40px", maxWidth: "600px" }}>
         <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: "16px", padding: "24px" }}>
           <p style={{ fontSize: "28px", marginBottom: "10px" }}>⚠️</p>
-          <p style={{ color: C.error, fontWeight: "600", fontSize: "15px", marginBottom: "6px" }}>Setup Required</p>
-          <p style={{ color: C.sub, fontSize: "13px", marginBottom: "16px" }}>{error}</p>
-          <button onClick={fetchAll} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "8px", padding: "8px 18px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
+          <p style={{ color: C.error, fontWeight: "600", fontSize: "17px", marginBottom: "6px" }}>Setup Required</p>
+          <p style={{ color: C.sub, fontSize: "15px", marginBottom: "16px" }}>{error}</p>
+          <button onClick={fetchAll} style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "8px", padding: "8px 18px", cursor: "pointer", fontWeight: "600", fontSize: "15px" }}>
             Retry
           </button>
         </div>
@@ -219,7 +219,7 @@ export default function MarketingDashboard() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: "26px" }}>
         <h1 style={{ color: C.text, fontSize: "24px", fontWeight: "800", marginBottom: "4px" }}>🎯 Marketing Dashboard</h1>
-        <p style={{ color: C.sub, fontSize: "13px" }}>Welcome back to Marketing — Trainocate Asset Portal 🇸🇬 Singapore, {firstName}!</p>
+        <p style={{ color: C.sub, fontSize: "15px" }}>Welcome back to Marketing — Trainocate Asset Portal 🇸🇬 Singapore, {firstName}!</p>
       </motion.div>
 
       {/* 4 stat cards */}
@@ -245,8 +245,8 @@ export default function MarketingDashboard() {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
                     <div style={{ flex: 1, minWidth: 0, marginRight: "8px" }}>
-                      <p style={{ color: C.text, fontWeight: "600", fontSize: "14px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cls.class_name}</p>
-                      {cls.class_type && <p style={{ color: C.sub, fontSize: "11px", marginTop: "2px" }}>{cls.class_type}</p>}
+                      <p style={{ color: C.text, fontWeight: "600", fontSize: "16px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cls.class_name}</p>
+                      {cls.class_type && <p style={{ color: C.sub, fontSize: "13px", marginTop: "2px" }}>{cls.class_type}</p>}
                     </div>
                     <PackingBadge gifts={cls.marketing_class_gifts} />
                   </div>
@@ -276,14 +276,14 @@ export default function MarketingDashboard() {
                   style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "12px", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}
                 >
                   <div>
-                    <p style={{ color: C.text, fontWeight: "600", fontSize: "14px" }}>{item.name}</p>
-                    <p style={{ color: "#f87171", fontSize: "12px", marginTop: "2px" }}>
+                    <p style={{ color: C.text, fontWeight: "600", fontSize: "16px" }}>{item.name}</p>
+                    <p style={{ color: "#f87171", fontSize: "14px", marginTop: "2px" }}>
                       Stock: <b>{item.currentStock}</b> · Minimum: <b>{item.minimum_stock_level}</b>
                     </p>
                   </div>
                   <button
                     onClick={() => navigate("/marketing/approvals")}
-                    style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171", borderRadius: "8px", padding: "6px 12px", fontSize: "11px", fontWeight: "600", cursor: "pointer", whiteSpace: "nowrap" }}
+                    style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171", borderRadius: "8px", padding: "6px 12px", fontSize: "13px", fontWeight: "600", cursor: "pointer", whiteSpace: "nowrap" }}
                   >
                     Request Restock
                   </button>
@@ -308,8 +308,8 @@ export default function MarketingDashboard() {
                   style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "14px", padding: "16px", cursor: "pointer" }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
-                    <p style={{ color: C.text, fontWeight: "600", fontSize: "14px", flex: 1, marginRight: "8px" }}>{ev.event_name}</p>
-                    <span style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "10px", fontWeight: "600", flexShrink: 0, textTransform: "capitalize" }}>
+                    <p style={{ color: C.text, fontWeight: "600", fontSize: "16px", flex: 1, marginRight: "8px" }}>{ev.event_name}</p>
+                    <span style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "12px", fontWeight: "600", flexShrink: 0, textTransform: "capitalize" }}>
                       {ev.status}
                     </span>
                   </div>
@@ -339,17 +339,17 @@ export default function MarketingDashboard() {
                       {m.movement_type === "stock_in" ? "📥" : m.movement_type === "stock_out" ? "📤" : "🔄"}
                     </span>
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ color: C.text, fontSize: "13px", fontWeight: "500", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <p style={{ color: C.text, fontSize: "15px", fontWeight: "500", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         <span style={{ color: m.movement_type === "stock_in" ? C.success : m.movement_type === "stock_out" ? C.error : C.accent }}>
                           {m.movement_type === "stock_in" ? "Stock In" : m.movement_type === "stock_out" ? "Stock Out" : m.movement_type}
                         </span>
                         {" · "}{itemNameById[m.item_id] || "Unknown item"}
                         {" · "}<b style={{ color: C.accent }}>{m.quantity} units</b>
                       </p>
-                      {m.performed_by_name && <p style={{ color: C.sub, fontSize: "11px", marginTop: "1px" }}>by {m.performed_by_name}</p>}
+                      {m.performed_by_name && <p style={{ color: C.sub, fontSize: "13px", marginTop: "1px" }}>by {m.performed_by_name}</p>}
                     </div>
                   </div>
-                  <p style={{ color: C.sub, fontSize: "11px", whiteSpace: "nowrap", flexShrink: 0 }}>
+                  <p style={{ color: C.sub, fontSize: "13px", whiteSpace: "nowrap", flexShrink: 0 }}>
                     {new Date(m.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -364,7 +364,7 @@ export default function MarketingDashboard() {
 
 function Chip({ icon, label }) {
   return (
-    <span style={{ color: "#94a3b8", fontSize: "11px", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+    <span style={{ color: "#94a3b8", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "3px" }}>
       {icon} {label}
     </span>
   )
