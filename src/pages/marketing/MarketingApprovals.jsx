@@ -35,6 +35,29 @@ function StatusBadge({ status }) {
   return <span style={{ ...cfg, borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600", textTransform: "capitalize" }}>{status}</span>
 }
 
+// Admins (role === "admin") and elevated marketing users (marketing_admin / marketing_manager)
+// can all act on approvals, so they should all hear about approval activity — not just base-role admins.
+async function notifyManagers({ excludeUserIds = [], title, message, type, relatedId }) {
+  const { data: managers } = await supabase
+    .from("user_profiles")
+    .select("id")
+    .or("role.eq.admin,marketing_role.in.(marketing_admin,marketing_manager)")
+  if (!managers?.length) return
+  await Promise.all(
+    managers
+      .filter(m => !excludeUserIds.includes(m.id))
+      .map(m => supabase.from("marketing_notifications").insert({
+        user_id: m.id,
+        title,
+        message,
+        type,
+        related_id: relatedId,
+        related_type: "approval",
+        is_read: false,
+      }))
+  )
+}
+
 export default function MarketingApprovals() {
   const { userProfile, canManageMarketing, role } = useAuth()
   const navigate = useNavigate()
@@ -105,6 +128,13 @@ export default function MarketingApprovals() {
         related_type: "approval",
         is_read: false,
       })
+      await notifyManagers({
+        excludeUserIds: [userProfile?.id, approval.requested_by],
+        title: "Request Approved ✅",
+        message: `${approval.requested_by_name || "A user"}'s request for ${approvedItemName} x${approval.quantity} was approved by ${userProfile?.name || userProfile?.email}`,
+        type: "approved",
+        relatedId: id,
+      })
     }
     setSaving(false)
     showSuccess("✅ Request approved!")
@@ -135,6 +165,13 @@ export default function MarketingApprovals() {
         related_id: rejectModal.id,
         related_type: "approval",
         is_read: false,
+      })
+      await notifyManagers({
+        excludeUserIds: [userProfile?.id, rejectModal.requested_by],
+        title: "Request Rejected ❌",
+        message: `${rejectModal.requested_by_name || "A user"}'s request for ${rejectedItemName} x${rejectModal.quantity} was rejected by ${userProfile?.name || userProfile?.email}`,
+        type: "rejected",
+        relatedId: rejectModal.id,
       })
     }
     setSaving(false)
@@ -180,24 +217,12 @@ export default function MarketingApprovals() {
       })
     }
 
-    const { data: admins } = await supabase
-      .from("user_profiles")
-      .select("id, name")
-      .eq("role", "admin")
-
-    if (admins) {
-      for (const admin of admins) {
-        if (admin.id !== userProfile?.id) {
-          await supabase.from("marketing_notifications").insert({
-            user_id: admin.id,
-            title: "New Approval Request 📋",
-            message: `${userProfile?.name} requested ${submittedItemName} x${submittedQty} — needs your approval`,
-            type: "approval_request",
-            is_read: false,
-          })
-        }
-      }
-    }
+    await notifyManagers({
+      excludeUserIds: [userProfile?.id],
+      title: "New Approval Request 📋",
+      message: `${userProfile?.name} requested ${submittedItemName} x${submittedQty} — needs your approval`,
+      type: "approval_request",
+    })
 
     fetchAll()
     setTab("my")
