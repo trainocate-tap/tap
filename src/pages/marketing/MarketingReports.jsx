@@ -26,6 +26,16 @@ const ALL_REPORTS = [
   { id: "monthly_spending",   label: "Monthly Spending Summary",     icon: "💳", adminOnly: true  },
 ]
 
+const MONTHS = [
+  { value: "1",  label: "January" },   { value: "2",  label: "February" },
+  { value: "3",  label: "March" },     { value: "4",  label: "April" },
+  { value: "5",  label: "May" },       { value: "6",  label: "June" },
+  { value: "7",  label: "July" },      { value: "8",  label: "August" },
+  { value: "9",  label: "September" }, { value: "10", label: "October" },
+  { value: "11", label: "November" },  { value: "12", label: "December" },
+]
+const YEARS = ["2024", "2025", "2026", "2027"]
+
 const th = (h) => (
   <th style={{ color: "#94a3b8", textAlign: "left", padding: "8px 12px", borderBottom: "1px solid rgba(6,182,212,0.2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", whiteSpace: "nowrap" }}>
     {h}
@@ -64,8 +74,9 @@ export default function MarketingReports() {
   const showAdminReports = ["marketing_admin", "marketing_manager"].includes(marketingRole) || role === "admin"
 
   const [selectedReport, setSelectedReport] = useState(null)
-  const [dateFrom, setDateFrom] = useState("")
-  const [dateTo, setDateTo] = useState("")
+  const [selectedMonth, setSelectedMonth] = useState("")
+  const [selectedYear, setSelectedYear] = useState("")
+  const [selectedItemId, setSelectedItemId] = useState("")
   const [reportData, setReportData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -107,8 +118,18 @@ export default function MarketingReports() {
 
   const visibleReports = ALL_REPORTS.filter(r => !r.adminOnly || showAdminReports)
 
-  const from = dateFrom || "2020-01-01"
-  const to   = dateTo   || new Date().toISOString().split("T")[0]
+  // Month + Year narrow the range to that specific month; Year alone covers the
+  // whole year; neither selected falls back to "everything" (same as before).
+  let from = "2020-01-01"
+  let to   = new Date().toISOString().split("T")[0]
+  if (selectedYear && selectedMonth) {
+    const y = parseInt(selectedYear), m = parseInt(selectedMonth)
+    from = `${selectedYear}-${String(m).padStart(2, "0")}-01`
+    to   = `${selectedYear}-${String(m).padStart(2, "0")}-${String(new Date(y, m, 0).getDate()).padStart(2, "0")}`
+  } else if (selectedYear) {
+    from = `${selectedYear}-01-01`
+    to   = `${selectedYear}-12-31`
+  }
   const toTS = to + "T23:59:59"
 
   const generateReport = async () => {
@@ -124,7 +145,9 @@ export default function MarketingReports() {
 
         // ── 1. Monthly Stock Balance ──────────────────────────────────
         case "monthly_stock": {
-          const { data, error: e } = await supabase.from("marketing_stock").select("*")
+          let q = supabase.from("marketing_stock").select("*")
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
           if (e) throw e
           rows = (data || []).map(s => ({
             item:     itemName(s.item_id),
@@ -143,11 +166,13 @@ export default function MarketingReports() {
 
         // ── 2. Items Distributed Per Class ───────────────────────────
         case "class_distribution": {
-          const { data, error: e } = await supabase
+          let q = supabase
             .from("marketing_class_gifts")
             .select("*")
             .gte("created_at", from)
             .lte("created_at", toTS)
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
           if (e) throw e
           rows = (data || []).map(g => ({
             class:      className(g.class_id),
@@ -161,11 +186,13 @@ export default function MarketingReports() {
 
         // ── 3. Items Distributed Per Event ───────────────────────────
         case "event_distribution": {
-          const { data, error: e } = await supabase
+          let q = supabase
             .from("marketing_event_collaterals")
             .select("*")
             .gte("created_at", from)
             .lte("created_at", toTS)
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
           if (e) throw e
           rows = (data || []).map(c => ({
             event:      eventName(c.event_id),
@@ -216,6 +243,7 @@ export default function MarketingReports() {
 
           rows = items
             .filter(it => {
+              if (selectedItemId && it.id !== selectedItemId) return false
               const min = it.minimum_stock_level || 0
               const qty = totals[it.id] ?? 0
               return qty <= min  // include zero-stock items even without min set
@@ -238,13 +266,15 @@ export default function MarketingReports() {
 
         // ── 6. Supplier Purchase History ─────────────────────────────
         case "supplier_history": {
-          const { data, error: e } = await supabase
+          let q = supabase
             .from("marketing_stock_movements")
             .select("*")
             .eq("movement_type", "stock_in")
             .gte("created_at", from)
             .lte("created_at", toTS)
             .order("created_at", { ascending: false })
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
           if (e) throw e
           rows = (data || []).map(m => {
             const it = itemById(m.item_id)
@@ -265,11 +295,11 @@ export default function MarketingReports() {
 
         // ── 7. Defective Items ───────────────────────────────────────
         case "defective": {
-          const [{ data: colData, error: e1 }, { data: movData, error: e2 }] = await Promise.all([
-            supabase.from("marketing_event_collaterals").select("*").gt("quantity_damaged", 0),
-            supabase.from("marketing_stock_movements").select("*").eq("movement_type", "defective")
-              .gte("created_at", from).lte("created_at", toTS),
-          ])
+          let colQ = supabase.from("marketing_event_collaterals").select("*").gt("quantity_damaged", 0)
+          let movQ = supabase.from("marketing_stock_movements").select("*").eq("movement_type", "defective")
+            .gte("created_at", from).lte("created_at", toTS)
+          if (selectedItemId) { colQ = colQ.eq("item_id", selectedItemId); movQ = movQ.eq("item_id", selectedItemId) }
+          const [{ data: colData, error: e1 }, { data: movData, error: e2 }] = await Promise.all([colQ, movQ])
           if (e1) throw e1
           if (e2) throw e2
 
@@ -296,13 +326,15 @@ export default function MarketingReports() {
 
         // ── 8. Full Stock Movement History ───────────────────────────
         case "movement_history": {
-          const { data, error: e } = await supabase
+          let q = supabase
             .from("marketing_stock_movements")
             .select("*")
             .gte("created_at", from)
             .lte("created_at", toTS)
             .order("created_at", { ascending: false })
             .limit(500)
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
           if (e) throw e
           rows = (data || []).map(m => ({
             date:      fmtDT(m.created_at),
@@ -319,12 +351,14 @@ export default function MarketingReports() {
 
         // ── 9. Items Per Person / Trainer ────────────────────────────
         case "per_person": {
-          const { data, error: e } = await supabase
+          let q = supabase
             .from("marketing_stock_movements")
             .select("*")
             .eq("movement_type", "stock_out")
             .gte("created_at", from)
             .lte("created_at", toTS)
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
           if (e) throw e
 
           // Group by person
@@ -348,9 +382,13 @@ export default function MarketingReports() {
 
         // ── 10. Monthly Spending Summary ─────────────────────────────
         case "monthly_spending": {
+          let movQ = supabase.from("marketing_stock_movements").select("*").eq("movement_type", "stock_in")
+            .gte("created_at", from).lte("created_at", toTS)
+          if (selectedItemId) movQ = movQ.eq("item_id", selectedItemId)
+          // event_cost has no item association, so the item filter can't narrow it —
+          // only the purchase_cost side is affected when an item is selected.
           const [{ data: movData, error: e1 }, { data: evData, error: e2 }] = await Promise.all([
-            supabase.from("marketing_stock_movements").select("*").eq("movement_type", "stock_in")
-              .gte("created_at", from).lte("created_at", toTS),
+            movQ,
             supabase.from("marketing_events").select("*")
               .gte("event_date", from).lte("event_date", to),
           ])
@@ -490,17 +528,31 @@ export default function MarketingReports() {
                 </p>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "16px", alignItems: "flex-end" }}>
                   <div>
-                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>From Date</p>
-                    <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }} />
+                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>Month</p>
+                    <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)}
+                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }}>
+                      <option value="">All Months</option>
+                      {MONTHS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                    </select>
                   </div>
                   <div>
-                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>To Date</p>
-                    <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }} />
+                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>Year</p>
+                    <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)}
+                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none" }}>
+                      <option value="">All Years</option>
+                      {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
                   </div>
-                  {!dateFrom && !dateTo && (
-                    <p style={{ color: C.sub, fontSize: "13px", alignSelf: "center" }}>No date selected → shows all data</p>
+                  <div>
+                    <p style={{ color: C.sub, fontSize: "13px", marginBottom: "4px" }}>Item</p>
+                    <select value={selectedItemId} onChange={e => setSelectedItemId(e.target.value)}
+                      style={{ background: "rgba(6,182,212,0.06)", color: C.text, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "8px 12px", fontSize: "15px", outline: "none", maxWidth: "220px" }}>
+                      <option value="">All Items</option>
+                      {items.map(it => <option key={it.id} value={it.id}>{it.name}</option>)}
+                    </select>
+                  </div>
+                  {!selectedMonth && !selectedYear && !selectedItemId && (
+                    <p style={{ color: C.sub, fontSize: "13px", alignSelf: "center" }}>No filters selected → shows all data</p>
                   )}
                 </div>
 
