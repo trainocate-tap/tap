@@ -994,12 +994,9 @@ function AppRouter({ user, mfaVerified, onVerified }) {
           ? <MarketingLayout user={user} />
           : <Navigate to="/admin" replace />
       } />
-      {/* IT ITAMS routes */}
-      <Route path="/*" element={
-        isMarketingOnly
-          ? <Navigate to="/marketing/dashboard" replace />
-          : <AdminLayout user={user} />
-      } />
+      {/* IT ITAMS routes — marketing users can switch here via the module toggle;
+          AdminLayout/Sidebar renders the right view (full admin vs standard) based on marketing_role */}
+      <Route path="/*" element={<AdminLayout user={user} />} />
     </Routes>
   )
 }
