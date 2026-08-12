@@ -56,7 +56,10 @@ export function AuthProvider({ children, user }) {
   const isMarketing = !!userProfile?.marketing_access
   const marketingRole = userProfile?.marketing_role || null
   const canManageMarketing = ["marketing_admin", "marketing_manager"].includes(marketingRole) || role === "admin"
-  const isMarketingOnly = isMarketing && role !== "admin"
+  // Non-admin marketing users without an elevated marketing role (marketing_staff, bdm, bdms)
+  // see the standard IT user view when switching to the IT module; marketing_admin/marketing_manager
+  // see the full IT admin view instead (via canManageMarketing).
+  const isMarketingOnly = isMarketing && !canManageMarketing
 
   return (
     <AuthContext.Provider value={{

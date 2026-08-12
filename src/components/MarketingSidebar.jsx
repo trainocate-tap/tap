@@ -39,7 +39,7 @@ export default function MarketingSidebar() {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [showNotif, setShowNotif] = useState(false)
-  const { userProfile, role, isAdmin, isMarketing } = useAuth()
+  const { userProfile, role, isMarketing } = useAuth()
   const navigate = useNavigate()
 
   const displayName = userProfile?.name || userProfile?.full_name || userProfile?.email || "Marketing User"
@@ -194,13 +194,13 @@ export default function MarketingSidebar() {
         <div className="h-14 md:hidden" />
       </div>
 
-      {/* Module toggle — admin only */}
-      {isAdmin && isMarketing && (
+      {/* Module toggle — any user with marketing_access */}
+      {isMarketing && (
         <div style={{ padding: "10px 14px", borderBottom: `1px solid ${MKT.border}`, flexShrink: 0 }}>
           <p style={{ color: MKT.sub, fontSize: "10px", marginBottom: "7px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Switch Module</p>
           <div style={{ display: "flex", gap: "6px" }}>
             <button
-              onClick={() => { setOpen(false); navigate("/admin") }}
+              onClick={() => { setOpen(false); navigate("/admin/dashboard") }}
               style={{ flex: 1, padding: "6px 4px", borderRadius: "7px", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)", color: "#60a5fa", fontSize: "11px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.background = "rgba(59,130,246,0.18)"}
               onMouseLeave={e => e.currentTarget.style.background = "rgba(59,130,246,0.08)"}

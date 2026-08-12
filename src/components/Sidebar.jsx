@@ -22,7 +22,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const [counts, setCounts] = useState({ assets: 0, openIssues: 0, pendingRequests: 0, activeBorrows: 0 })
   const { t } = useTranslation()
-  const { userProfile, role, isAdmin, isStandardUser, isMarketing, isMarketingOnly, isGuest } = useAuth()
+  const { userProfile, role, isStandardUser, isMarketing, isMarketingOnly, canManageMarketing, isGuest } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -90,8 +90,9 @@ export default function Sidebar() {
     navItems = standardUserNavItems
   }
 
-  // Admin: full access
-  if (isAdmin) {
+  // Admin (base role), or a non-admin marketing user with an elevated marketing role
+  // (marketing_admin / marketing_manager) viewing the IT module: full access
+  if (canManageMarketing) {
     navItems = [
       dashItem, assetsItem,
       adminOnlyItems[0], scannerItem, adminOnlyItems[1],
