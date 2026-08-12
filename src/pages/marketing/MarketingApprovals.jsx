@@ -149,6 +149,7 @@ export default function MarketingApprovals() {
       approver_id: userProfile.id,
       approver_name: userProfile?.name || userProfile?.email,
       rejection_reason: rejectReason,
+      rejected_at: new Date().toISOString(),
     }).eq("id", rejectModal.id)
     if (error) {
       setSaving(false)

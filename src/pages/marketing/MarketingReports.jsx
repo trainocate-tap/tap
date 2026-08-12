@@ -427,9 +427,8 @@ export default function MarketingReports() {
 
         // ── 11. Admin Activity ────────────────────────────────────────
         case "admin_activity": {
-          // marketing_approvals has no rejected_at column — only approved_at is
-          // captured, so decision date is blank for rejections. Date filter runs
-          // against created_at (submission date) since it's populated for every row.
+          // Date filter runs against created_at (submission date), since approved_at
+          // and rejected_at only cover one branch each and neither is set on every row.
           let q = supabase
             .from("marketing_approvals")
             .select("*")
@@ -442,7 +441,9 @@ export default function MarketingReports() {
           if (e) throw e
           rows = (data || []).map(a => ({
             admin:         a.approver_name || "—",
-            decision_date: a.approved_at ? fmtDate(a.approved_at) : "—",
+            decision_date: a.status === "rejected"
+              ? (a.rejected_at ? fmtDate(a.rejected_at) : "—")
+              : (a.approved_at ? fmtDate(a.approved_at) : "—"),
             requester:     a.requested_by_name || "Unknown",
             item:          itemName(a.item_id),
             quantity:      a.quantity,
