@@ -24,6 +24,7 @@ const ALL_REPORTS = [
   { id: "movement_history",   label: "Full Stock Movement History",  icon: "📋", adminOnly: false },
   { id: "per_person",         label: "Items Per Person / Trainer",   icon: "👤", adminOnly: false },
   { id: "monthly_spending",   label: "Monthly Spending Summary",     icon: "💳", adminOnly: true  },
+  { id: "admin_activity",     label: "Admin Activity",               icon: "🛡️", adminOnly: true  },
 ]
 
 const MONTHS = [
@@ -424,6 +425,32 @@ export default function MarketingReports() {
           break
         }
 
+        // ── 11. Admin Activity ────────────────────────────────────────
+        case "admin_activity": {
+          // marketing_approvals has no rejected_at column — only approved_at is
+          // captured, so decision date is blank for rejections. Date filter runs
+          // against created_at (submission date) since it's populated for every row.
+          let q = supabase
+            .from("marketing_approvals")
+            .select("*")
+            .in("status", ["approved", "rejected"])
+            .gte("created_at", from)
+            .lte("created_at", toTS)
+            .order("created_at", { ascending: false })
+          if (selectedItemId) q = q.eq("item_id", selectedItemId)
+          const { data, error: e } = await q
+          if (e) throw e
+          rows = (data || []).map(a => ({
+            admin:         a.approver_name || "—",
+            decision_date: a.approved_at ? fmtDate(a.approved_at) : "—",
+            requester:     a.requested_by_name || "Unknown",
+            item:          itemName(a.item_id),
+            quantity:      a.quantity,
+            status:        a.status === "approved" ? "✅ Approved" : a.status === "rejected" ? "❌ Rejected" : a.status,
+          }))
+          break
+        }
+
         default:
           rows = []
       }
@@ -628,6 +655,7 @@ function ReportTable({ type, rows }) {
     movement_history:   ["date", "type", "item", "location", "quantity", "performed_by", "reason", "notes"],
     per_person:         ["person", "item", "total_qty", "unit"],
     monthly_spending:   ["month", "purchase_cost", "event_cost", "total_spending"],
+    admin_activity:     ["admin", "decision_date", "requester", "item", "quantity", "status"],
   }
 
   const LABELS = {
@@ -641,6 +669,7 @@ function ReportTable({ type, rows }) {
     movement_history:   ["Date", "Type", "Item", "Location", "Qty", "Performed By", "Reason", "Notes"],
     per_person:         ["Person", "Item", "Total Qty", "Unit"],
     monthly_spending:   ["Month", "Purchase Cost", "Event Cost", "Total Spending"],
+    admin_activity:     ["Admin", "Decision Date", "Requester", "Item", "Quantity", "Status"],
   }
 
   const cols   = COLS[type]   || Object.keys(rows[0])
