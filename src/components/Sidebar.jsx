@@ -22,7 +22,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const [counts, setCounts] = useState({ assets: 0, openIssues: 0, pendingRequests: 0, activeBorrows: 0 })
   const { t } = useTranslation()
-  const { userProfile, role, isAdmin, isStandardUser, isMarketing, isGuest } = useAuth()
+  const { userProfile, role, isAdmin, isStandardUser, isMarketing, isMarketingOnly, isGuest } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -59,12 +59,19 @@ export default function Sidebar() {
 
   const scannerItem = { label: t("scanner"), path: "/admin/scanner" }
 
-  // Standard User items
+  // Standard User items (used in the full admin nav)
   const standardItems = [
     { label: "New Asset Request", path: "/admin/requests", count: counts.pendingRequests },
     { label: t("borrowReturn"), path: "/admin/borrow", count: counts.activeBorrows },
     { label: t("issues"), path: "/admin/issues", count: counts.openIssues },
     { label: t("maintenanceTitle"), path: "/admin/maintenance" },
+  ]
+
+  // Standard User nav: My Assets, Borrow/Return, Issues only
+  const standardUserNavItems = [
+    { label: "My Assets", path: "/admin/assets", count: counts.assets },
+    { label: t("borrowReturn"), path: "/admin/borrow", count: counts.activeBorrows },
+    { label: t("issues"), path: "/admin/issues", count: counts.openIssues },
   ]
 
   // Admin-only items
@@ -78,9 +85,9 @@ export default function Sidebar() {
   // Guest: Dashboard, All Assets, Reports, User Guide only
   let navItems = [dashItem, assetsItem, reportsItem, guideItem]
 
-  // Standard User: Dashboard, All Assets, Scanner, requests, borrow, issues, maintenance, guide
-  if (isStandardUser) {
-    navItems = [dashItem, assetsItem, scannerItem, ...standardItems, guideItem]
+  // Standard User (and non-admin marketing users viewing the IT module): My Assets, Borrow/Return, Issues only
+  if (isStandardUser || isMarketingOnly) {
+    navItems = standardUserNavItems
   }
 
   // Admin: full access
@@ -160,8 +167,8 @@ export default function Sidebar() {
           </div>
         )}
 
-        {/* ── MODULE TOGGLE (admin with marketing_access) — never scrolls ── */}
-        {isAdmin && isMarketing && (
+        {/* ── MODULE TOGGLE (any user with marketing_access) — never scrolls ── */}
+        {isMarketing && (
           <div className="shrink-0 px-4 pt-3 pb-2 border-b border-gray-800/50">
             <p className="text-gray-500 text-xs mb-2 uppercase tracking-wider">Switch Module</p>
             <div className="flex gap-1.5">
