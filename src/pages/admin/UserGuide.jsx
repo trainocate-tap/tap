@@ -357,7 +357,7 @@ export default function UserGuide() {
         </p>
         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { emoji: "🌐", text: "Live at tap-trainocate.vercel.app" },
+            { emoji: "🌐", text: "Live at tap.trainocate.com" },
             { emoji: "📱", text: "Works on mobile + desktop" },
             { emoji: "🔒", text: "Secure Supabase auth" },
           ].map((item, i) => (

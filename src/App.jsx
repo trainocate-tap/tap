@@ -354,7 +354,7 @@ function LoginPage({ onVerified }) {
     setForgotError("")
     const { error: resetErr } = await supabase.auth.resetPasswordForEmail(
       (forgotEmail || email).trim(),
-      { redirectTo: "https://tap-trainocate.vercel.app/reset-password" }
+      { redirectTo: "https://tap.trainocate.com/reset-password" }
     )
     if (resetErr) {
       const msg = resetErr.message?.toLowerCase() ?? ""

@@ -163,7 +163,7 @@ serve(async (req) => {
           <table style="width:100%;border-collapse:collapse;">
             <tr>
               <td style="color:#6b7280;font-size:13px;padding:7px 0;border-bottom:1px solid #1a2744;">Login URL</td>
-              <td style="font-size:13px;font-weight:600;text-align:right;padding:7px 0;border-bottom:1px solid #1a2744;"><a href="https://tap-trainocate.vercel.app" style="color:#3b82f6;text-decoration:none;">https://tap-trainocate.vercel.app</a></td>
+              <td style="font-size:13px;font-weight:600;text-align:right;padding:7px 0;border-bottom:1px solid #1a2744;"><a href="https://tap.trainocate.com" style="color:#3b82f6;text-decoration:none;">https://tap.trainocate.com</a></td>
             </tr>
             <tr>
               <td style="color:#6b7280;font-size:13px;padding:7px 0;border-bottom:1px solid #1a2744;">Email</td>
@@ -180,7 +180,7 @@ serve(async (req) => {
           </table>
         </div>
         <div style="text-align:center;margin-bottom:20px;">
-          <a href="https://tap-trainocate.vercel.app" style="display:inline-block;background:#3b82f6;color:#fff;font-size:14px;font-weight:600;padding:12px 32px;border-radius:10px;text-decoration:none;">Login to Trainocate Asset Portal →</a>
+          <a href="https://tap.trainocate.com" style="display:inline-block;background:#3b82f6;color:#fff;font-size:14px;font-weight:600;padding:12px 32px;border-radius:10px;text-decoration:none;">Login to Trainocate Asset Portal →</a>
         </div>
         <p style="color:#6b7280;font-size:12px;text-align:center;margin:0;">Best regards, Trainocate IT Team</p>
       </div>
