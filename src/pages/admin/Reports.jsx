@@ -233,7 +233,7 @@ export default function Reports() {
     }
 
     if (reportType === "department") {
-      const deptAssets = filteredAssets.filter(a => a.department !== "Marketing")
+      const deptAssets = filteredAssets
       const deptMap = deptAssets.reduce((acc, a) => {
         const dept = a.department || "No Department"
         if (!acc[dept]) acc[dept] = { total: 0, available: 0, assigned: 0, maintenance: 0, retired: 0, assets: [] }
@@ -331,7 +331,7 @@ export default function Reports() {
     }
 
     if (reportType === "dept_count") {
-      const deptAssets = filteredAssets.filter(a => a.department !== "Marketing")
+      const deptAssets = filteredAssets
       const deptMap = deptAssets.reduce((acc, a) => {
         const dept = a.department || "No Department"
         if (!acc[dept]) acc[dept] = { total: 0, available: 0, assigned: 0, maintenance: 0, retired: 0 }
