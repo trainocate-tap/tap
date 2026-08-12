@@ -106,41 +106,6 @@ function badge(text, color) {
   return `<span style="display:inline-block;background:${color}22;border:1px solid ${color}55;border-radius:100px;padding:3px 14px;color:${color};font-size:12px;font-weight:600;">${text}</span>`
 }
 
-// Weekly warranty digest email — table of all assets expiring within 30 days
-function warrantyDigestHtml(assets) {
-  const today = new Date(new Date().toDateString())
-  const rows = assets.map((asset) => {
-    const days = Math.ceil((new Date(asset.warranty_expiry) - today) / 86400000)
-    const color = days <= 0 ? "#ef4444" : days <= 7 ? "#f59e0b" : "#f9fafb"
-    return `<tr>
-      <td style="color:#f9fafb;font-size:13px;padding:9px 8px;border-bottom:1px solid #1a2744;">${asset.name}</td>
-      <td style="color:#9ca3af;font-size:13px;padding:9px 8px;border-bottom:1px solid #1a2744;">${asset.serial_number || "—"}</td>
-      <td style="color:${color};font-size:13px;font-weight:600;padding:9px 8px;border-bottom:1px solid #1a2744;text-align:right;">${fmtDate(asset.warranty_expiry)}</td>
-    </tr>`
-  }).join("")
-
-  return baseTemplate("#3b82f6", `
-    <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:44px;margin-bottom:10px;">📅</div>
-      <div style="color:#fff;font-size:19px;font-weight:700;margin-bottom:8px;">Weekly Warranty Digest</div>
-      <p style="color:#9ca3af;font-size:14px;margin:0;">${assets.length} asset${assets.length === 1 ? "" : "s"} with warranty expiring in the next 30 days.</p>
-    </div>
-    <div style="background:#060d1c;border:1px solid #1a2744;border-radius:10px;padding:12px;margin-bottom:20px;overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-align:left;padding:0 8px 8px;">Asset Name</th>
-            <th style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-align:left;padding:0 8px 8px;">Serial Number</th>
-            <th style="color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;text-align:right;padding:0 8px 8px;">Warranty Expiry</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-    <p style="color:#6b7280;font-size:13px;text-align:center;margin:0;">Please arrange renewals for assets nearing expiry.</p>
-  `)
-}
-
 // License expiry email
 function licenseHtml(asset, days, expiryDate) {
   const accentColor = days <= 7 ? "#f59e0b" : "#8b5cf6"
@@ -392,42 +357,6 @@ export async function sendWelcomeEmail(toEmail, name, role, tempPassword) {
     <p style="color:#6b7280;font-size:12px;text-align:center;margin:0;">Please change your password after first login. If you did not expect this email, please contact your IT administrator.</p>
   `)
   await sendEmail(toEmail, "Welcome to Trainocate Asset Portal — Your account is ready", html)
-}
-
-// ---------------------------------------------------------------------------
-// Warranty Alerts — called from Dashboard on load
-// ---------------------------------------------------------------------------
-export async function checkWarrantyDigest() {
-  const adminEmails = await getAdminEmails()
-  if (!adminEmails.length) return
-
-  const today = new Date()
-  if (today.getDay() !== 1) return // only send the digest on Mondays
-
-  const weekKey = today.toISOString().split("T")[0]
-  const type = `warranty_digest_${weekKey}`
-  const sent = await getSentTypes([weekKey])
-  if (sent.has(type)) return
-
-  const in30Days = new Date(today)
-  in30Days.setDate(today.getDate() + 30)
-
-  const { data: assets } = await supabase
-    .from("assets")
-    .select("id, name, serial_number, warranty_expiry")
-    .not("warranty_expiry", "is", null)
-    .lte("warranty_expiry", in30Days.toISOString().split("T")[0])
-    .gte("warranty_expiry", today.toISOString().split("T")[0])
-    .order("warranty_expiry", { ascending: true })
-
-  if (!assets?.length) return
-
-  await sendEmail(
-    adminEmails,
-    `📅 Weekly Warranty Digest — ${assets.length} asset${assets.length === 1 ? "" : "s"} expiring in the next 30 days`,
-    warrantyDigestHtml(assets)
-  )
-  await logEmail(type, weekKey)
 }
 
 // ---------------------------------------------------------------------------
