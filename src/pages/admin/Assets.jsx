@@ -83,7 +83,8 @@ function exportToPDF(selectedAssets, currencySymbol) {
 }
 
 export default function Assets() {
-  const { canEdit, canDelete, isGuest, userCountry, profileLoading, userProfile } = useAuth()
+  const { canEdit, canDelete, isGuest, isStandardUser, isMarketingOnly, userCountry, profileLoading, userProfile } = useAuth()
+  const isMyAssetsView = isStandardUser || isMarketingOnly
   const { symbol: currencySymbol } = useCurrency()
   const [assets, setAssets] = useState([])
   const [maintByAsset, setMaintByAsset] = useState({})
@@ -111,7 +112,7 @@ export default function Assets() {
   const assignDropdownRef = useRef(null)
   const [showLabelModal, setShowLabelModal] = useState(false)
 
-  useEffect(() => { if (!profileLoading) fetchAssets() }, [profileLoading, userCountry])
+  useEffect(() => { if (!profileLoading) fetchAssets() }, [profileLoading, userCountry, isMyAssetsView, userProfile?.name])
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const statusParam = params.get("status")
@@ -133,6 +134,7 @@ export default function Assets() {
   const fetchAssets = async () => {
     let assetQuery = supabase.from("assets").select("*").order("created_at", { ascending: false })
     if (userCountry) assetQuery = assetQuery.eq("country", userCountry)
+    if (isMyAssetsView) assetQuery = assetQuery.eq("assigned_user", userProfile?.name || "")
     const [{ data: a }, { data: m }] = await Promise.all([
       assetQuery,
       supabase.from("maintenance_schedules").select("asset_id, status, scheduled_date"),
@@ -407,7 +409,7 @@ export default function Assets() {
       {/* Header */}
       <div className="flex flex-col gap-2 mb-4 w-full">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">All Assets</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">{isMyAssetsView ? "My Assets" : "All Assets"}</h1>
           <p className="text-gray-400 mt-1 text-sm">{assets.length} total assets</p>
         </div>
         <div className="flex gap-2">
