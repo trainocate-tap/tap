@@ -980,9 +980,17 @@ function AppRouter({ user, mfaVerified, onVerified }) {
   const isMarketingOnly = profile?.marketing_access && profile?.role !== "admin"
   const canAccessMarketing = profile?.marketing_access || profile?.role === "admin"
 
+  // Default landing page after login: marketing-only users go to the Marketing
+  // dashboard, standard users go straight to My Assets, admins go to the Dashboard.
+  const loginRedirect = isMarketingOnly
+    ? "/marketing/dashboard"
+    : profile?.role === "standard_user"
+      ? "/admin/assets"
+      : "/admin"
+
   return (
     <Routes>
-      <Route path="/login" element={<Navigate to={isMarketingOnly ? "/marketing/dashboard" : "/admin"} replace />} />
+      <Route path="/login" element={<Navigate to={loginRedirect} replace />} />
       <Route path="/reset-password" element={
         <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><p className="text-white">Loading...</p></div>}>
           <ResetPasswordPage />
