@@ -27,7 +27,7 @@ function SuccessToast({ message }) {
 }
 
 const ROLES = ["admin", "standard_user", "guest"]
-const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippines", "Vietnam", "Taiwan", "Hong Kong", "India", "Japan", "Sri Lanka", "Gulf (UAE)"]
+const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippines", "Vietnam", "Taiwan", "Hong Kong", "India", "Japan", "Sri Lanka", "Gulf (UAE)", "United States"]
 
 const roleColors = {
   admin: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -66,7 +66,7 @@ function AnimatedError({ message, onDismiss }) {
 
 export default function ManageUsers() {
   const { t } = useTranslation()
-  const { userProfile, isAdmin } = useAuth()
+  const { userProfile, isAdmin, isGlobalAdmin } = useAuth()
   const adminCountry = userProfile?.country || "Singapore"
 
   const [users, setUsers] = useState([])
@@ -102,8 +102,10 @@ export default function ManageUsers() {
   }, [])
 
   const fetchUsers = async () => {
+    let userQuery = supabase.from("user_profiles").select("*").order("created_at", { ascending: true })
+    if (!isGlobalAdmin) userQuery = userQuery.eq("country", adminCountry)
     const [{ data: profileData }, { data: authData }, { data: assetsData }] = await Promise.all([
-      supabase.from("user_profiles").select("*").eq("country", adminCountry).order("created_at", { ascending: true }),
+      userQuery,
       supabase.rpc("get_auth_users"),
       supabase.from("assets").select("assigned_user"),
     ])

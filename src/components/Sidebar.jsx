@@ -6,12 +6,14 @@ import { useTranslation } from "react-i18next"
 import NotificationBell from "./NotificationBell"
 
 const roleColors = {
+  global_admin: "bg-purple-500/20 text-purple-400 border border-purple-500/30",
   admin: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
   standard_user: "bg-green-500/20 text-green-400 border border-green-500/30",
   guest: "bg-gray-500/20 text-gray-400 border border-gray-500/30",
 }
 
 const roleLabels = {
+  global_admin: "🌍 Global Admin",
   admin: "👑 Admin",
   standard_user: "👤 Standard User",
   guest: "👁 Guest",
@@ -22,7 +24,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const [counts, setCounts] = useState({ assets: 0, openIssues: 0, pendingRequests: 0, activeBorrows: 0 })
   const { t } = useTranslation()
-  const { userProfile, role, isStandardUser, isMarketing, isMarketingOnly, canManageMarketing, isGuest } = useAuth()
+  const { userProfile, role, isStandardUser, isMarketing, isMarketingOnly, canManageMarketing, isGlobalAdmin, isGuest } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -90,9 +92,9 @@ export default function Sidebar() {
     navItems = standardUserNavItems
   }
 
-  // Admin (base role), or a non-admin marketing user with an elevated marketing role
-  // (marketing_admin / marketing_manager) viewing the IT module: full access
-  if (canManageMarketing) {
+  // Admin (base role), global admin, or a non-admin marketing user with an elevated
+  // marketing role (marketing_admin / marketing_manager) viewing the IT module: full access
+  if (canManageMarketing || isGlobalAdmin) {
     navItems = [
       dashItem, assetsItem,
       adminOnlyItems[0], scannerItem, adminOnlyItems[1],

@@ -67,6 +67,7 @@ export function AuthProvider({ children, user }) {
       profileLoading,
       role,
       isAdmin: role === "admin",
+      isGlobalAdmin: role === "global_admin",
       isStandardUser: role === "standard_user",
       isGuest: role === "guest",
       isMarketing,

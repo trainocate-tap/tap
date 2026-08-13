@@ -25,11 +25,11 @@ const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippine
 
 export default function Dashboard() {
   const { t } = useTranslation()
-  const { userProfile, userCountry, profileLoading } = useAuth()
+  const { userProfile, userCountry, isGlobalAdmin, profileLoading } = useAuth()
   const navigate = useNavigate()
 
-  // Every user (including admin) is locked to their own country
-  const countryFilter = userCountry || null
+  // Every user is locked to their own country — except a global admin, who sees stats across all countries
+  const countryFilter = isGlobalAdmin ? null : (userCountry || null)
 
   const [stats, setStats] = useState({ totalAssets: 0, available: 0, assigned: 0, issues: 0, retired: 0 })
   const [categoryData, setCategoryData] = useState([])

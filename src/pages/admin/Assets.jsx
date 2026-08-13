@@ -83,7 +83,7 @@ function exportToPDF(selectedAssets, currencySymbol) {
 }
 
 export default function Assets() {
-  const { canEdit, canDelete, isGuest, isStandardUser, isMarketingOnly, userCountry, profileLoading, userProfile } = useAuth()
+  const { canEdit, canDelete, isGuest, isStandardUser, isMarketingOnly, isGlobalAdmin, userCountry, profileLoading, userProfile } = useAuth()
   const isMyAssetsView = isStandardUser || isMarketingOnly
   const { symbol: currencySymbol } = useCurrency()
   const [assets, setAssets] = useState([])
@@ -112,7 +112,7 @@ export default function Assets() {
   const assignDropdownRef = useRef(null)
   const [showLabelModal, setShowLabelModal] = useState(false)
 
-  useEffect(() => { if (!profileLoading) fetchAssets() }, [profileLoading, userCountry, isMyAssetsView, userProfile?.name])
+  useEffect(() => { if (!profileLoading) fetchAssets() }, [profileLoading, userCountry, isGlobalAdmin, isMyAssetsView, userProfile?.name])
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const statusParam = params.get("status")
@@ -133,7 +133,7 @@ export default function Assets() {
 
   const fetchAssets = async () => {
     let assetQuery = supabase.from("assets").select("*").order("created_at", { ascending: false })
-    if (userCountry) assetQuery = assetQuery.eq("country", userCountry)
+    if (userCountry && !isGlobalAdmin) assetQuery = assetQuery.eq("country", userCountry)
     if (isMyAssetsView) assetQuery = assetQuery.eq("assigned_user", userProfile?.name || "")
     const [{ data: a }, { data: m }] = await Promise.all([
       assetQuery,
