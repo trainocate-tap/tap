@@ -20,7 +20,7 @@ async function fetchBackupData() {
 }
 
 export default function Settings() {
-  const { isAdmin, isGlobalAdmin } = useAuth()
+  const { isAdmin, isGlobalAdmin, userCountry } = useAuth()
   const [approvingEmail, setApprovingEmail] = useState("")
   const [marketingEmail, setMarketingEmail] = useState("")
   const [currency, setCurrency] = useState("SGD")
@@ -67,14 +67,15 @@ export default function Settings() {
   }
 
   const fetchCurrency = async () => {
+    if (!userCountry) return
     try {
       const { data } = await supabase
-        .from("system_settings")
-        .select("currency")
-        .eq("id", "global")
-        .single()
-      if (data?.currency) setCurrency(data.currency)
-    } catch { /* table may not exist yet — use default */ }
+        .from("app_settings")
+        .select("value")
+        .eq("key", `currency_${userCountry}`)
+        .maybeSingle()
+      if (data?.value) setCurrency(data.value)
+    } catch { /* no row yet — use default */ }
   }
 
   const fetchProductIds = async () => {
@@ -220,12 +221,13 @@ export default function Settings() {
 
   const handleSaveCurrency = async (e) => {
     e.preventDefault()
+    if (!userCountry) return
     setSavingCurrency(true)
     setError("")
     try {
-      const { error: upsertError } = await supabase.from("system_settings").upsert({
-        id: "global",
-        currency,
+      const { error: upsertError } = await supabase.from("app_settings").upsert({
+        key: `currency_${userCountry}`,
+        value: currency,
         updated_at: new Date().toISOString(),
       })
       if (upsertError) throw upsertError
@@ -377,7 +379,7 @@ export default function Settings() {
           <h2 className="text-white font-semibold">Currency Settings</h2>
         </div>
         <p className="text-gray-500 text-sm mb-4 ml-8">
-          Choose the currency used for cost and value fields across the portal.
+          Choose the currency used for cost and value fields for {userCountry || "your country"}. Each country sets its own currency.
         </p>
 
         {loading ? (
