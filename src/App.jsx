@@ -963,7 +963,7 @@ function AppRouter({ user, mfaVerified, onVerified }) {
   useEffect(() => {
     if (!user) { setProfile(null); setProfileLoading(false); return }
     setProfileLoading(true)
-    supabase.from("user_profiles").select("role,marketing_access").eq("id", user.id).single()
+    supabase.from("user_profiles").select("role,marketing_access,marketing_role").eq("id", user.id).single()
       .then(({ data }) => { setProfile(data); setProfileLoading(false) })
   }, [user?.id])
 
@@ -1000,19 +1000,33 @@ function AppRouter({ user, mfaVerified, onVerified }) {
     )
   }
 
-  // Marketing-only users → marketing module
-  const isMarketingOnly = profile?.marketing_access && profile?.role !== "admin"
   const canAccessMarketing = profile?.marketing_access || profile?.role === "admin"
+  const isElevatedMarketing = ["marketing_admin", "marketing_manager"].includes(profile?.marketing_role)
+  const isBasicMarketing = ["marketing_staff", "bdm", "bdms"].includes(profile?.marketing_role)
 
-  // Default landing page after login: marketing-only users go to the Marketing
-  // dashboard, standard users go straight to My Assets, admins go to the Dashboard —
-  // unless a page was saved before being redirected to /login (e.g. a scanned
-  // marketing item QR code), in which case that takes priority.
-  const loginRedirect = savedRedirect || (isMarketingOnly
-    ? "/marketing/dashboard"
-    : profile?.role === "standard_user"
-      ? "/admin/assets"
-      : "/admin")
+  // Only a scanned marketing item QR code's deep link (?item=<id>) is honored as a
+  // saved redirect after login — any other saved page is ignored so login always
+  // lands on the expected role-based page.
+  const isItemDeepLink = !!savedRedirect?.includes("?item=")
+
+  // Login redirect priority:
+  //  1. QR deep link (?item=) → that URL
+  //  2. Admin → IT Dashboard
+  //  3. marketing_admin / marketing_manager → IT Dashboard
+  //  4. marketing_staff / bdm / bdms → Marketing Dashboard
+  //  5. Standard user with no marketing role → My Assets
+  //  6. Everything else (e.g. guest) → IT Dashboard
+  const loginRedirect = isItemDeepLink
+    ? savedRedirect
+    : profile?.role === "admin"
+      ? "/admin"
+      : isElevatedMarketing
+        ? "/admin"
+        : isBasicMarketing
+          ? "/marketing/dashboard"
+          : profile?.role === "standard_user"
+            ? "/admin/assets"
+            : "/admin"
 
   return (
     <Routes>
@@ -1056,7 +1070,13 @@ export default function App() {
     })
     supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
-      if (!session?.user) setMfaVerified(false)
+      if (!session?.user) {
+        setMfaVerified(false)
+        // Clear any saved deep link on every logout (IT sidebar, Marketing sidebar,
+        // inactivity auto-logout, etc.) so a stale redirect never survives into the
+        // next login.
+        localStorage.removeItem("redirectAfterLogin")
+      }
     })
   }, [])
 
