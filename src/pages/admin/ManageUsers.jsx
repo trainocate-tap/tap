@@ -75,7 +75,7 @@ export default function ManageUsers() {
   const [creating, setCreating] = useState(false)
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "standard_user", country: "Singapore", department: "" })
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "standard_user", country: adminCountry, department: "" })
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -213,7 +213,7 @@ const emailMap = {}
       }
 
       const createdName = form.name || form.email
-      setForm({ name: "", email: "", password: "", role: "standard_user", country: "Singapore", department: "" })
+      setForm({ name: "", email: "", password: "", role: "standard_user", country: adminCountry, department: "" })
       setShowForm(false)
       showSuccess(`✅ Account created for ${createdName}! Welcome email sent.`)
       fetchUsers()
@@ -767,7 +767,7 @@ const emailMap = {}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              setForm({ name: "", email: "", password: "", role: "standard_user", country: "Singapore", department: "" })
+              setForm({ name: "", email: "", password: "", role: "standard_user", country: adminCountry, department: "" })
               setShowForm(v => !v)
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium"
@@ -896,10 +896,20 @@ const emailMap = {}
               </div>
               <div>
                 <label className="text-gray-400 text-sm mb-2 block">Country</label>
-                <div className="w-full bg-gray-800/50 text-gray-300 rounded-lg px-4 py-3 border border-gray-700 text-sm flex items-center justify-between">
-                  <span>{adminCountry}</span>
-                  <span className="text-gray-600 text-xs">🌏 Your region</span>
-                </div>
+                {isGlobalAdmin ? (
+                  <select
+                    value={form.country}
+                    onChange={e => setForm({ ...form, country: e.target.value })}
+                    className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+                  >
+                    {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                ) : (
+                  <div className="w-full bg-gray-800/50 text-gray-300 rounded-lg px-4 py-3 border border-gray-700 text-sm flex items-center justify-between">
+                    <span>{form.country}</span>
+                    <span className="text-gray-600 text-xs">🌏 Your region</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-4 flex gap-3">
