@@ -122,7 +122,7 @@ function isOverdueBorrow(borrow) {
 }
 
 export default function Borrow() {
-  const { userProfile, canBorrow, isAdmin, isStandardUser } = useAuth()
+  const { userProfile, canBorrow, isAdmin, isGlobalAdmin, isStandardUser } = useAuth()
   const location = useLocation()
   const [borrows, setBorrows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -170,7 +170,7 @@ export default function Borrow() {
 
   const fetchBorrows = async () => {
     let q = supabase.from("borrow_history").select("*, assets(name, serial_number)").order("borrowed_at", { ascending: false })
-    if (!isAdmin) {
+    if (!isAdmin && !isGlobalAdmin) {
       q = q.or(`signed_off_by.eq.${userProfile?.name},signed_off_email.eq.${userProfile?.email}`)
     }
     const { data } = await q
@@ -1020,7 +1020,7 @@ export default function Borrow() {
                         </AnimatePresence>
                       </div>
 
-                      {(isAdmin || isStandardUser) && borrow.status === "approved" && !borrow.extension_pending && !borrow.return_pending && borrow.signed_off_email === userProfile?.email && (
+                      {(isAdmin || isGlobalAdmin || isStandardUser) && borrow.status === "approved" && !borrow.extension_pending && !borrow.return_pending && borrow.signed_off_email === userProfile?.email && (
                         <div className="flex flex-col gap-2 shrink-0">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
@@ -1043,7 +1043,7 @@ export default function Borrow() {
                         </div>
                       )}
 
-                      {isAdmin && borrow.status === "pending" && borrow.signed_off_email !== userProfile?.email && (
+                      {(isAdmin || isGlobalAdmin) && borrow.status === "pending" && borrow.signed_off_email !== userProfile?.email && (
                         <div className="flex flex-col gap-2 shrink-0">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
@@ -1064,7 +1064,7 @@ export default function Borrow() {
                         </div>
                       )}
 
-                      {isAdmin && borrow.extension_pending && borrow.signed_off_email !== userProfile?.email && (
+                      {(isAdmin || isGlobalAdmin) && borrow.extension_pending && borrow.signed_off_email !== userProfile?.email && (
                         <div className="flex flex-col gap-2 shrink-0">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
@@ -1085,7 +1085,7 @@ export default function Borrow() {
                         </div>
                       )}
 
-                      {isAdmin && borrow.return_pending && borrow.signed_off_email !== userProfile?.email && (
+                      {(isAdmin || isGlobalAdmin) && borrow.return_pending && borrow.signed_off_email !== userProfile?.email && (
                         <div className="flex flex-col gap-2 shrink-0">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
@@ -1107,10 +1107,10 @@ export default function Borrow() {
                       )}
                     </div>
 
-                    {borrow.status === "approved" && (isAdmin || borrow.admin_note) && (
+                    {borrow.status === "approved" && (isAdmin || isGlobalAdmin || borrow.admin_note) && (
                       <div className="mt-3 pt-3 border-t border-gray-800">
                         <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-2">Admin Note</p>
-                        {isAdmin ? (
+                        {(isAdmin || isGlobalAdmin) ? (
                           <div className="flex items-center gap-2 flex-wrap">
                             <input
                               type="text"

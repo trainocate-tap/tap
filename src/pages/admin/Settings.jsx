@@ -20,7 +20,7 @@ async function fetchBackupData() {
 }
 
 export default function Settings() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, isGlobalAdmin } = useAuth()
   const [approvingEmail, setApprovingEmail] = useState("")
   const [marketingEmail, setMarketingEmail] = useState("")
   const [currency, setCurrency] = useState("SGD")
@@ -271,7 +271,7 @@ export default function Settings() {
     setBackingUpExcel(false)
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && !isGlobalAdmin) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-64">
         <span className="text-5xl mb-4">🔒</span>

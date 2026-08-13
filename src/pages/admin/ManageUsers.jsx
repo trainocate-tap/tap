@@ -469,7 +469,7 @@ const emailMap = {}
     }
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && !isGlobalAdmin) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-64">
         <span className="text-5xl mb-4">🔒</span>

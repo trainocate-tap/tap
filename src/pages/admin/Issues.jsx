@@ -42,7 +42,7 @@ function exportIssuesToExcel(issues) {
 
 export default function Issues() {
   const { t } = useTranslation()
-  const { isAdmin, isStandardUser, userProfile } = useAuth()
+  const { isAdmin, isGlobalAdmin, isStandardUser, userProfile } = useAuth()
   const location = useLocation()
   const [issues, setIssues] = useState([])
   const [assets, setAssets] = useState([])
@@ -467,7 +467,7 @@ export default function Issues() {
               <p className="text-gray-400 text-sm capitalize mb-1">{issue.issue_type}</p>
               <p className="text-gray-400 text-sm mb-3">{issue.description}</p>
               <div className="flex gap-2 flex-wrap">
-                {isAdmin && issue.status === "open" && (
+                {(isAdmin || isGlobalAdmin) && issue.status === "open" && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -524,7 +524,7 @@ export default function Issues() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      {isAdmin && issue.status === "open" && (
+                      {(isAdmin || isGlobalAdmin) && issue.status === "open" && (
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}

@@ -37,7 +37,7 @@ const EMPTY_FORM = {
 }
 
 export default function AssetRequests() {
-  const { userProfile, isAdmin, canSubmitRequests, profileLoading } = useAuth()
+  const { userProfile, isAdmin, isGlobalAdmin, canSubmitRequests, profileLoading } = useAuth()
   const { symbol: currencySymbol } = useCurrency()
   const [requests, setRequests]     = useState([])
   const [loading, setLoading]       = useState(true)
@@ -58,7 +58,7 @@ export default function AssetRequests() {
 
   useEffect(() => {
     if (!profileLoading) fetchRequests()
-  }, [profileLoading, isAdmin, userProfile?.id])
+  }, [profileLoading, isAdmin, isGlobalAdmin, userProfile?.id])
 
   const fetchRequests = async () => {
     let query = supabase
@@ -66,7 +66,7 @@ export default function AssetRequests() {
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (!isAdmin) {
+    if (!isAdmin && !isGlobalAdmin) {
       query = query.or(`requested_by.eq.${userProfile?.name},requested_by_email.eq.${userProfile?.email}`)
     }
 
@@ -701,7 +701,7 @@ export default function AssetRequests() {
                   </div>
 
                   {/* Admin approve / reject buttons */}
-                  {isAdmin && req.status === "pending" && (
+                  {(isAdmin || isGlobalAdmin) && req.status === "pending" && (
                     <div className="flex gap-2 shrink-0">
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                         onClick={() => setActionModal({ request: req, type: "approve" })}

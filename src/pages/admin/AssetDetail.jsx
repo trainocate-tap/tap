@@ -293,7 +293,7 @@ function PhotoGallery({ assetId }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function AssetDetail() {
   const { t } = useTranslation()
-  const { isAdmin, isStandardUser, userProfile } = useAuth()
+  const { isAdmin, isGlobalAdmin, isStandardUser, userProfile } = useAuth()
   const { id } = useParams()
   const navigate = useNavigate()
   const [asset, setAsset] = useState(null)
@@ -505,7 +505,7 @@ export default function AssetDetail() {
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-white font-semibold">{t("assetDetails")}</h2>
-            {!editingDetails && (isAdmin || isStandardUser) && (
+            {!editingDetails && (isAdmin || isGlobalAdmin || isStandardUser) && (
               <button
                 onClick={startEditDetails}
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1"
@@ -608,7 +608,7 @@ export default function AssetDetail() {
           <p className="text-gray-500 text-xs mt-3 text-center">{t("scanToView")}</p>
 
           {/* Print QR Label — admin and standard users only */}
-          {(isAdmin || isStandardUser) && (
+          {(isAdmin || isGlobalAdmin || isStandardUser) && (
             <div className="mt-4 flex gap-2 w-full">
               <motion.button
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
