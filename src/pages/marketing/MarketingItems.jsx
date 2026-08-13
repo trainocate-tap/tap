@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react"
+import { useSearchParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { useAuth } from "../../context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import * as XLSX from "xlsx"
+import { QRCodeSVG } from "qrcode.react"
 
 const C = {
   accent: "#06b6d4", teal: "#14b8a6",
@@ -54,6 +56,10 @@ export default function MarketingItems() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
+  const [detailItem, setDetailItem] = useState(null)
+  const detailQrRef = useRef(null)
+  const [searchParams] = useSearchParams()
+  const autoOpenedRef = useRef(false)
   const [form, setForm] = useState({ name: "", category: "", description: "", item_code: "", unit: "pcs", cost_per_unit: "", delivery_charge: "", tax_amount: "", total_cost: "", is_free_from_vendor: false, supplier_name: "", minimum_stock_level: 0, expiry_date: "" })
   const [formVariants, setFormVariants] = useState([{ variant_name: "", color: "", size: "" }])
 
@@ -64,6 +70,52 @@ export default function MarketingItems() {
   const [importError, setImportError] = useState(null)
 
   useEffect(() => { fetchAll() }, [])
+
+  // Deep-link from a scanned QR code: /marketing/items?item=<id> opens that item's
+  // detail modal automatically. Only auto-opens once so closing the modal sticks.
+  useEffect(() => {
+    if (autoOpenedRef.current) return
+    const itemParam = searchParams.get("item")
+    if (!itemParam || items.length === 0) return
+    const found = items.find(it => it.id === itemParam)
+    if (!found) return
+    autoOpenedRef.current = true
+    const t = setTimeout(() => setDetailItem(found), 0)
+    return () => clearTimeout(t)
+  }, [searchParams, items])
+
+  const itemQrUrl = (id) => `${window.location.origin}/marketing/items?item=${id}`
+
+  const handlePrintItemLabel = () => {
+    if (!detailItem) return
+    const svgEl = detailQrRef.current?.querySelector("svg")
+    const svgStr = svgEl ? new XMLSerializer().serializeToString(svgEl) : ""
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>QR Label — ${detailItem.name}</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .label { width:85mm; height:54mm; border:1px solid #d1d5db; border-radius:2mm; display:flex; flex-direction:column; padding:4mm; box-sizing:border-box; }
+  .name { font-size:11pt; font-weight:800; color:#111; margin-bottom:1.5mm; word-break:break-word; }
+  .id { font-size:7pt; color:#6b7280; font-family:monospace; }
+  .qr-row { flex:1; display:flex; align-items:center; justify-content:center; }
+  .caption { font-size:6pt; color:#6b7280; text-align:center; }
+  @media print { @page { margin:5mm; } body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style></head>
+<body>
+  <div class="label">
+    <div class="name">${detailItem.name}</div>
+    <div class="id">ID: ${detailItem.item_code || detailItem.id}</div>
+    <div class="qr-row">${svgStr}</div>
+    <div class="caption">Scan for item details · Trainocate Marketing</div>
+  </div>
+  <script>window.onload=function(){window.print()}</script>
+</body></html>`
+    const win = window.open("", "_blank", "width=500,height=400")
+    if (!win) { alert("Please allow pop-ups to print the label."); return }
+    win.document.write(html)
+    win.document.close()
+  }
 
   const fetchAll = async () => {
     setLoading(true)
@@ -369,8 +421,9 @@ export default function MarketingItems() {
             return (
               <motion.div
                 key={item.id}
+                onClick={() => setDetailItem(item)}
                 whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(6,182,212,0.12)" }}
-                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "18px", backdropFilter: "blur(8px)" }}
+                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "18px", backdropFilter: "blur(8px)", cursor: "pointer" }}
               >
                 {/* Top row */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
@@ -606,6 +659,76 @@ export default function MarketingItems() {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Item Detail Modal — QR code + Print QR Label */}
+      <AnimatePresence>
+        {detailItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+            onClick={e => { if (e.target === e.currentTarget) setDetailItem(null) }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              style={{ background: "#0f2730", border: `1px solid ${C.border}`, borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "420px" }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "18px" }}>
+                <div>
+                  <h2 style={{ color: C.text, fontSize: "18px", fontWeight: "700" }}>{detailItem.name}</h2>
+                  {detailItem.category && (
+                    <span style={{ ...catBadge(detailItem.category), borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600", display: "inline-block", marginTop: "6px" }}>
+                      {detailItem.category}
+                    </span>
+                  )}
+                </div>
+                <button onClick={() => setDetailItem(null)} style={{ color: C.sub, background: "none", border: "none", cursor: "pointer", fontSize: "20px" }}>✕</button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "18px", fontSize: "15px" }}>
+                {detailItem.item_code && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: C.sub }}>Item Code</span>
+                    <span style={{ color: C.text }}>#{detailItem.item_code}</span>
+                  </div>
+                )}
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: C.sub }}>Total Stock</span>
+                  <span style={{ color: C.text }}>{getItemStock(detailItem.id)} {detailItem.unit || "pcs"}</span>
+                </div>
+                {detailItem.supplier_name && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: C.sub }}>Supplier</span>
+                    <span style={{ color: C.text }}>{detailItem.supplier_name}</span>
+                  </div>
+                )}
+                {showCost && detailItem.cost_per_unit && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: C.sub }}>Cost/unit</span>
+                    <span style={{ color: C.text }}>${detailItem.cost_per_unit}</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "16px", background: "rgba(6,182,212,0.06)", borderRadius: "14px", marginBottom: "16px" }}>
+                <div ref={detailQrRef} style={{ background: "#fff", padding: "12px", borderRadius: "10px" }}>
+                  <QRCodeSVG value={itemQrUrl(detailItem.id)} size={160} level="H" />
+                </div>
+                <p style={{ color: C.sub, fontSize: "12px" }}>Scan to view item details</p>
+                <p style={{ color: "#4b5563", fontSize: "11px", fontFamily: "monospace" }}>{detailItem.id}</p>
+              </div>
+
+              <button onClick={handlePrintItemLabel}
+                style={{ width: "100%", background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
+                🏷️ Print QR Label
+              </button>
             </motion.div>
           </motion.div>
         )}
