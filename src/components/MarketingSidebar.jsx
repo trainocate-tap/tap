@@ -200,7 +200,11 @@ export default function MarketingSidebar() {
           <p style={{ color: MKT.sub, fontSize: "10px", marginBottom: "7px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Switch Module</p>
           <div style={{ display: "flex", gap: "6px" }}>
             <button
-              onClick={() => { setOpen(false); navigate("/admin/dashboard") }}
+              onClick={() => {
+                setOpen(false)
+                const goesToDashboard = role === "admin" || ["marketing_admin", "marketing_manager"].includes(marketingRole)
+                navigate(goesToDashboard ? "/admin" : "/admin/assets")
+              }}
               style={{ flex: 1, padding: "6px 4px", borderRadius: "7px", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)", color: "#60a5fa", fontSize: "11px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.background = "rgba(59,130,246,0.18)"}
               onMouseLeave={e => e.currentTarget.style.background = "rgba(59,130,246,0.08)"}
