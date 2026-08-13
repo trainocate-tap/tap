@@ -27,7 +27,7 @@ const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippine
 export default function Dashboard() {
   const { t } = useTranslation()
   const { userProfile, userCountry, isGlobalAdmin, profileLoading } = useAuth()
-  const { currency } = useCurrency()
+  const { currency, symbol: currencySymbol } = useCurrency()
   const navigate = useNavigate()
 
   // Every user is locked to their own country — except a global admin, who sees stats across all countries
@@ -534,9 +534,9 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={departmentData} layout="vertical">
                     <XAxis type="number" tick={{ fill: "#9ca3af", fontSize: 11 }}
-                      tickFormatter={v => v >= 1000 ? `$${(v/1000).toFixed(1)}k` : `$${v}`} />
+                      tickFormatter={v => v >= 1000 ? `${currencySymbol}${(v/1000).toFixed(1)}k` : `${currencySymbol}${v}`} />
                     <YAxis type="category" dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} width={80} />
-                    <Tooltip {...CHART_TOOLTIP} formatter={v => [`$${v.toLocaleString()}`, "Value"]} />
+                    <Tooltip {...CHART_TOOLTIP} formatter={v => [`${currencySymbol}${v.toLocaleString()}`, "Value"]} />
                     <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -555,8 +555,8 @@ export default function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
                     <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} />
                     <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }}
-                      tickFormatter={v => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`} />
-                    <Tooltip {...CHART_TOOLTIP} formatter={v => [`$${v.toLocaleString()}`, "Spent"]} />
+                      tickFormatter={v => v >= 1000 ? `${currencySymbol}${(v/1000).toFixed(0)}k` : `${currencySymbol}${v}`} />
+                    <Tooltip {...CHART_TOOLTIP} formatter={v => [`${currencySymbol}${v.toLocaleString()}`, "Spent"]} />
                     <Line type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2}
                       dot={{ fill: "#06b6d4", strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: "#06b6d4" }} />
                   </LineChart>
