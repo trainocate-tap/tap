@@ -4,12 +4,13 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 import { QRCodeSVG } from "qrcode.react"
 import { motion, AnimatePresence } from "framer-motion"
-import { calcDepreciation, fmtSGD } from "../../lib/depreciation"
+import { calcDepreciation, fmtCurrency } from "../../lib/depreciation"
 import { useTranslation } from "react-i18next"
 import QRLabelModal from "../../components/QRLabelModal"
 import { logHistory } from "../../lib/logHistory"
 import { statusLabel } from "../../lib/statusLabel"
 import { DEPARTMENTS } from "../../lib/departments"
+import { useCurrency } from "../../lib/useCurrency"
 
 // ── Asset Details field config (label + db column + input type) ─────────────
 const DETAIL_FIELDS = [
@@ -47,7 +48,7 @@ const COLOR = {
 }
 
 // ── AssetTimeline ────────────────────────────────────────────────────────────
-function AssetTimeline({ asset, history }) {
+function AssetTimeline({ asset, history, currency }) {
   // Build sorted event list
   const events = []
 
@@ -58,7 +59,7 @@ function AssetTimeline({ asset, history }) {
       color: "green",
       action: "Purchased",
       details: asset.purchase_price
-        ? `Acquired for SGD ${Number(asset.purchase_price).toLocaleString()}`
+        ? `Acquired for ${currency} ${Number(asset.purchase_price).toLocaleString()}`
         : "Asset acquired",
       created_at: asset.purchase_date + "T00:00:00.000Z",
       changed_by: null,
@@ -294,6 +295,7 @@ function PhotoGallery({ assetId }) {
 export default function AssetDetail() {
   const { t } = useTranslation()
   const { isAdmin, isGlobalAdmin, isStandardUser, userProfile } = useAuth()
+  const { currency } = useCurrency()
   const { id } = useParams()
   const navigate = useNavigate()
   const [asset, setAsset] = useState(null)
@@ -483,9 +485,9 @@ export default function AssetDetail() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: t("originalPrice"),      value: fmtSGD(dep.originalPrice) },
-                { label: t("currentValue"),        value: fmtSGD(dep.currentValue), sub: dep.fullyDepreciated ? t("fullyWrittenOff") : null, hl: true },
-                { label: t("depreciationPerYear"), value: fmtSGD(dep.perYear) },
+                { label: t("originalPrice"),      value: fmtCurrency(dep.originalPrice, currency) },
+                { label: t("currentValue"),        value: fmtCurrency(dep.currentValue, currency), sub: dep.fullyDepreciated ? t("fullyWrittenOff") : null, hl: true },
+                { label: t("depreciationPerYear"), value: fmtCurrency(dep.perYear, currency) },
                 { label: t("percentDepreciated"),  value: `${dep.percentDepreciated}%`, sub: `${dep.yearsOld}yr old` },
               ].map(s => (
                 <div key={s.label} className="bg-gray-800/60 rounded-lg p-3">
@@ -586,7 +588,7 @@ export default function AssetDetail() {
                 { label: "Assigned To",    value: asset.assigned_user },
                 { label: "Department",     value: asset.department },
                 { label: "Purchase Date",  value: asset.purchase_date },
-                { label: "Purchase Price", value: asset.purchase_price ? `SGD ${Number(asset.purchase_price).toLocaleString()}` : null },
+                { label: "Purchase Price", value: asset.purchase_price ? `${currency} ${Number(asset.purchase_price).toLocaleString()}` : null },
                 { label: "Warranty Expiry",value: asset.warranty_expiry },
                 { label: "Remarks",        value: asset.remarks },
               ].map(({ label, value }) => (
@@ -630,7 +632,7 @@ export default function AssetDetail() {
       <PhotoGallery assetId={id} />
 
       {/* Asset Timeline */}
-      <AssetTimeline asset={asset} history={history} />
+      <AssetTimeline asset={asset} history={history} currency={currency} />
 
       {/* Full Activity Timeline */}
       <motion.div

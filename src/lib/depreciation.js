@@ -32,6 +32,6 @@ export function calcDepreciation(purchasePrice, purchaseDate, usefulLife, asOfDa
   }
 }
 
-export function fmtSGD(val) {
-  return `SGD ${Number(val).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+export function fmtCurrency(val, currencyCode = "SGD") {
+  return `${currencyCode} ${Number(val).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }

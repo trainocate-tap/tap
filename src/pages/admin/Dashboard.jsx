@@ -10,9 +10,10 @@ import { motion } from "framer-motion"
 import { useTranslation } from "react-i18next"
 import { checkLicenseAlerts, checkApprovalReminders, checkMarketingReminders } from "../../lib/emailService"
 import { calculateHealthScore, HEALTH_COLORS } from "../../lib/healthScore"
-import { calcDepreciation, fmtSGD } from "../../lib/depreciation"
+import { calcDepreciation, fmtCurrency } from "../../lib/depreciation"
 import { useAuth } from "../../context/AuthContext"
 import { statusLabel } from "../../lib/statusLabel"
+import { useCurrency } from "../../lib/useCurrency"
 
 const CHART_TOOLTIP = {
   contentStyle: { backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: "8px" },
@@ -26,6 +27,7 @@ const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippine
 export default function Dashboard() {
   const { t } = useTranslation()
   const { userProfile, userCountry, isGlobalAdmin, profileLoading } = useAuth()
+  const { currency } = useCurrency()
   const navigate = useNavigate()
 
   // Every user is locked to their own country — except a global admin, who sees stats across all countries
@@ -525,7 +527,7 @@ export default function Dashboard() {
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
               className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 p-6">
               <h2 className="text-white font-semibold mb-1">Asset Value by Department</h2>
-              <p className="text-gray-500 text-xs mb-4">Total purchase value (SGD)</p>
+              <p className="text-gray-500 text-xs mb-4">Total purchase value ({currency})</p>
               {departmentData.length === 0 ? (
                 <p className="text-gray-600 text-sm text-center py-16">No department / price data yet</p>
               ) : (
@@ -544,7 +546,7 @@ export default function Dashboard() {
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}
               className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 p-6">
               <h2 className="text-white font-semibold mb-1">Monthly Procurement Spending</h2>
-              <p className="text-gray-500 text-xs mb-4">Last 12 months (SGD)</p>
+              <p className="text-gray-500 text-xs mb-4">Last 12 months ({currency})</p>
               {procurementData.length === 0 ? (
                 <p className="text-gray-600 text-sm text-center py-16">No purchase date / price data yet</p>
               ) : (
@@ -602,15 +604,15 @@ export default function Dashboard() {
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div className="bg-gray-800/60 rounded-xl p-3 text-center">
                   <p className="text-gray-500 text-xs mb-1">Original Cost</p>
-                  <p className="text-white font-bold text-sm">{fmtSGD(deprStats.totalOriginal)}</p>
+                  <p className="text-white font-bold text-sm">{fmtCurrency(deprStats.totalOriginal, currency)}</p>
                 </div>
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center">
                   <p className="text-gray-500 text-xs mb-1">Current Book Value</p>
-                  <p className="text-blue-400 font-bold text-sm">{fmtSGD(deprStats.totalCurrent)}</p>
+                  <p className="text-blue-400 font-bold text-sm">{fmtCurrency(deprStats.totalCurrent, currency)}</p>
                 </div>
                 <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
                   <p className="text-gray-500 text-xs mb-1">Total Depreciated</p>
-                  <p className="text-red-400 font-bold text-sm">{fmtSGD(deprStats.totalLost)}</p>
+                  <p className="text-red-400 font-bold text-sm">{fmtCurrency(deprStats.totalLost, currency)}</p>
                 </div>
               </div>
               <div className="h-2 bg-gray-800 rounded-full overflow-hidden">

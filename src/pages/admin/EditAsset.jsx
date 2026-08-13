@@ -7,12 +7,14 @@ import { useTranslation } from "react-i18next"
 import { useAuth } from "../../context/AuthContext"
 import { createNotification } from "../../lib/notifications"
 import { DEPARTMENTS } from "../../lib/departments"
+import { useCurrency } from "../../lib/useCurrency"
 
 const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippines", "Vietnam", "Taiwan", "Hong Kong", "India", "Japan", "Sri Lanka", "Gulf (UAE)"]
 
 export default function EditAsset() {
   const { t } = useTranslation()
   const { userProfile } = useAuth()
+  const { currency } = useCurrency()
   const navigate = useNavigate()
   const { id } = useParams()
   const [loading, setLoading] = useState(false)
@@ -153,7 +155,7 @@ export default function EditAsset() {
     { name: "asset_tag", label: "Asset Tag", placeholder: "e.g. COM/2024/0001" },
     { name: "location", label: "Location", placeholder: "e.g. Level 19, Singapore" },
     { name: "purchase_date", label: "Purchase Date", type: "date" },
-    { name: "purchase_price", label: "Purchase Price (SGD)", placeholder: "e.g. 1500", type: "number" },
+    { name: "purchase_price", label: `Purchase Price (${currency})`, placeholder: "e.g. 1500", type: "number" },
     { name: "useful_life", label: "Useful Life (years)", placeholder: "e.g. 5", type: "number", min: 1, max: 50 },
     ...(!isSoftwareEdit ? [{ name: "warranty_expiry", label: "Warranty Expiry", type: "date" }] : []),
     ...(isSoftwareEdit ? [
