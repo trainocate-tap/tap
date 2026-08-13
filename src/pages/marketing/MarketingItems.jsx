@@ -80,8 +80,7 @@ export default function MarketingItems() {
     const found = items.find(it => it.id === itemParam)
     if (!found) return
     autoOpenedRef.current = true
-    const t = setTimeout(() => setDetailItem(found), 0)
-    return () => clearTimeout(t)
+    setDetailItem(found)
   }, [searchParams, items])
 
   const itemQrUrl = (id) => `${window.location.origin}/marketing/items?item=${id}`
