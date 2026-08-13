@@ -176,6 +176,12 @@ export default function Settings() {
   const handleSave = async (e) => {
     e.preventDefault()
     if (!approvingEmail) return
+    // Guard against placeholder/stale values (e.g. "global") getting saved instead
+    // of a real selection — only proceed if it matches an actual admin user.
+    if (!adminUsers.some(u => u.email === approvingEmail)) {
+      setError("Please select a valid admin user as the approving officer.")
+      return
+    }
     setSaving(true)
     setError("")
     try {
