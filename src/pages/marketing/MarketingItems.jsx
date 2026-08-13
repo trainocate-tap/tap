@@ -85,6 +85,7 @@ export default function MarketingItems() {
   }, [searchParams, items])
 
   const itemQrUrl = (id) => `${window.location.origin}/marketing/items?item=${id}`
+  const itemDisplayId = (item) => item.item_code || item.id.slice(0, 8)
 
   const handlePrintItemLabel = () => {
     if (!detailItem) return
@@ -105,7 +106,7 @@ export default function MarketingItems() {
 <body>
   <div class="label">
     <div class="name">${detailItem.name}</div>
-    <div class="id">ID: ${detailItem.item_code || detailItem.id}</div>
+    <div class="id">ID: ${itemDisplayId(detailItem)}</div>
     <div class="qr-row">${svgStr}</div>
     <div class="caption">Scan for item details · Trainocate Marketing</div>
   </div>
@@ -722,7 +723,7 @@ export default function MarketingItems() {
                   <QRCodeSVG value={itemQrUrl(detailItem.id)} size={160} level="H" />
                 </div>
                 <p style={{ color: C.sub, fontSize: "12px" }}>Scan to view item details</p>
-                <p style={{ color: "#4b5563", fontSize: "11px", fontFamily: "monospace" }}>{detailItem.id}</p>
+                <p style={{ color: "#4b5563", fontSize: "11px", fontFamily: "monospace" }}>{itemDisplayId(detailItem)}</p>
               </div>
 
               <button onClick={handlePrintItemLabel}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense, memo } from "react"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 import { ThemeProvider } from "./context/ThemeContext"
 import { AuthProvider, useAuth } from "./context/AuthContext"
@@ -161,6 +161,20 @@ function AnimatedError({ message, onDismiss }) {
 const BrandLogo = memo(() => (
   <img src="/trainocate-logo.png" alt="Trainocate" style={{width:"180px", borderRadius:"16px", display:"block", margin:"0 auto", boxShadow:"0 4px 20px rgba(0,0,0,0.3)"}} />
 ))
+
+// Hit when an unauthenticated user requests any URL other than /login or /reset-password
+// (e.g. a scanned marketing item QR code's ?item=<id> deep link). Saves where they were
+// trying to go so it can be restored once they've logged in.
+function CaptureAndRedirectToLogin() {
+  const location = useLocation()
+  useEffect(() => {
+    const current = location.pathname + location.search
+    if (current && current !== "/login") {
+      localStorage.setItem("redirectAfterLogin", current)
+    }
+  }, [location])
+  return <Navigate to="/login" />
+}
 
 function LoginPage({ onVerified }) {
   const [email, setEmail] = useState("")
@@ -953,6 +967,16 @@ function AppRouter({ user, mfaVerified, onVerified }) {
       .then(({ data }) => { setProfile(data); setProfileLoading(false) })
   }, [user?.id])
 
+  // Read once per render (cheap, synchronous, non-mutating) so the very first
+  // authenticated render can redirect to the saved page immediately; only clear
+  // it once actually authenticated, so it isn't wiped out while still on /login.
+  const savedRedirect = localStorage.getItem("redirectAfterLogin")
+  useEffect(() => {
+    if (user && mfaVerified && savedRedirect) {
+      localStorage.removeItem("redirectAfterLogin")
+    }
+  }, [user, mfaVerified, savedRedirect])
+
   if (!user || !mfaVerified) {
     return (
       <Routes>
@@ -962,7 +986,7 @@ function AppRouter({ user, mfaVerified, onVerified }) {
             <ResetPasswordPage />
           </Suspense>
         } />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<CaptureAndRedirectToLogin />} />
       </Routes>
     )
   }
@@ -981,12 +1005,14 @@ function AppRouter({ user, mfaVerified, onVerified }) {
   const canAccessMarketing = profile?.marketing_access || profile?.role === "admin"
 
   // Default landing page after login: marketing-only users go to the Marketing
-  // dashboard, standard users go straight to My Assets, admins go to the Dashboard.
-  const loginRedirect = isMarketingOnly
+  // dashboard, standard users go straight to My Assets, admins go to the Dashboard —
+  // unless a page was saved before being redirected to /login (e.g. a scanned
+  // marketing item QR code), in which case that takes priority.
+  const loginRedirect = savedRedirect || (isMarketingOnly
     ? "/marketing/dashboard"
     : profile?.role === "standard_user"
       ? "/admin/assets"
-      : "/admin"
+      : "/admin")
 
   return (
     <Routes>
