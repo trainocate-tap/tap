@@ -88,11 +88,12 @@ export default function MarketingItems() {
   const itemDisplayId = (item) => item.item_code || item.id.slice(0, 8)
 
   const handlePrintItemLabel = () => {
-    if (!detailItem) return
+    if (!editingItemId) return
+    const printItem = { id: editingItemId, item_code: form.item_code }
     const svgEl = detailQrRef.current?.querySelector("svg")
     const svgStr = svgEl ? new XMLSerializer().serializeToString(svgEl) : ""
     const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>QR Label — ${detailItem.name}</title>
+<html><head><meta charset="UTF-8"><title>QR Label — ${form.name}</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:#fff; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }
@@ -105,8 +106,8 @@ export default function MarketingItems() {
 </style></head>
 <body>
   <div class="label">
-    <div class="name">${detailItem.name}</div>
-    <div class="id">ID: ${itemDisplayId(detailItem)}</div>
+    <div class="name">${form.name}</div>
+    <div class="id">ID: ${itemDisplayId(printItem)}</div>
     <div class="qr-row">${svgStr}</div>
     <div class="caption">Scan for item details · Trainocate Marketing</div>
   </div>
@@ -374,6 +375,8 @@ export default function MarketingItems() {
     fetchAll()
   }
 
+  const itemCategories = [...new Set(items.map(i => i.category).filter(Boolean))].sort()
+
   const filtered = items.filter(item => {
     const qty = getItemStock(item.id)
     const min = item.minimum_stock_level || 0
@@ -443,8 +446,8 @@ export default function MarketingItems() {
         />
         <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
           style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "15px" }}>
-          <option>All</option>
-          {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+          <option value="All">Category</option>
+          {itemCategories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
           style={{ background: "#0f2730", color: C.text, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "9px 14px", fontSize: "15px" }}>
@@ -648,6 +651,22 @@ export default function MarketingItems() {
                   ))}
                 </div>
 
+                {/* QR code + Print QR Label — only for an existing item being edited;
+                    a new, unsaved item has no id to encode yet */}
+                {editingItemId && (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "16px", background: "rgba(6,182,212,0.06)", borderRadius: "14px" }}>
+                    <div ref={detailQrRef} style={{ background: "#fff", padding: "12px", borderRadius: "10px" }}>
+                      <QRCodeSVG value={itemQrUrl(editingItemId)} size={160} level="H" />
+                    </div>
+                    <p style={{ color: C.sub, fontSize: "12px" }}>Scan to view item details</p>
+                    <p style={{ color: "#4b5563", fontSize: "11px", fontFamily: "monospace" }}>{itemDisplayId({ id: editingItemId, item_code: form.item_code })}</p>
+                    <button onClick={handlePrintItemLabel}
+                      style={{ width: "100%", background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
+                      🏷️ Print QR Label
+                    </button>
+                  </div>
+                )}
+
                 <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
                   <button onClick={() => { setShowModal(false); resetForm() }}
                     style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: `1px solid rgba(148,163,184,0.2)`, borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
@@ -757,19 +776,6 @@ export default function MarketingItems() {
                   </div>
                 </div>
               )}
-
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "16px", background: "rgba(6,182,212,0.06)", borderRadius: "14px", marginBottom: "16px" }}>
-                <div ref={detailQrRef} style={{ background: "#fff", padding: "12px", borderRadius: "10px" }}>
-                  <QRCodeSVG value={itemQrUrl(detailItem.id)} size={160} level="H" />
-                </div>
-                <p style={{ color: C.sub, fontSize: "12px" }}>Scan to view item details</p>
-                <p style={{ color: "#4b5563", fontSize: "11px", fontFamily: "monospace" }}>{itemDisplayId(detailItem)}</p>
-              </div>
-
-              <button onClick={handlePrintItemLabel}
-                style={{ width: "100%", background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
-                🏷️ Print QR Label
-              </button>
             </motion.div>
           </motion.div>
         )}
