@@ -23,7 +23,7 @@ const STATUS_STYLES = {
 const ASSET_TYPES = ["Laptop", "Desktop", "Monitor", "Phone", "Printer", "Networking Equipment", "Tablet", "Other"]
 const LAPTOP_TYPES = ["Standard", "High-performance", "Developer", "Design", "Other"]
 const OS_OPTIONS   = ["Windows", "macOS", "Linux"]
-const DEPARTMENTS  = ["Sales", "Marketing", "Finance", "IT", "Trainers", "Operations", "Other"]
+const DEPARTMENTS  = ["HR", "Sales", "Marketing", "IT", "Service Delivery", "Finance", "Partnership", "Management", "Funding", "Classroom"]
 
 const EMPTY_FORM = {
   asset_type: "",
