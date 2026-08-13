@@ -57,6 +57,7 @@ export default function MarketingItems() {
   const [saveError, setSaveError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
   const [detailItem, setDetailItem] = useState(null)
+  const [editingItemId, setEditingItemId] = useState(null)
   const detailQrRef = useRef(null)
   const [searchParams] = useSearchParams()
   const autoOpenedRef = useRef(false)
@@ -166,6 +167,25 @@ export default function MarketingItems() {
     setForm({ name: "", category: "", description: "", item_code: "", unit: "pcs", cost_per_unit: "", delivery_charge: "", tax_amount: "", total_cost: "", is_free_from_vendor: false, supplier_name: "", minimum_stock_level: 0, expiry_date: "" })
     setFormVariants([{ variant_name: "", color: "", size: "" }])
     setSaveError(null)
+    setEditingItemId(null)
+  }
+
+  const openEditModal = (item) => {
+    const itemVariants = getItemVariants(item.id)
+    setForm({
+      name: item.name || "", category: item.category || "", description: item.description || "",
+      item_code: item.item_code || "", unit: item.unit || "pcs",
+      cost_per_unit: item.cost_per_unit ?? "", delivery_charge: item.delivery_charge ?? "",
+      tax_amount: item.tax_amount ?? "", total_cost: item.total_cost ?? "",
+      is_free_from_vendor: item.is_free_from_vendor || false, supplier_name: item.supplier_name || "",
+      minimum_stock_level: item.minimum_stock_level || 0, expiry_date: item.expiry_date || "",
+    })
+    setFormVariants(itemVariants.length > 0
+      ? itemVariants.map(v => ({ variant_name: v.variant_name || "", color: v.color || "", size: v.size || "" }))
+      : [{ variant_name: "", color: "", size: "" }])
+    setSaveError(null)
+    setEditingItemId(item.id)
+    setShowModal(true)
   }
 
   const handleSave = async () => {
@@ -173,31 +193,53 @@ export default function MarketingItems() {
     setSaving(true)
     setSaveError(null)
 
-    // 1. Insert the item
-    const { data: item, error: itemError } = await supabase
-      .from("marketing_items")
-      .insert({
-        name: form.name.trim(),
-        category: form.category || null,
-        description: form.description || null,
-        item_code: form.item_code || null,
-        unit: form.unit,
-        cost_per_unit: parseFloat(form.cost_per_unit) || null,
-        delivery_charge: parseFloat(form.delivery_charge) || null,
-        tax_amount: parseFloat(form.tax_amount) || null,
-        total_cost: parseFloat(form.total_cost) || null,
-        is_free_from_vendor: form.is_free_from_vendor,
-        supplier_name: form.supplier_name || null,
-        minimum_stock_level: parseInt(form.minimum_stock_level) || 0,
-        expiry_date: form.expiry_date || null,
-      })
-      .select()
-      .single()
+    const payload = {
+      name: form.name.trim(),
+      category: form.category || null,
+      description: form.description || null,
+      item_code: form.item_code || null,
+      unit: form.unit,
+      cost_per_unit: parseFloat(form.cost_per_unit) || null,
+      delivery_charge: parseFloat(form.delivery_charge) || null,
+      tax_amount: parseFloat(form.tax_amount) || null,
+      total_cost: parseFloat(form.total_cost) || null,
+      is_free_from_vendor: form.is_free_from_vendor,
+      supplier_name: form.supplier_name || null,
+      minimum_stock_level: parseInt(form.minimum_stock_level) || 0,
+      expiry_date: form.expiry_date || null,
+    }
 
-    if (itemError) {
-      setSaving(false)
-      setSaveError(`Could not save item: ${itemError.message}`)
-      return
+    // 1. Insert or update the item
+    let item
+    if (editingItemId) {
+      const { data, error: itemError } = await supabase
+        .from("marketing_items")
+        .update(payload)
+        .eq("id", editingItemId)
+        .select()
+        .single()
+      if (itemError) {
+        setSaving(false)
+        setSaveError(`Could not save item: ${itemError.message}`)
+        return
+      }
+      item = data
+      // Replace variants wholesale — simpler and consistent with the create flow
+      // rather than diffing which variants changed.
+      const { error: delErr } = await supabase.from("marketing_item_variants").delete().eq("item_id", editingItemId)
+      if (delErr) console.error("Variants clear error:", delErr.message)
+    } else {
+      const { data, error: itemError } = await supabase
+        .from("marketing_items")
+        .insert(payload)
+        .select()
+        .single()
+      if (itemError) {
+        setSaving(false)
+        setSaveError(`Could not save item: ${itemError.message}`)
+        return
+      }
+      item = data
     }
 
     // 2. Save variants (skip blank ones)
@@ -210,27 +252,30 @@ export default function MarketingItems() {
     }
 
     // 3. Initialize stock at 0 for every location so the item appears in stock views
-    if (locations.length > 0) {
+    //    (new items only — an existing item's stock is managed via Stock In/Out)
+    if (!editingItemId && locations.length > 0) {
       const { error: stockErr } = await supabase
         .from("marketing_stock")
         .insert(locations.map(loc => ({ item_id: item.id, location_id: loc.id, quantity: 0 })))
       if (stockErr) console.error("Stock init error:", stockErr.message)
     }
 
+    const wasEdit = !!editingItemId
     setSaving(false)
     setShowModal(false)
     resetForm()
-    setSuccessMsg(`✅ "${item.name}" added successfully!`)
+    setSuccessMsg(wasEdit ? `✅ "${item.name}" updated successfully!` : `✅ "${item.name}" added successfully!`)
     setTimeout(() => setSuccessMsg(null), 7000)
     if (userProfile?.id) {
       await supabase.from("marketing_notifications").insert({
         user_id: userProfile.id,
-        title: "Item Added 📦",
-        message: `${item.name} has been added to inventory`,
-        type: "item_added",
+        title: wasEdit ? "Item Updated ✏️" : "Item Added 📦",
+        message: wasEdit ? `${item.name} was updated` : `${item.name} has been added to inventory`,
+        type: wasEdit ? "item_updated" : "item_added",
         is_read: false,
       })
     }
+    if (detailItem?.id === item.id) setDetailItem(item)
     fetchAll()
   }
 
@@ -380,7 +425,7 @@ export default function MarketingItems() {
               📥 Import Items
             </button>
             <button
-              onClick={() => setShowModal(true)}
+              onClick={() => { resetForm(); setShowModal(true) }}
               style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "10px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer" }}
             >
               + Add New Item
@@ -407,121 +452,76 @@ export default function MarketingItems() {
         </select>
       </div>
 
-      {/* Items Grid */}
+      {/* Items Table */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
           <p style={{ color: C.sub }}>Loading items...</p>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
-          {filtered.map(item => {
-            const qty = getItemStock(item.id)
-            const itemVariants = getItemVariants(item.id)
-            const stockByLoc = getStockByLocation(item.id)
-            return (
-              <motion.div
-                key={item.id}
-                onClick={() => setDetailItem(item)}
-                whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(6,182,212,0.12)" }}
-                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "18px", backdropFilter: "blur(8px)", cursor: "pointer" }}
-              >
-                {/* Top row */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                  {/* Item image placeholder */}
-                  <div style={{
-                    width: "50px", height: "50px", borderRadius: "12px",
-                    background: "rgba(6,182,212,0.1)", border: `1px solid ${C.border}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "24px", flexShrink: 0,
-                  }}>
-                    {item.image_url ? <img src={item.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "12px" }} /> : "📦"}
-                  </div>
-                  <StatusBadge qty={qty} min={item.minimum_stock_level || 0} />
-                </div>
-
-                {/* Name & code */}
-                <p style={{ color: C.text, fontWeight: "700", fontSize: "17px", marginBottom: "4px" }}>{item.name}</p>
-                {item.item_code && (
-                  <span style={{ background: "rgba(6,182,212,0.1)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "1px 7px", fontSize: "12px", fontWeight: "600" }}>
-                    #{item.item_code}
-                  </span>
-                )}
-
-                {/* Category */}
-                {item.category && (
-                  <div style={{ marginTop: "8px" }}>
-                    <span style={{ ...catBadge(item.category), borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>
-                      {item.category}
-                    </span>
-                  </div>
-                )}
-
-                {/* Variants (color dots) */}
-                {itemVariants.length > 0 && (
-                  <div style={{ display: "flex", gap: "4px", marginTop: "10px", flexWrap: "wrap" }}>
-                    {itemVariants.map(v => (
-                      <span key={v.id} title={`${v.variant_name}${v.color ? " · " + v.color : ""}${v.size ? " · " + v.size : ""}`}
-                        style={{ width: "20px", height: "20px", borderRadius: "50%", background: v.color || C.accent, border: "2px solid rgba(255,255,255,0.2)", display: "inline-block", cursor: "help" }} />
-                    ))}
-                    <span style={{ color: C.sub, fontSize: "13px", alignSelf: "center" }}>
-                      {itemVariants.length} variant{itemVariants.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                )}
-
-                <hr style={{ border: "none", borderTop: `1px solid ${C.border}`, margin: "12px 0" }} />
-
-                {/* Stock info */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                  <span style={{ color: C.sub, fontSize: "14px" }}>Total Stock</span>
-                  <span style={{ color: qty <= (item.minimum_stock_level || 0) && qty > 0 ? C.warning : qty <= 0 ? C.error : C.success, fontWeight: "700", fontSize: "17px" }}>
-                    {qty} {item.unit || "pcs"}
-                  </span>
-                </div>
-                {item.minimum_stock_level > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <span style={{ color: C.sub, fontSize: "13px" }}>Min. level</span>
-                    <span style={{ color: C.sub, fontSize: "13px" }}>{item.minimum_stock_level} {item.unit || "pcs"}</span>
-                  </div>
-                )}
-
-                {/* Location breakdown */}
-                {Object.keys(stockByLoc).length > 0 && (
-                  <div style={{ marginTop: "8px" }}>
-                    {Object.entries(stockByLoc).map(([loc, qty]) => (
-                      <div key={loc} style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
-                        <span style={{ color: C.sub, fontSize: "13px" }}>{loc}</span>
-                        <span style={{ color: C.accent, fontSize: "13px", fontWeight: "600" }}>{qty}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Cost (admin only) */}
-                {showCost && item.cost_per_unit && (
-                  <div style={{ marginTop: "10px", padding: "8px", background: "rgba(6,182,212,0.06)", borderRadius: "8px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: C.sub, fontSize: "13px" }}>Cost/unit</span>
-                      <span style={{ color: C.text, fontSize: "14px", fontWeight: "600" }}>${item.cost_per_unit}</span>
-                    </div>
-                    {item.supplier_name && (
-                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
-                        <span style={{ color: C.sub, fontSize: "13px" }}>Supplier</span>
-                        <span style={{ color: C.sub, fontSize: "13px" }}>{item.supplier_name}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Expiry */}
-                {item.expiry_date && (
-                  <div style={{ marginTop: "8px", color: new Date(item.expiry_date) < new Date() ? C.error : C.warning, fontSize: "13px" }}>
-                    ⏰ Expires: {item.expiry_date}
-                  </div>
-                )}
-              </motion.div>
-            )
-          })}
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                  {["Item Name", "Category", "Item Code", "Total Stock", "Min Level", "Status", "Actions"].map(h => (
+                    <th key={h} style={{ color: C.sub, textAlign: "left", padding: "12px 16px", fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(item => {
+                  const qty = getItemStock(item.id)
+                  const min = item.minimum_stock_level || 0
+                  return (
+                    <tr
+                      key={item.id}
+                      onClick={() => setDetailItem(item)}
+                      style={{ borderBottom: "1px solid rgba(6,182,212,0.08)", cursor: "pointer", transition: "background 0.15s" }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(6,182,212,0.06)" }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "transparent" }}
+                    >
+                      <td style={{ padding: "12px 16px" }}>
+                        <p style={{ color: C.text, fontWeight: "600", fontSize: "15px" }}>{item.name}</p>
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        {item.category
+                          ? <span style={{ ...catBadge(item.category), borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>{item.category}</span>
+                          : <span style={{ color: C.sub, fontSize: "14px" }}>—</span>}
+                      </td>
+                      <td style={{ padding: "12px 16px", color: C.sub, fontSize: "14px" }}>
+                        {item.item_code ? `#${item.item_code}` : "—"}
+                      </td>
+                      <td style={{ padding: "12px 16px", fontSize: "15px", fontWeight: "700", color: qty <= 0 ? C.error : (qty <= min && min > 0) ? C.warning : C.success }}>
+                        {qty} {item.unit || "pcs"}
+                      </td>
+                      <td style={{ padding: "12px 16px", color: C.sub, fontSize: "14px" }}>
+                        {min > 0 ? `${min} ${item.unit || "pcs"}` : "—"}
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <StatusBadge qty={qty} min={min} />
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button onClick={e => { e.stopPropagation(); setDetailItem(item) }}
+                            style={{ color: C.accent, background: "rgba(6,182,212,0.1)", border: `1px solid ${C.border}`, borderRadius: "7px", padding: "5px 12px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                            View
+                          </button>
+                          {isAdmin && (
+                            <button onClick={e => { e.stopPropagation(); openEditModal(item) }}
+                              style={{ color: C.text, background: "rgba(148,163,184,0.1)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: "7px", padding: "5px 12px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -549,7 +549,7 @@ export default function MarketingItems() {
               style={{ background: "#0f2730", border: `1px solid ${C.border}`, borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "560px", maxHeight: "85vh", overflowY: "auto" }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-                <h2 style={{ color: C.text, fontSize: "18px", fontWeight: "700" }}>Add New Item</h2>
+                <h2 style={{ color: C.text, fontSize: "18px", fontWeight: "700" }}>{editingItemId ? "Edit Item" : "Add New Item"}</h2>
                 <button onClick={() => { setShowModal(false); resetForm() }} style={{ color: C.sub, background: "none", border: "none", cursor: "pointer", fontSize: "20px" }}>✕</button>
               </div>
 
@@ -655,7 +655,7 @@ export default function MarketingItems() {
                   </button>
                   <button onClick={handleSave} disabled={saving || !form.name}
                     style={{ flex: 2, background: saving ? "rgba(6,182,212,0.3)" : `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: saving ? "not-allowed" : "pointer" }}>
-                    {saving ? "Saving..." : "Save Item"}
+                    {saving ? "Saving..." : editingItemId ? "Save Changes" : "Save Item"}
                   </button>
                 </div>
               </div>
@@ -678,7 +678,7 @@ export default function MarketingItems() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              style={{ background: "#0f2730", border: `1px solid ${C.border}`, borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "420px" }}
+              style={{ background: "#0f2730", border: `1px solid ${C.border}`, borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "440px", maxHeight: "88vh", overflowY: "auto" }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "18px" }}>
                 <div>
@@ -689,10 +689,18 @@ export default function MarketingItems() {
                     </span>
                   )}
                 </div>
-                <button onClick={() => setDetailItem(null)} style={{ color: C.sub, background: "none", border: "none", cursor: "pointer", fontSize: "20px" }}>✕</button>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  {isAdmin && (
+                    <button onClick={() => { setDetailItem(null); openEditModal(detailItem) }}
+                      style={{ color: C.accent, background: "rgba(6,182,212,0.1)", border: `1px solid ${C.border}`, borderRadius: "7px", padding: "5px 12px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                      ✏️ Edit
+                    </button>
+                  )}
+                  <button onClick={() => setDetailItem(null)} style={{ color: C.sub, background: "none", border: "none", cursor: "pointer", fontSize: "20px" }}>✕</button>
+                </div>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "18px", fontSize: "15px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px", fontSize: "15px" }}>
                 {detailItem.item_code && (
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ color: C.sub }}>Item Code</span>
@@ -701,7 +709,11 @@ export default function MarketingItems() {
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: C.sub }}>Total Stock</span>
-                  <span style={{ color: C.text }}>{getItemStock(detailItem.id)} {detailItem.unit || "pcs"}</span>
+                  <span style={{ color: C.text, fontWeight: "700" }}>{getItemStock(detailItem.id)} {detailItem.unit || "pcs"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: C.sub }}>Minimum Stock Level</span>
+                  <span style={{ color: C.text }}>{detailItem.minimum_stock_level || 0} {detailItem.unit || "pcs"}</span>
                 </div>
                 {detailItem.supplier_name && (
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -709,13 +721,42 @@ export default function MarketingItems() {
                     <span style={{ color: C.text }}>{detailItem.supplier_name}</span>
                   </div>
                 )}
-                {showCost && detailItem.cost_per_unit && (
+                {detailItem.expiry_date && (
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: C.sub }}>Cost/unit</span>
+                    <span style={{ color: C.sub }}>Expiry Date</span>
+                    <span style={{ color: new Date(detailItem.expiry_date) < new Date() ? C.error : C.text }}>{detailItem.expiry_date}</span>
+                  </div>
+                )}
+                {showCost && detailItem.cost_per_unit != null && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: C.sub }}>Cost/unit (Admin only)</span>
                     <span style={{ color: C.text }}>${detailItem.cost_per_unit}</span>
                   </div>
                 )}
+                {showCost && detailItem.total_cost != null && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: C.sub }}>Total Cost (Admin only)</span>
+                    <span style={{ color: C.text }}>${detailItem.total_cost}</span>
+                  </div>
+                )}
               </div>
+
+              {/* Stock by location */}
+              {Object.keys(getStockByLocation(detailItem.id)).length > 0 && (
+                <div style={{ marginBottom: "16px" }}>
+                  <p style={{ color: C.sub, fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "8px" }}>
+                    Stock by Location
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {Object.entries(getStockByLocation(detailItem.id)).map(([loc, qty]) => (
+                      <div key={loc} style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", background: "rgba(6,182,212,0.05)", borderRadius: "8px" }}>
+                        <span style={{ color: C.sub, fontSize: "14px" }}>{loc}</span>
+                        <span style={{ color: C.accent, fontSize: "14px", fontWeight: "600" }}>{qty}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "16px", background: "rgba(6,182,212,0.06)", borderRadius: "14px", marginBottom: "16px" }}>
                 <div ref={detailQrRef} style={{ background: "#fff", padding: "12px", borderRadius: "10px" }}>
