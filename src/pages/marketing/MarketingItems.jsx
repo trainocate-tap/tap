@@ -39,6 +39,131 @@ function StatusBadge({ qty, min }) {
   return <span style={{ background: "rgba(16,185,129,0.15)", color: C.success, border: "1px solid rgba(16,185,129,0.3)", borderRadius: "8px", padding: "2px 8px", fontSize: "13px", fontWeight: "600" }}>🟢 In Stock</span>
 }
 
+// Photos for marketing items reuse the IT system's "asset-photos" storage bucket,
+// namespaced under a "marketing/<itemId>" folder so they never collide with real
+// asset IDs. Mirrors PhotoGallery in src/pages/admin/AssetDetail.jsx.
+function ItemPhotoGallery({ itemId, isAdmin }) {
+  const [photos, setPhotos] = useState([])
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const [lightbox, setLightbox] = useState(null)
+  const folder = `marketing/${itemId}`
+
+  const loadPhotos = async () => {
+    const { data } = await supabase.storage.from("asset-photos").list(folder, {
+      sortBy: { column: "created_at", order: "asc" },
+    })
+    if (!data) return
+    const urls = await Promise.all(
+      data.map(async (f) => {
+        const { data: signed } = await supabase.storage
+          .from("asset-photos")
+          .createSignedUrl(`${folder}/${f.name}`, 3600)
+        return { name: f.name, url: signed?.signedUrl }
+      })
+    )
+    setPhotos(urls.filter(p => p.url))
+  }
+
+  // itemId never changes within this component's lifetime — the modal fully
+  // unmounts/remounts (via AnimatePresence) whenever a different item is viewed.
+  useEffect(() => { loadPhotos() }, [])
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    setUploadError("")
+    const ext = file.name.split(".").pop()
+    const path = `${folder}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from("asset-photos").upload(path, file)
+    if (error) {
+      setUploadError(error.message || "Failed to upload photo.")
+      setUploading(false)
+      e.target.value = ""
+      return
+    }
+    await loadPhotos()
+    setUploading(false)
+    e.target.value = ""
+  }
+
+  const handleDelete = async (name) => {
+    await supabase.storage.from("asset-photos").remove([`${folder}/${name}`])
+    setPhotos(p => p.filter(x => x.name !== name))
+    if (lightbox?.name === name) setLightbox(null)
+  }
+
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+        <p style={{ color: C.sub, fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+          📷 Photos {photos.length > 0 && `(${photos.length})`}
+        </p>
+        {isAdmin && (
+          <label style={{ cursor: uploading ? "default" : "pointer", display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", borderRadius: "7px", fontSize: "13px", fontWeight: "600", background: "rgba(6,182,212,0.1)", border: `1px solid ${C.border}`, color: C.accent }}>
+            {uploading ? "⏳ Uploading..." : "📷 Add Photo"}
+            <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} style={{ display: "none" }} />
+          </label>
+        )}
+      </div>
+
+      {uploadError && (
+        <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "8px 12px", marginBottom: "10px", color: C.error, fontSize: "13px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+          <span>❌ {uploadError}</span>
+          <button onClick={() => setUploadError("")} style={{ color: C.error, background: "none", border: "none", cursor: "pointer", fontSize: "13px", flexShrink: 0 }}>✕</button>
+        </div>
+      )}
+
+      {photos.length === 0 ? (
+        <p style={{ color: C.sub, fontSize: "13px", textAlign: "center", padding: "16px 0" }}>
+          No photos yet.{isAdmin && " Click \"Add Photo\" to upload."}
+        </p>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+          {photos.map(p => (
+            <div key={p.name} onClick={() => setLightbox(p)}
+              style={{ position: "relative", aspectRatio: "1", borderRadius: "8px", overflow: "hidden", border: `1px solid ${C.border}`, cursor: "pointer" }}>
+              <img src={p.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              {isAdmin && (
+                <button onClick={e => { e.stopPropagation(); handleDelete(p.name) }}
+                  style={{ position: "absolute", top: "3px", right: "3px", width: "18px", height: "18px", borderRadius: "50%", background: "rgba(0,0,0,0.7)", color: "#fff", border: "none", fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.9)", zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+            onClick={() => setLightbox(null)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+              style={{ position: "relative", maxWidth: "90vw", maxHeight: "85vh" }} onClick={e => e.stopPropagation()}>
+              <img src={lightbox.url} alt="" style={{ maxWidth: "90vw", maxHeight: "80vh", borderRadius: "12px", objectFit: "contain" }} />
+              <div style={{ position: "absolute", top: "10px", right: "10px", display: "flex", gap: "8px" }}>
+                {isAdmin && (
+                  <button onClick={() => handleDelete(lightbox.name)}
+                    style={{ padding: "6px 12px", background: "#dc2626", color: "#fff", fontSize: "13px", borderRadius: "8px", border: "none", cursor: "pointer" }}>
+                    🗑 Delete
+                  </button>
+                )}
+                <button onClick={() => setLightbox(null)}
+                  style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", cursor: "pointer" }}>
+                  ✕
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 export default function MarketingItems() {
   const { userProfile, canManageMarketing, marketingRole, role } = useAuth()
   const isAdmin = canManageMarketing
@@ -776,6 +901,8 @@ export default function MarketingItems() {
                   </div>
                 </div>
               )}
+
+              <ItemPhotoGallery itemId={detailItem.id} isAdmin={isAdmin} />
             </motion.div>
           </motion.div>
         )}
