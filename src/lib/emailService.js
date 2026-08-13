@@ -134,12 +134,16 @@ function licenseHtml(asset, days, expiryDate) {
 // ---------------------------------------------------------------------------
 // Asset Request Approval email — sent when employee submits a request
 // ---------------------------------------------------------------------------
-async function getApprovingOfficerEmail() {
+// Approving officer is per-country (app_settings key "approving_officer_email_<country>").
+// With no country to scope to, fall back straight to the default — there's no
+// longer a single global key to read.
+async function getApprovingOfficerEmail(country) {
+  if (!country) return "jamaludin.ali@trainocate.com"
   try {
     const { data } = await supabase
       .from("app_settings")
       .select("value")
-      .eq("key", "approving_officer_email")
+      .eq("key", `approving_officer_email_${country}`)
       .single()
     return data?.value || "jamaludin.ali@trainocate.com"
   } catch {
@@ -148,9 +152,9 @@ async function getApprovingOfficerEmail() {
 }
 
 // Returns { email, id } so callers can also create in-app notifications
-export async function getApprovingOfficerProfile() {
+export async function getApprovingOfficerProfile(country) {
   try {
-    const email = await getApprovingOfficerEmail()
+    const email = await getApprovingOfficerEmail(country)
     const { data } = await supabase
       .from("user_profiles")
       .select("id, email")
@@ -186,8 +190,8 @@ function assetRequestHtml({ requestedBy, assetType, reason, priority, dateSubmit
   `)
 }
 
-export async function sendAssetRequestNotification({ requestedBy, assetType, reason, priority, createdAt }) {
-  const to = await getApprovingOfficerEmail()
+export async function sendAssetRequestNotification({ requestedBy, assetType, reason, priority, createdAt, country }) {
+  const to = await getApprovingOfficerEmail(country)
   const dateSubmitted = fmtDate(createdAt || new Date().toISOString())
   const html = assetRequestHtml({ requestedBy, assetType, reason, priority, dateSubmitted })
   await sendEmail(to, `📋 New Asset Request: ${assetType} (${priority} priority)`, html)

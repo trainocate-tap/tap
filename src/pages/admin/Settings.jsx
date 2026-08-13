@@ -52,6 +52,7 @@ export default function Settings() {
   }, [])
 
   const fetchSettings = async () => {
+    if (!userCountry) { setLoading(false); return }
     try {
       const { data } = await supabase
         .from("app_settings")
@@ -59,8 +60,10 @@ export default function Settings() {
       if (data) {
         const map = {}
         data.forEach(s => { map[s.key] = s.value })
-        if (map.approving_officer_email) setApprovingEmail(map.approving_officer_email)
-        if (map.marketing_approving_officer_email !== undefined) setMarketingEmail(map.marketing_approving_officer_email)
+        const approvingKey = `approving_officer_email_${userCountry}`
+        const marketingKey = `marketing_approving_officer_${userCountry}`
+        if (map[approvingKey]) setApprovingEmail(map[approvingKey])
+        if (map[marketingKey] !== undefined) setMarketingEmail(map[marketingKey])
       }
     } catch { /* table may not exist yet — use defaults */ }
     setLoading(false)
@@ -79,8 +82,13 @@ export default function Settings() {
   }
 
   const fetchProductIds = async () => {
+    if (!userCountry && !isGlobalAdmin) { setLoadingProductIds(false); return }
     try {
-      const { data } = await supabase.from("product_ids").select("*").order("code")
+      let q = supabase.from("product_ids").select("*").order("code")
+      // Global admin sees every country's codes; everyone else sees their own
+      // country's codes plus any legacy/shared codes with no country set.
+      if (!isGlobalAdmin) q = q.or(`country.eq.${userCountry},country.is.null`)
+      const { data } = await q
       setProductIds(data || [])
     } catch { /* table may not exist yet — use defaults */ }
     setLoadingProductIds(false)
@@ -93,7 +101,7 @@ export default function Settings() {
     setError("")
     try {
       const { data, error: insertError } = await supabase.from("product_ids")
-        .insert({ code: newPIdCode.trim().toUpperCase(), category: newPIdCategory.trim() })
+        .insert({ code: newPIdCode.trim().toUpperCase(), category: newPIdCategory.trim(), country: userCountry })
         .select()
         .single()
       if (insertError) throw insertError
@@ -176,7 +184,7 @@ export default function Settings() {
 
   const handleSave = async (e) => {
     e.preventDefault()
-    if (!approvingEmail) return
+    if (!approvingEmail || !userCountry) return
     // Guard against placeholder/stale values (e.g. "global") getting saved instead
     // of a real selection — only proceed if it matches an actual admin user.
     if (!adminUsers.some(u => u.email === approvingEmail)) {
@@ -187,7 +195,7 @@ export default function Settings() {
     setError("")
     try {
       const { error: upsertError } = await supabase.from("app_settings").upsert({
-        key: "approving_officer_email",
+        key: `approving_officer_email_${userCountry}`,
         value: approvingEmail.trim(),
         updated_at: new Date().toISOString(),
       })
@@ -202,11 +210,12 @@ export default function Settings() {
 
   const handleSaveMarketing = async (e) => {
     e.preventDefault()
+    if (!userCountry) return
     setSavingMarketing(true)
     setError("")
     try {
       const { error: upsertError } = await supabase.from("app_settings").upsert({
-        key: "marketing_approving_officer_email",
+        key: `marketing_approving_officer_${userCountry}`,
         value: marketingEmail.trim(),
         updated_at: new Date().toISOString(),
       })

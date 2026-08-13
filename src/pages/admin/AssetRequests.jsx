@@ -133,7 +133,7 @@ export default function AssetRequests() {
     }
 
     // Fetch approving officer before insert so we can store email + notify them
-    const officer = await getApprovingOfficerProfile()
+    const officer = await getApprovingOfficerProfile(userProfile?.country)
     payload.approving_officer_email = officer.email
 
     const { data: inserted, error } = await supabase
@@ -152,7 +152,7 @@ export default function AssetRequests() {
       const createdAt   = new Date().toISOString()
 
       // Email to approving officer
-      sendAssetRequestNotification({ requestedBy, assetType: form.asset_type, reason: form.reason, priority: form.priority, createdAt })
+      sendAssetRequestNotification({ requestedBy, assetType: form.asset_type, reason: form.reason, priority: form.priority, createdAt, country: userProfile?.country })
 
       // Confirmation email to submitter
       sendEmail(userProfile?.email, "Asset Request Submitted Successfully", "<p>Your asset request has been submitted and is pending approval.</p>")
