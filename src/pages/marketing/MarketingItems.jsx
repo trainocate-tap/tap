@@ -500,7 +500,11 @@ export default function MarketingItems() {
     fetchAll()
   }
 
-  const itemCategories = [...new Set(items.map(i => i.category).filter(Boolean))].sort()
+  const itemCategories = [...new Set(items.map(i => i.category).filter(Boolean))].sort((a, b) => {
+    if (a === "Other") return 1
+    if (b === "Other") return -1
+    return a.localeCompare(b)
+  })
 
   const filtered = items.filter(item => {
     const qty = getItemStock(item.id)
