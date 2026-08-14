@@ -156,12 +156,12 @@ export default function ImportAssets() {
   const downloadTemplate = () => {
     const headers = [
       "Asset Name", "Serial Number", "Category", "Status", "Assigned User", "Department",
-      "Asset Tag", "Remarks", "Location", "Warranty Expiry", "Purchase Price",
+      "Asset Tag", "Remarks", "Location", "Warranty Expiry", "Purchase Price", "Purchase Date",
       "Useful Life (years)",
     ]
     const example = [
       "MacBook Pro 14\"", "SN123456789", "Laptop", "available", "John Tan", "Engineering",
-      "AST-0001", "Assigned for development work", "Singapore", "2027-06-30", 2499,
+      "AST-0001", "Assigned for development work", "Singapore", "2027-06-30", 2499, "2022-06-30",
       5,
     ]
     const ws = XLSX.utils.aoa_to_sheet([headers, example])
