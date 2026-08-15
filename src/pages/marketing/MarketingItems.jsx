@@ -514,7 +514,7 @@ export default function MarketingItems() {
     const statusStr = qty <= 0 ? "Out of Stock" : (qty <= min && min > 0) ? "Low Stock" : "In Stock"
     const matchStatus = filterStatus === "All" || statusStr === filterStatus
     return matchSearch && matchCat && matchStatus
-  })
+  }).sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <div style={{ padding: "24px" }}>
