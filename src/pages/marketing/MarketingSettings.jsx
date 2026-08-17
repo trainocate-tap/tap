@@ -33,6 +33,9 @@ export default function MarketingSettings() {
   const [newLocation, setNewLocation] = useState("")
   const [locationError, setLocationError] = useState(null)
   const [approvalThreshold, setApprovalThreshold] = useState(30)
+  const [thresholdLoading, setThresholdLoading] = useState(true)
+  const [savingThreshold, setSavingThreshold] = useState(false)
+  const [thresholdError, setThresholdError] = useState(null)
   const [tab, setTab] = useState("locations")
   const [successMsg, setSuccessMsg] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -42,13 +45,40 @@ export default function MarketingSettings() {
     setTimeout(() => setSuccessMsg(null), 4000)
   }
 
-  useEffect(() => { fetchAll() }, [])
+  useEffect(() => { fetchAll(); fetchThreshold() }, [])
 
   const fetchAll = async () => {
     setLoading(true)
     const { data, error } = await supabase.from("marketing_locations").select("*").order("name")
     if (!error) setLocations(data || [])
     setLoading(false)
+  }
+
+  const fetchThreshold = async () => {
+    setThresholdLoading(true)
+    const { data } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "marketing_approval_threshold")
+      .maybeSingle()
+    setApprovalThreshold(data?.value ? parseInt(data.value) : 30)
+    setThresholdLoading(false)
+  }
+
+  const handleSaveThreshold = async () => {
+    setSavingThreshold(true)
+    setThresholdError(null)
+    const { error } = await supabase.from("app_settings").upsert({
+      key: "marketing_approval_threshold",
+      value: String(approvalThreshold),
+      updated_at: new Date().toISOString(),
+    })
+    setSavingThreshold(false)
+    if (error) {
+      setThresholdError(`Could not save threshold: ${error.message}`)
+      return
+    }
+    showSuccess("✅ Approval threshold saved!")
   }
 
   const handleAddLocation = async () => {
@@ -241,9 +271,22 @@ export default function MarketingSettings() {
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "24px" }}>
             <p style={{ color: C.text, fontWeight: "600", fontSize: "17px", marginBottom: "20px" }}>Approval Thresholds</p>
 
+            {thresholdError && (
+              <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "10px 14px", color: C.error, fontSize: "15px", marginBottom: "16px" }}>
+                {thresholdError}
+              </div>
+            )}
+
             <Field label="Small Quantity Threshold (items ≤ this need Vivian or Siti)">
-              <input type="number" min={1} value={approvalThreshold} onChange={e => setApprovalThreshold(parseInt(e.target.value))}
-                style={inputStyle} />
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input type="number" min={1} value={approvalThreshold} disabled={thresholdLoading}
+                  onChange={e => setApprovalThreshold(parseInt(e.target.value) || 0)}
+                  style={{ ...inputStyle, flex: 1, opacity: thresholdLoading ? 0.6 : 1 }} />
+                <button onClick={handleSaveThreshold} disabled={thresholdLoading || savingThreshold}
+                  style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "8px", padding: "9px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer", whiteSpace: "nowrap", opacity: (thresholdLoading || savingThreshold) ? 0.6 : 1 }}>
+                  {savingThreshold ? "Saving..." : "Save"}
+                </button>
+              </div>
             </Field>
 
             <div style={{ background: "rgba(6,182,212,0.04)", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "14px", marginTop: "16px" }}>
