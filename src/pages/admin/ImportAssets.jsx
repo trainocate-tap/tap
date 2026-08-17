@@ -103,20 +103,21 @@ export default function ImportAssets() {
         if (!name || typeof name !== "string") continue
         if (name.trim().toLowerCase() === "microsoft surface 1") continue
 
-        let serial = row[1] ? String(row[1]).trim() : null
+        const brandModel = row[1] ? String(row[1]).trim() : null
+        let serial = row[2] ? String(row[2]).trim() : null
         if (serial && (serial.toUpperCase() === "N/A" || serial.toUpperCase() === "NA")) serial = null
-        const category = row[2] ? String(row[2]).trim() : "Laptop"
-        const status = row[3] ? String(row[3]).trim().toLowerCase() : "available"
-        const usage = row[4] ? String(row[4]).trim() : null
-        const department = row[5] ? String(row[5]).trim() : null
-        const assetTag = row[6] ? String(row[6]).trim() : null
-        const remarks = row[7] ? String(row[7]).trim() : null
-        const location = row[8] ? String(row[8]).trim() : null
-        const warrantyExpiry = excelDateToISO(typeof row[9] === "string" ? row[9].trim() : row[9])
-        const purchasePrice = row[10] !== undefined && row[10] !== null && row[10] !== ""
-          ? parseFloat(row[10])
+        const category = row[3] ? String(row[3]).trim() : "Laptop"
+        const status = row[4] ? String(row[4]).trim().toLowerCase() : "available"
+        const usage = row[5] ? String(row[5]).trim() : null
+        const department = row[6] ? String(row[6]).trim() : null
+        const assetTag = row[7] ? String(row[7]).trim() : null
+        const remarks = row[8] ? String(row[8]).trim() : null
+        const location = row[9] ? String(row[9]).trim() : null
+        const warrantyExpiry = excelDateToISO(typeof row[10] === "string" ? row[10].trim() : row[10])
+        const purchasePrice = row[11] !== undefined && row[11] !== null && row[11] !== ""
+          ? parseFloat(row[11])
           : null
-        const purchaseDate = excelDateToISO(typeof row[11] === "string" ? row[11].trim() : row[11])
+        const purchaseDate = excelDateToISO(typeof row[12] === "string" ? row[12].trim() : row[12])
 
         // No usable serial — fall back to asset tag, then a name+row synthetic id, as the unique identifier
         let uniqueId = serial || assetTag || `${name.trim()}_ROW${i + 1}`
@@ -127,6 +128,7 @@ export default function ImportAssets() {
 
         assets.push({
           name: name.trim(),
+          brand_model: brandModel || null,
           serial_number: uniqueId,
           assigned_user: usage || null,
           department: department || null,
@@ -155,12 +157,12 @@ export default function ImportAssets() {
 
   const downloadTemplate = () => {
     const headers = [
-      "Asset Name", "Serial Number", "Category", "Status", "Assigned User", "Department",
+      "Asset Name", "Brand / Model", "Serial Number", "Category", "Status", "Assigned User", "Department",
       "Asset Tag", "Remarks", "Location", "Warranty Expiry", "Purchase Price", "Purchase Date",
       "Useful Life (years)",
     ]
     const example = [
-      "MacBook Pro 14\"", "SN123456789", "Laptop", "available", "John Tan", "Engineering",
+      "MacBook Pro 14\"", "Apple MacBook Pro 14 2021", "SN123456789", "Laptop", "available", "John Tan", "Engineering",
       "AST-0001", "Assigned for development work", "Singapore", "2027-06-30", 2499, "2022-06-30",
       5,
     ]
