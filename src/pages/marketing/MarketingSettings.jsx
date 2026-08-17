@@ -66,12 +66,14 @@ export default function MarketingSettings() {
   }
 
   const handleSaveThreshold = async () => {
+    const clamped = (approvalThreshold === "" || isNaN(approvalThreshold) || approvalThreshold < 1) ? 1 : approvalThreshold
+    setApprovalThreshold(clamped)
     setSavingThreshold(true)
     setThresholdError(null)
     const { error } = await supabase.from("app_settings").upsert(
       {
         key: "marketing_approval_threshold",
-        value: String(approvalThreshold),
+        value: String(clamped),
         updated_at: new Date().toISOString(),
       },
       { onConflict: "key" }
@@ -283,7 +285,12 @@ export default function MarketingSettings() {
             <Field label="Small Quantity Threshold (items ≤ this need Vivian or Siti)">
               <div style={{ display: "flex", gap: "10px" }}>
                 <input type="number" min={1} value={approvalThreshold} disabled={thresholdLoading}
-                  onChange={e => setApprovalThreshold(parseInt(e.target.value) || 0)}
+                  onFocus={e => e.target.select()}
+                  onChange={e => {
+                    const raw = e.target.value
+                    setApprovalThreshold(raw === "" ? "" : parseInt(raw, 10))
+                  }}
+                  onBlur={() => setApprovalThreshold(prev => (prev === "" || isNaN(prev) || prev < 1) ? 1 : prev)}
                   style={{ ...inputStyle, flex: 1, opacity: thresholdLoading ? 0.6 : 1 }} />
                 <button onClick={handleSaveThreshold} disabled={thresholdLoading || savingThreshold}
                   style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "8px", padding: "9px 18px", fontWeight: "600", fontSize: "15px", cursor: "pointer", whiteSpace: "nowrap", opacity: (thresholdLoading || savingThreshold) ? 0.6 : 1 }}>
