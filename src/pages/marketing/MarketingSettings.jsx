@@ -68,11 +68,14 @@ export default function MarketingSettings() {
   const handleSaveThreshold = async () => {
     setSavingThreshold(true)
     setThresholdError(null)
-    const { error } = await supabase.from("app_settings").upsert({
-      key: "marketing_approval_threshold",
-      value: String(approvalThreshold),
-      updated_at: new Date().toISOString(),
-    })
+    const { error } = await supabase.from("app_settings").upsert(
+      {
+        key: "marketing_approval_threshold",
+        value: String(approvalThreshold),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    )
     setSavingThreshold(false)
     if (error) {
       setThresholdError(`Could not save threshold: ${error.message}`)
