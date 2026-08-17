@@ -642,6 +642,7 @@ const emailMap = {}
                     <option value="standard_user">Standard User</option>
                     <option value="guest">Guest</option>
                     <option value="admin">Admin</option>
+                    <option value="global_admin">Global Admin</option>
                   </select>
                 </div>
 
@@ -882,6 +883,7 @@ const emailMap = {}
                   <option value="standard_user">Standard User — view and submit requests</option>
                   <option value="guest">Guest — view assets and reports only</option>
                   <option value="admin">Admin — full control</option>
+                  <option value="global_admin">Global Admin — full control across all countries</option>
                 </select>
               </div>
               <div>
