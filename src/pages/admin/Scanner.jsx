@@ -5,6 +5,7 @@ import { Html5Qrcode } from "html5-qrcode"
 import { motion, AnimatePresence } from "framer-motion"
 import { EmptyState } from "../../components/EmptyState"
 import { statusLabel } from "../../lib/statusLabel"
+import { useAuth } from "../../context/AuthContext"
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -21,6 +22,7 @@ function fileToBase64(file) {
 
 export default function Scanner() {
   const navigate = useNavigate()
+  const { userProfile } = useAuth()
 
   // Tab: "qr" | "photo"
   const [tab, setTab] = useState("qr")
@@ -40,6 +42,7 @@ export default function Scanner() {
   const assetBySerial = useRef(null) // Map<serial_lower, asset>
 
   useEffect(() => {
+    if (!userProfile) return
     // Pre-fetch all assets into memory cache for instant QR lookup
     supabase.from("assets").select("*").then(({ data }) => {
       if (!data) return
@@ -53,7 +56,7 @@ export default function Scanner() {
       assetCache.current = byId
       assetBySerial.current = bySerial
     })
-  }, [])
+  }, [userProfile])
 
   // --- Photo Scan state ---
   const [photoPreview, setPhotoPreview] = useState(null)
