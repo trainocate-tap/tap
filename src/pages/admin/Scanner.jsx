@@ -42,11 +42,9 @@ export default function Scanner() {
   const assetBySerial = useRef(null) // Map<serial_lower, asset>
 
   useEffect(() => {
-    console.log("userProfile:", userProfile?.id)
     if (!userProfile) return
     // Pre-fetch all assets into memory cache for instant QR lookup
     supabase.from("assets").select("*").then(({ data }) => {
-      console.log("Assets loaded into cache:", data?.length)
       if (!data) return
       const byId = new Map()
       const bySerial = new Map()
