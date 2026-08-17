@@ -31,11 +31,23 @@ export default function Sidebar() {
     if (!userProfile) return
     const fetchCounts = async () => {
       const country = userProfile.country
+
+      let assetsQuery = supabase.from("assets").select("id", { count: "exact", head: true }).eq("country", country)
+      let issuesQuery = supabase.from("issues").select("id", { count: "exact", head: true }).eq("status", "open")
+      let borrowsQuery = supabase.from("borrows").select("id", { count: "exact", head: true }).eq("status", "active")
+
+      // Standard users only see counts scoped to themselves; admins keep seeing everything.
+      if (isStandardUser) {
+        assetsQuery = assetsQuery.eq("assigned_user", userProfile.name)
+        issuesQuery = issuesQuery.or(`reported_by.eq.${userProfile.email},reported_by.eq.${userProfile.id},reported_by.eq.${userProfile.name}`)
+        borrowsQuery = borrowsQuery.eq("borrowed_by", userProfile.name)
+      }
+
       const [assetsRes, issuesRes, requestsRes, borrowsRes] = await Promise.all([
-        supabase.from("assets").select("id", { count: "exact", head: true }).eq("country", country),
-        supabase.from("issues").select("id", { count: "exact", head: true }).eq("status", "open"),
+        assetsQuery,
+        issuesQuery,
         supabase.from("asset_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("borrows").select("id", { count: "exact", head: true }).eq("status", "active"),
+        borrowsQuery,
       ])
       setCounts({
         assets: assetsRes.count || 0,
@@ -47,7 +59,7 @@ export default function Sidebar() {
     fetchCounts()
     const interval = setInterval(fetchCounts, 30000)
     return () => clearInterval(interval)
-  }, [userProfile])
+  }, [userProfile, isStandardUser])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
