@@ -587,6 +587,7 @@ export default function AssetDetail() {
                 { label: "Location",       value: asset.location },
                 { label: "Assigned To",    value: asset.assigned_user },
                 { label: "Department",     value: asset.department },
+                { label: "Condition",      value: asset.condition },
                 { label: "Purchase Date",  value: asset.purchase_date },
                 { label: "Purchase Price", value: asset.purchase_price ? `${currency} ${Number(asset.purchase_price).toLocaleString()}` : null },
                 { label: "Warranty Expiry",value: asset.warranty_expiry },

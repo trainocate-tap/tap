@@ -22,7 +22,7 @@ function fileToBase64(file) {
 
 export default function Scanner() {
   const navigate = useNavigate()
-  const { userProfile } = useAuth()
+  const { userProfile, isAdmin, isGlobalAdmin } = useAuth()
 
   // Tab: "qr" | "photo"
   const [tab, setTab] = useState("qr")
@@ -36,6 +36,10 @@ export default function Scanner() {
   const [manualInput, setManualInput] = useState("")
   const [isManualSearch, setIsManualSearch] = useState(false)
   const scannerRef = useRef(null)
+
+  // --- Condition update state ---
+  const [conditionSaving, setConditionSaving] = useState(false)
+  const [conditionMsg, setConditionMsg] = useState("")
 
   // --- Asset cache for fast QR lookup ---
   const assetCache = useRef(null) // Map<id, asset>
@@ -98,6 +102,7 @@ export default function Scanner() {
     setError("")
     setResult(null)
     setAsset(null)
+    setConditionMsg("")
     setScanning(true)
     try {
       const scanner = new Html5Qrcode("qr-reader")
@@ -172,6 +177,7 @@ export default function Scanner() {
     setLoading(true)
     setError("")
     setAsset(null)
+    setConditionMsg("")
     setResult(manualInput)
     setIsManualSearch(true)
 
@@ -184,6 +190,24 @@ export default function Scanner() {
     if (data) setAsset(data)
     else setError(`No asset found matching "${manualInput}"`)
     setLoading(false)
+  }
+
+  const handleUpdateCondition = async (newCondition) => {
+    if (!asset) return
+    setConditionSaving(true)
+    setConditionMsg("")
+    const { error: updateError } = await supabase
+      .from("assets")
+      .update({ condition: newCondition })
+      .eq("id", asset.id)
+    if (updateError) {
+      setConditionMsg(`❌ Failed to update condition: ${updateError.message}`)
+    } else {
+      setAsset(a => (a ? { ...a, condition: newCondition } : a))
+      setConditionMsg(`✅ Condition updated to "${newCondition}"`)
+      setTimeout(() => setConditionMsg(""), 4000)
+    }
+    setConditionSaving(false)
   }
 
   // ─── Photo Scan ──────────────────────────────────────────────────────────────
@@ -342,6 +366,30 @@ export default function Scanner() {
         <button onClick={() => navigate("/admin/maintenance?asset_id=" + a.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-600/20 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-600/30 transition-all text-sm font-medium">🔧 Request Maintenance</button>
         <button onClick={() => navigate(a.category ? "/admin/borrow?category=" + encodeURIComponent(a.category) : "/admin/borrow")} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600/20 border border-purple-500/30 text-purple-400 hover:bg-purple-600/30 transition-all text-sm font-medium">🔄 Borrow This Asset</button>
       </div>
+
+      {(isAdmin || isGlobalAdmin) && (
+        <div className="mb-3">
+          <p className="text-gray-500 text-xs mb-2">Update Condition</p>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => handleUpdateCondition("Working")} disabled={conditionSaving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600/20 border border-green-500/30 text-green-400 hover:bg-green-600/30 transition-all text-sm font-medium disabled:opacity-50">
+              ✅ Working
+            </button>
+            <button onClick={() => handleUpdateCondition("Not Working")} disabled={conditionSaving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 transition-all text-sm font-medium disabled:opacity-50">
+              ❌ Not Working
+            </button>
+            <button onClick={() => handleUpdateCondition("Spoiled")} disabled={conditionSaving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-600/20 border border-gray-500/30 text-gray-400 hover:bg-gray-600/30 transition-all text-sm font-medium disabled:opacity-50">
+              🗑️ Spoiled
+            </button>
+          </div>
+          {conditionMsg && (
+            <p className={`text-xs mt-2 ${conditionMsg.startsWith("❌") ? "text-red-400" : "text-green-400"}`}>{conditionMsg}</p>
+          )}
+        </div>
+      )}
+
       <div className="flex gap-3">
         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
           onClick={() => { window.location.href = `/admin/assets/${a.id}` }}
@@ -463,7 +511,7 @@ export default function Scanner() {
 
           <AnimatePresence>
             {asset && !loading && (
-              <AssetCard a={asset} isManual={isManualSearch} onReset={() => { setAsset(null); setResult(null); setError(""); setManualInput(""); setIsManualSearch(false) }} />
+              <AssetCard a={asset} isManual={isManualSearch} onReset={() => { setAsset(null); setResult(null); setError(""); setManualInput(""); setIsManualSearch(false); setConditionMsg("") }} />
             )}
           </AnimatePresence>
         </>
