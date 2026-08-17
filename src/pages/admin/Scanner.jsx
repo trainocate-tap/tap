@@ -175,28 +175,8 @@ export default function Scanner() {
     setResult(manualInput)
     setIsManualSearch(true)
 
-    // Check cache first
-    const key = manualInput.trim().toLowerCase()
-    const cachedSerial = assetBySerial.current?.get(key)
-    if (cachedSerial) {
-      setAsset(cachedSerial)
-      setLoading(false)
-      return
-    }
-    // Cache partial name search
-    if (assetCache.current) {
-      const found = [...assetCache.current.values()].find(a =>
-        a.name?.toLowerCase().includes(key) ||
-        a.serial_number?.toLowerCase().includes(key) ||
-        a.asset_tag?.toLowerCase().includes(key)
-      )
-      if (found) {
-        setAsset(found)
-        setLoading(false)
-        return
-      }
-    }
-
+    // Always query the database directly — the in-memory cache is unreliable
+    // on mobile (userProfile / cache pre-fetch can lag or fail there).
     const { data } = await supabase
       .from("assets").select("*")
       .or(`serial_number.ilike.%${manualInput}%,asset_tag.ilike.%${manualInput}%,name.ilike.%${manualInput}%`)
