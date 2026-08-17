@@ -53,9 +53,11 @@ export function AuthProvider({ children, user }) {
   }
 
   const role = userProfile?.role || "guest"
+  const isGlobalAdmin = role === "global_admin"
   const isMarketing = !!userProfile?.marketing_access
   const marketingRole = userProfile?.marketing_role || null
-  const canManageMarketing = ["marketing_admin", "marketing_manager"].includes(marketingRole) || role === "admin"
+  // global_admin gets the same marketing management rights as admin.
+  const canManageMarketing = ["marketing_admin", "marketing_manager"].includes(marketingRole) || role === "admin" || isGlobalAdmin
   // Non-admin marketing users without an elevated marketing role (marketing_staff, bdm, bdms)
   // see the standard IT user view when switching to the IT module; marketing_admin/marketing_manager
   // see the full IT admin view instead (via canManageMarketing).
@@ -67,19 +69,20 @@ export function AuthProvider({ children, user }) {
       profileLoading,
       role,
       isAdmin: role === "admin",
-      isGlobalAdmin: role === "global_admin",
+      isGlobalAdmin,
       isStandardUser: role === "standard_user",
       isGuest: role === "guest",
       isMarketing,
       marketingRole,
       canManageMarketing,
       isMarketingOnly,
-      canEdit: role === "admin",
-      canDelete: role === "admin",
-      canManageUsers: role === "admin",
-      canBorrow: role === "admin" || role === "standard_user",
-      canSubmitRequests: role === "admin" || role === "standard_user",
-      canSubmitMaintenance: role === "admin" || role === "standard_user",
+      // global_admin has the same permissions as admin everywhere below.
+      canEdit: role === "admin" || isGlobalAdmin,
+      canDelete: role === "admin" || isGlobalAdmin,
+      canManageUsers: role === "admin" || isGlobalAdmin,
+      canBorrow: role === "admin" || isGlobalAdmin || role === "standard_user",
+      canSubmitRequests: role === "admin" || isGlobalAdmin || role === "standard_user",
+      canSubmitMaintenance: role === "admin" || isGlobalAdmin || role === "standard_user",
       userCountry: userProfile?.country || null,
       refetchProfile: () => user && fetchProfile(user),
     }}>
