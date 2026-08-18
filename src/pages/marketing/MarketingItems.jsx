@@ -164,6 +164,129 @@ function ItemPhotoGallery({ itemId, isAdmin }) {
   )
 }
 
+// Mirrors buildPrintHtml in src/components/QRLabelModal.jsx — same 85mm x 54mm
+// business-card label, adapted to marketing item fields (item code instead of
+// serial number, no location).
+function buildBulkLabelsHtml(items, qty, svgMap) {
+  const labels = items.flatMap(item => {
+    const svgStr = (svgMap[item.id] || "")
+      .replace(/width="[^"]*"/, `width="28mm"`)
+      .replace(/height="[^"]*"/, `height="28mm"`)
+
+    const single = `
+      <div class="label">
+        <div class="header-row"><span class="prop-label">TRAINOCATE PROPERTY</span></div>
+        <div class="body-row">
+          <div class="item-info">
+            <div class="item-name">${item.name}</div>
+            <div class="detail">Item Code: ${item.item_code || "Not assigned"}</div>
+            ${item.category ? `<div class="detail">Category: ${item.category}</div>` : ""}
+          </div>
+          <div class="qr-col">
+            <div class="qr-wrap">${svgStr}</div>
+            <div class="caption">Scan for details · Trainocate Marketing</div>
+          </div>
+        </div>
+      </div>`
+    return Array(qty).fill(single)
+  })
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>QR Labels — Trainocate Marketing</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; }
+  .page { display:flex; flex-wrap:wrap; gap:4mm; padding:8mm; }
+  .label { width:85mm; height:54mm; border:1px solid #d1d5db; border-radius:2mm; overflow:hidden; display:flex; flex-direction:column; page-break-inside:avoid; }
+  .header-row { border-bottom:1px solid #e5e7eb; padding:2.5mm 3mm; flex-shrink:0; }
+  .prop-label { font-size:11pt; font-weight:900; color:#111; letter-spacing:0.05em; }
+  .body-row { flex:1; display:flex; padding:2.5mm 3mm; gap:3mm; }
+  .item-info { flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.2mm; }
+  .item-name { font-size:9pt; font-weight:800; color:#111; line-height:1.2; word-break:break-word; }
+  .detail { font-size:7pt; color:#374151; }
+  .qr-col { display:flex; flex-direction:column; align-items:center; gap:1mm; justify-content:center; }
+  .qr-wrap { line-height:0; }
+  .caption { font-size:5pt; color:#6b7280; text-align:center; }
+  @media print { @page { margin:5mm; } body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style></head>
+<body><div class="page">${labels.join("")}</div>
+<script>window.onload=function(){window.print()}<\/script>
+</body></html>`
+}
+
+// Bulk QR label print modal — mirrors the qty-stepper + hidden-QR-refs pattern in
+// src/components/QRLabelModal.jsx (the IT system's bulk print modal), adapted
+// for marketing items and kept local to this file.
+function BulkPrintModal({ items, itemQrUrl, onClose }) {
+  const [qty, setQty] = useState(1)
+  const qrRefs = useRef({})
+  const totalLabels = items.length * qty
+
+  const handlePrint = () => {
+    const svgMap = {}
+    items.forEach(item => {
+      const el = qrRefs.current[item.id]?.querySelector("svg")
+      if (el) svgMap[item.id] = new XMLSerializer().serializeToString(el)
+    })
+    const html = buildBulkLabelsHtml(items, qty, svgMap)
+    const win = window.open("", "_blank", "width=1000,height=800")
+    if (!win) { alert("Please allow pop-ups to print labels."); return }
+    win.document.write(html)
+    win.document.close()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        style={{ background: "#0f2730", border: `1px solid ${C.border}`, borderRadius: "20px", padding: "24px", width: "100%", maxWidth: "440px" }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
+          <div>
+            <h2 style={{ color: C.text, fontWeight: "700", fontSize: "18px" }}>🏷️ Print QR Labels</h2>
+            <p style={{ color: C.sub, fontSize: "14px", marginTop: "2px" }}>{items.length} item{items.length !== 1 ? "s" : ""} selected</p>
+          </div>
+          <button onClick={onClose} style={{ color: C.sub, background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}>✕</button>
+        </div>
+
+        <p style={{ color: C.sub, fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "8px" }}>Copies per item</p>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+          <button onClick={() => setQty(q => Math.max(1, q - 1))}
+            style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(6,182,212,0.1)", border: `1px solid ${C.border}`, color: C.text, fontWeight: "700", fontSize: "18px", cursor: "pointer" }}>−</button>
+          <span style={{ color: C.text, fontWeight: "700", fontSize: "18px", width: "28px", textAlign: "center" }}>{qty}</span>
+          <button onClick={() => setQty(q => Math.min(20, q + 1))}
+            style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(6,182,212,0.1)", border: `1px solid ${C.border}`, color: C.text, fontWeight: "700", fontSize: "18px", cursor: "pointer" }}>+</button>
+          <span style={{ color: C.sub, fontSize: "14px" }}>= {totalLabels} total labels</span>
+        </div>
+
+        {/* Hidden QR codes for all selected items, serialized to SVG at print time */}
+        <div style={{ position: "fixed", opacity: 0, pointerEvents: "none", left: -9999, top: -9999 }}>
+          {items.map(item => (
+            <div key={item.id} ref={el => { if (el) qrRefs.current[item.id] = el }}>
+              <QRCodeSVG value={itemQrUrl(item.id)} size={200} level="H" />
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={onClose}
+            style={{ flex: 1, background: "rgba(148,163,184,0.1)", color: C.sub, border: "1px solid rgba(148,163,184,0.2)", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
+            Cancel
+          </button>
+          <button onClick={handlePrint}
+            style={{ flex: 2, background: `linear-gradient(135deg, ${C.accent}, ${C.teal})`, color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}>
+            🖨️ Print {totalLabels} Label{totalLabels !== 1 ? "s" : ""}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export default function MarketingItems() {
   const { userProfile, canManageMarketing, marketingRole, role } = useAuth()
   const isAdmin = canManageMarketing
@@ -188,6 +311,8 @@ export default function MarketingItems() {
   const autoOpenedRef = useRef(false)
   const [form, setForm] = useState({ name: "", category: "", description: "", item_code: "", unit: "pcs", cost_per_unit: "", delivery_charge: "", tax_amount: "", total_cost: "", is_free_from_vendor: false, supplier_name: "", minimum_stock_level: 0, expiry_date: "" })
   const [formVariants, setFormVariants] = useState([{ variant_name: "", color: "", size: "" }])
+  const [selectedIds, setSelectedIds] = useState(new Set())
+  const [showBulkPrint, setShowBulkPrint] = useState(false)
 
   const fileInputRef = useRef(null)
   const [showImportModal, setShowImportModal] = useState(false)
@@ -211,6 +336,17 @@ export default function MarketingItems() {
 
   const itemQrUrl = (id) => `${window.location.origin}/marketing/items?item=${id}`
   const itemDisplayId = (item) => item.item_code || item.id.slice(0, 8)
+
+  const toggleItemSelect = (id, e) => {
+    e.stopPropagation()
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+  const clearItemSelection = () => setSelectedIds(new Set())
 
   const handlePrintItemLabel = () => {
     if (!editingItemId) return
@@ -530,6 +666,14 @@ export default function MarketingItems() {
     return matchSearch && matchCat && matchStatus
   }).sort((a, b) => a.name.localeCompare(b.name))
 
+  const selectedItems = filtered.filter(i => selectedIds.has(i.id))
+  const allFilteredSelected = filtered.length > 0 && selectedIds.size === filtered.length
+  const someSelected = selectedIds.size > 0
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) setSelectedIds(new Set())
+    else setSelectedIds(new Set(filtered.map(i => i.id)))
+  }
+
   return (
     <div style={{ padding: "24px" }}>
       {/* Success toast */}
@@ -598,6 +742,21 @@ export default function MarketingItems() {
         </select>
       </div>
 
+      {/* Bulk action bar */}
+      <AnimatePresence>
+        {someSelected && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            style={{ marginBottom: "16px", background: "rgba(6,182,212,0.08)", border: `1px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px" }}>
+            <span style={{ color: C.accent, fontWeight: "700", fontSize: "14px" }}>{selectedIds.size} selected</span>
+            <button onClick={() => setShowBulkPrint(true)}
+              style={{ background: "rgba(6,182,212,0.15)", color: C.accent, border: `1px solid ${C.border}`, borderRadius: "8px", padding: "6px 14px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}>
+              🏷️ Print QR Labels
+            </button>
+            <button onClick={clearItemSelection} style={{ marginLeft: "auto", color: C.sub, background: "none", border: "none", fontSize: "13px", cursor: "pointer" }}>✕ Clear</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Items Table */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
@@ -609,6 +768,10 @@ export default function MarketingItems() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <th style={{ padding: "12px 16px", width: "10px" }}>
+                    <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll}
+                      style={{ width: "16px", height: "16px", cursor: "pointer" }} />
+                  </th>
                   {["Item Name", "Category", "Item Code", "Total Stock", "Min Level", "Status", "Actions"].map(h => (
                     <th key={h} style={{ color: C.sub, textAlign: "left", padding: "12px 16px", fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap" }}>
                       {h}
@@ -628,6 +791,10 @@ export default function MarketingItems() {
                       onMouseEnter={e => { e.currentTarget.style.background = "rgba(6,182,212,0.06)" }}
                       onMouseLeave={e => { e.currentTarget.style.background = "transparent" }}
                     >
+                      <td style={{ padding: "12px 16px" }} onClick={e => toggleItemSelect(item.id, e)}>
+                        <input type="checkbox" checked={selectedIds.has(item.id)} onChange={() => {}}
+                          style={{ width: "16px", height: "16px", cursor: "pointer" }} />
+                      </td>
                       <td style={{ padding: "12px 16px" }}>
                         <p style={{ color: C.text, fontWeight: "600", fontSize: "15px" }}>{item.name}</p>
                       </td>
@@ -1011,6 +1178,17 @@ export default function MarketingItems() {
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bulk QR label print modal */}
+      <AnimatePresence>
+        {showBulkPrint && selectedItems.length > 0 && (
+          <BulkPrintModal
+            items={selectedItems}
+            itemQrUrl={itemQrUrl}
+            onClose={() => setShowBulkPrint(false)}
+          />
         )}
       </AnimatePresence>
     </div>
