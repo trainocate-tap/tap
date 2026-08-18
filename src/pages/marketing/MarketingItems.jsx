@@ -222,7 +222,7 @@ export default function MarketingItems() {
 <html><head><meta charset="UTF-8"><title>QR Label — ${form.name}</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#fff; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  body { background:#fff; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; display:block; padding:0; margin:0; }
   .label { width:85mm; height:54mm; border:1px solid #d1d5db; border-radius:2mm; overflow:hidden; display:flex; flex-direction:column; }
   .header-row { border-bottom:1px solid #e5e7eb; padding:2.5mm 3mm; flex-shrink:0; }
   .prop-label { font-size:11pt; font-weight:900; color:#111; letter-spacing:0.05em; }
