@@ -30,11 +30,6 @@ export function AuthProvider({ children, user }) {
         await supabase.from("user_profiles").update({ email: u.email }).eq("id", u.id)
         data.email = u.email
       }
-      console.log("[AuthContext] profile loaded:", {
-        role: data.role,
-        marketing_access: data.marketing_access,
-        isMarketing: !!data.marketing_access,
-      })
       setUserProfile(data)
     } else {
       // No profile found — this account was deleted or never provisioned by an admin.

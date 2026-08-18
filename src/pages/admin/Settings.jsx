@@ -7,7 +7,7 @@ import { CURRENCIES } from "../../lib/useCurrency"
 
 const BACKUP_TABLES = [
   "assets", "user_profiles", "borrow_history", "issues",
-  "maintenance_schedules", "asset_requests", "notifications", "system_settings",
+  "maintenance_schedules", "asset_requests", "notifications", "app_settings",
 ]
 
 async function fetchBackupData() {
