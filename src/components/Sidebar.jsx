@@ -34,13 +34,13 @@ export default function Sidebar() {
 
       let assetsQuery = supabase.from("assets").select("id", { count: "exact", head: true }).eq("country", country)
       let issuesQuery = supabase.from("issues").select("id", { count: "exact", head: true }).eq("status", "open")
-      let borrowsQuery = supabase.from("borrows").select("id", { count: "exact", head: true }).eq("status", "active")
+      let borrowsQuery = supabase.from("borrow_history").select("id", { count: "exact", head: true }).eq("status", "approved").is("returned_at", null)
 
       // Standard users only see counts scoped to themselves; admins keep seeing everything.
       if (isStandardUser) {
         assetsQuery = assetsQuery.eq("assigned_user", userProfile.name)
         issuesQuery = issuesQuery.or(`reported_by.eq.${userProfile.email},reported_by.eq.${userProfile.id},reported_by.eq.${userProfile.name}`)
-        borrowsQuery = borrowsQuery.eq("borrowed_by", userProfile.name)
+        borrowsQuery = borrowsQuery.eq("borrower_name", userProfile.name)
       }
 
       const [assetsRes, issuesRes, requestsRes, borrowsRes] = await Promise.all([

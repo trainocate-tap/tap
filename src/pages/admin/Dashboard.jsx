@@ -259,10 +259,11 @@ export default function Dashboard() {
     try {
       const todayStr = new Date().toISOString().split("T")[0]
       const { count } = await supabase
-        .from("borrows")
+        .from("borrow_history")
         .select("id", { count: "exact", head: true })
-        .eq("status", "active")
-        .lt("expected_return_date", todayStr)
+        .eq("status", "approved")
+        .is("returned_at", null)
+        .lt("due_date", todayStr)
       setOverdueBorrows(count || 0)
     } catch {}
   }
