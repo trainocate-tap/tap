@@ -24,7 +24,7 @@ function LabelPreview({ asset, assetUrl, qrRef }) {
         display: "flex", alignItems: "center", gap: 8,
       }}>
         <img src="/trainocate-logo.png" alt="Trainocate" style={{width:"80px", mixBlendMode:"multiply", background:"transparent"}} />
-        <span style={{ fontSize: 11, fontWeight: 700, color: "#374151", letterSpacing: "0.05em" }}>
+        <span style={{ fontSize: 14, fontWeight: 900, color: "#111", letterSpacing: "0.05em" }}>
           TRAINOCATE Property
         </span>
       </div>
@@ -102,7 +102,7 @@ function buildPrintHtml(assets, assetUrlBase, qty, svgMap) {
   .logo-img {
     width:28mm; height:9mm; object-fit:contain; mix-blend-mode:multiply; background:transparent;
   }
-  .prop-label { font-size:9pt; font-weight:700; color:#374151; letter-spacing:0.05em; }
+  .prop-label { font-size:11pt; font-weight:900; color:#111; letter-spacing:0.05em; }
   .body-row { flex:1; display:flex; padding:2.5mm 3mm; gap:3mm; }
   .asset-info { flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.2mm; }
   .asset-name { font-size:9pt; font-weight:800; color:#111; line-height:1.2; word-break:break-word; }
