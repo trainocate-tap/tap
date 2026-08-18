@@ -234,11 +234,13 @@ const emailMap = {}
     setDetailUser(u)
     setDetailAssets([])
     setDetailLoading(true)
-    const { data } = await supabase
+    let detailAssetsQuery = supabase
       .from("assets")
       .select("id, name, asset_tag, category, status")
       .ilike("assigned_user", u.name || u.email)
       .eq("status", "assigned")
+    if (!isGlobalAdmin) detailAssetsQuery = detailAssetsQuery.eq("country", adminCountry)
+    const { data } = await detailAssetsQuery
     setDetailAssets(data || [])
     setDetailLoading(false)
 
@@ -265,11 +267,13 @@ const emailMap = {}
 
     setDetailPreparedAssets([])
     setDetailPreparedAssetsLoading(true)
-    const { data: prepared } = await supabase
+    let preparedAssetsQuery = supabase
       .from("assets")
       .select("id, name, serial_number, category")
       .eq("status", "borrowed")
       .ilike("assigned_user", u.name || u.email)
+    if (!isGlobalAdmin) preparedAssetsQuery = preparedAssetsQuery.eq("country", adminCountry)
+    const { data: prepared } = await preparedAssetsQuery
     setDetailPreparedAssets(prepared || [])
     setDetailPreparedAssetsLoading(false)
   }
@@ -454,9 +458,11 @@ const emailMap = {}
       const { error } = await supabase.rpc("delete_user", { target_id: deleteTarget.id })
       if (error) throw new Error(error.message)
 
-      await supabase.from("assets")
+      let unassignQuery = supabase.from("assets")
         .update({ assigned_user: null, status: "available" })
         .eq("assigned_user", deleteTarget.name)
+      if (!isGlobalAdmin) unassignQuery = unassignQuery.eq("country", adminCountry)
+      await unassignQuery
 
       setUsers(users.filter(x => x.id !== deleteTarget.id))
       showSuccess(`${deletedLabel} has been permanently deleted.`)
