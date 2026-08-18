@@ -104,10 +104,12 @@ export default function ManageUsers() {
   const fetchUsers = async () => {
     let userQuery = supabase.from("user_profiles").select("*").order("created_at", { ascending: true })
     if (!isGlobalAdmin) userQuery = userQuery.eq("country", adminCountry)
+    let assetsQuery = supabase.from("assets").select("assigned_user")
+    if (!isGlobalAdmin) assetsQuery = assetsQuery.eq("country", adminCountry)
     const [{ data: profileData }, { data: authData }, { data: assetsData }] = await Promise.all([
       userQuery,
       supabase.rpc("get_auth_users"),
-      supabase.from("assets").select("assigned_user"),
+      assetsQuery,
     ])
 const emailMap = {}
     const lastSignInMap = {}
