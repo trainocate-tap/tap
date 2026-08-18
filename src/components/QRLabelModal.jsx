@@ -25,7 +25,7 @@ function LabelPreview({ asset, assetUrl, qrRef }) {
       }}>
         <img src="/trainocate-logo.png" alt="Trainocate" style={{width:"80px", mixBlendMode:"multiply", background:"transparent"}} />
         <span style={{ fontSize: 14, fontWeight: 900, color: "#111", letterSpacing: "0.05em" }}>
-          TRAINOCATE Property
+          TRAINOCATE PROPERTY
         </span>
       </div>
 
@@ -66,7 +66,7 @@ function buildPrintHtml(assets, assetUrlBase, qty, svgMap) {
       <div class="label">
         <div class="logo-row">
           <img src="/trainocate-logo.png" alt="Trainocate" class="logo-img" />
-          <span class="prop-label">TRAINOCATE Property</span>
+          <span class="prop-label">TRAINOCATE PROPERTY</span>
         </div>
         <div class="body-row">
           <div class="asset-info">
