@@ -214,7 +214,6 @@ export default function MarketingItems() {
 
   const handlePrintItemLabel = () => {
     if (!editingItemId) return
-    const printItem = { id: editingItemId, item_code: form.item_code }
     const svgEl = detailQrRef.current?.querySelector("svg")
     const svgStr = svgEl ? new XMLSerializer().serializeToString(svgEl) : ""
     const html = `<!DOCTYPE html>
@@ -222,19 +221,32 @@ export default function MarketingItems() {
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:#fff; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }
-  .label { width:85mm; height:54mm; border:1px solid #d1d5db; border-radius:2mm; display:flex; flex-direction:column; padding:4mm; box-sizing:border-box; }
-  .name { font-size:11pt; font-weight:800; color:#111; margin-bottom:1.5mm; word-break:break-word; }
-  .id { font-size:7pt; color:#6b7280; font-family:monospace; }
-  .qr-row { flex:1; display:flex; align-items:center; justify-content:center; }
-  .caption { font-size:6pt; color:#6b7280; text-align:center; }
+  .label { width:85mm; height:54mm; border:1px solid #d1d5db; border-radius:2mm; overflow:hidden; display:flex; flex-direction:column; }
+  .header-row { border-bottom:1px solid #e5e7eb; padding:2.5mm 3mm; flex-shrink:0; }
+  .prop-label { font-size:11pt; font-weight:900; color:#111; letter-spacing:0.05em; }
+  .body-row { flex:1; display:flex; padding:2.5mm 3mm; gap:3mm; }
+  .item-info { flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.2mm; }
+  .item-name { font-size:9pt; font-weight:800; color:#111; line-height:1.2; word-break:break-word; }
+  .detail { font-size:7pt; color:#374151; }
+  .qr-col { display:flex; flex-direction:column; align-items:center; gap:1mm; justify-content:center; }
+  .qr-wrap { line-height:0; }
+  .caption { font-size:5pt; color:#6b7280; text-align:center; }
   @media print { @page { margin:5mm; } body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
 </style></head>
 <body>
   <div class="label">
-    <div class="name">${form.name}</div>
-    <div class="id">ID: ${itemDisplayId(printItem)}</div>
-    <div class="qr-row">${svgStr}</div>
-    <div class="caption">Scan for item details · Trainocate Marketing</div>
+    <div class="header-row"><span class="prop-label">TRAINOCATE PROPERTY</span></div>
+    <div class="body-row">
+      <div class="item-info">
+        <div class="item-name">${form.name}</div>
+        <div class="detail">Item Code: ${form.item_code || "Not assigned"}</div>
+        ${form.category ? `<div class="detail">Category: ${form.category}</div>` : ""}
+      </div>
+      <div class="qr-col">
+        <div class="qr-wrap">${svgStr}</div>
+        <div class="caption">Scan for details · Trainocate Marketing</div>
+      </div>
+    </div>
   </div>
   <script>window.onload=function(){window.print()}</script>
 </body></html>`
