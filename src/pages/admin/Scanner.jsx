@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { EmptyState } from "../../components/EmptyState"
 import { statusLabel } from "../../lib/statusLabel"
 import { useAuth } from "../../context/AuthContext"
+import { logHistory } from "../../lib/logHistory"
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -203,6 +204,7 @@ export default function Scanner() {
     if (updateError) {
       setConditionMsg(`❌ Failed to update condition: ${updateError.message}`)
     } else {
+      await logHistory(asset.id, "Updated", `Condition updated to ${newCondition}`)
       setAsset(a => (a ? { ...a, condition: newCondition } : a))
       setConditionMsg(`✅ Condition updated to "${newCondition}"`)
       setTimeout(() => setConditionMsg(""), 4000)
