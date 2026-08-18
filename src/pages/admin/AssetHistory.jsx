@@ -5,12 +5,20 @@ import { motion } from "framer-motion"
 import { EmptyState, LoadingSkeleton } from "../../components/EmptyState"
 import { useTranslation } from "react-i18next"
 
+function formatDetails(details) {
+  const d = details || ""
+  if (d.startsWith("Condition updated to")) {
+    return d.replace("Condition updated to", "").trim()
+  }
+  return d
+}
+
 function exportHistoryToPDF(history) {
   const rows = history.map(h => `
     <tr>
       <td>${h.action || ""}</td>
       <td>${h.assets?.name || "Unknown"}</td>
-      <td>${h.details || ""}</td>
+      <td>${formatDetails(h.details)}</td>
       <td>${h.changed_by || ""}</td>
       <td>${h.created_at ? new Date(h.created_at).toLocaleString() : ""}</td>
     </tr>`).join("")
@@ -22,7 +30,7 @@ function exportHistoryToPDF(history) {
     @media print{body{padding:0}}</style></head>
     <body><h1>Asset History — Trainocate Asset Portal</h1>
     <p style="color:#666;font-size:11px;margin-bottom:16px">Exported ${history.length} records on ${new Date().toLocaleDateString("en-SG",{day:"numeric",month:"long",year:"numeric"})}</p>
-    <table><thead><tr><th>Action</th><th>Asset</th><th>Details</th><th>By</th><th>Date</th></tr></thead>
+    <table><thead><tr><th>Action</th><th>Asset</th><th>Asset Status</th><th>By</th><th>Date</th></tr></thead>
     <tbody>${rows}</tbody></table></body></html>`)
   win.document.close()
   win.print()
@@ -33,7 +41,7 @@ function exportHistoryToExcel(history) {
     "Action": h.action || "",
     "Asset": h.assets?.name || "Unknown",
     "Serial No.": h.assets?.serial_number || "",
-    "Details": h.details || "",
+    "Asset Status": formatDetails(h.details),
     "By": h.changed_by || "",
     "Date": h.created_at ? new Date(h.created_at).toLocaleString() : "",
   }))
@@ -231,6 +239,9 @@ export default function AssetHistory() {
                   <p className="text-gray-400 text-sm mt-1">
                     {(() => {
                       let d = (item.details || "").replace(/added to ITAMS/gi, "added to Trainocate Asset Portal")
+                      if (d.startsWith("Condition updated to")) {
+                        return d.replace("Condition updated to", "").trim()
+                      }
                       // Normalise "Bulk assigned to" entries — strip surrounding quotes from username
                       const bulkMatch = d.match(/^Bulk assigned to ["']?(.+?)["']?$/)
                       if (bulkMatch) {
