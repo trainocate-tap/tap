@@ -215,7 +215,9 @@ export default function MarketingItems() {
   const handlePrintItemLabel = () => {
     if (!editingItemId) return
     const svgEl = detailQrRef.current?.querySelector("svg")
-    const svgStr = svgEl ? new XMLSerializer().serializeToString(svgEl) : ""
+    const svgStr = (svgEl ? new XMLSerializer().serializeToString(svgEl) : "")
+      .replace(/width="[^"]*"/, 'width="28mm"')
+      .replace(/height="[^"]*"/, 'height="28mm"')
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>QR Label — ${form.name}</title>
 <style>
