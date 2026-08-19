@@ -173,7 +173,7 @@ export default function ImportAssets() {
         // appending the serial number, e.g. "...laptop" + "MP1HD42" -> "...laptop-MP1HD42"
         let finalAssetTag = assetTag
         if (finalAssetTag && seenAssetTags.has(finalAssetTag)) {
-          finalAssetTag = `${finalAssetTag}-${serial || uniqueId}`
+          finalAssetTag = `${finalAssetTag}-${serial || `ROW${i + 1}`}`
         }
         if (finalAssetTag) seenAssetTags.add(finalAssetTag)
 
