@@ -176,6 +176,7 @@ export default function ImportAssets() {
           finalAssetTag = `${finalAssetTag}-${serial || `ROW${i + 1}`}`
         }
         if (finalAssetTag) seenAssetTags.add(finalAssetTag)
+        console.log(`Row ${i}: original tag=${assetTag}, final tag=${finalAssetTag}`)
 
         assets.push({
           name: name.trim(),
