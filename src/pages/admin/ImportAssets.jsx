@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import * as XLSX from "xlsx"
 import { useAuth } from "../../context/AuthContext"
@@ -80,7 +81,13 @@ const excelDateToISO = (val) => {
 }
 
 export default function ImportAssets() {
-  const { userCountry, userProfile } = useAuth()
+  const { userCountry, userProfile, isStandardUser, isGuest } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isStandardUser || isGuest) navigate("/admin/assets", { replace: true })
+  }, [isStandardUser, isGuest, navigate])
+
   const [loading, setLoading] = useState(false)
   const [preview, setPreview] = useState([])
   const [imported, setImported] = useState(false)

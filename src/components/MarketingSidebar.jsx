@@ -39,14 +39,16 @@ export default function MarketingSidebar() {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [showNotif, setShowNotif] = useState(false)
-  const { userProfile, role, isMarketing } = useAuth()
+  const { userProfile, role, isMarketing, isGlobalAdmin } = useAuth()
   const navigate = useNavigate()
 
   const displayName = userProfile?.name || userProfile?.full_name || userProfile?.email || "Marketing User"
   const firstLetter = (displayName[0] || "M").toUpperCase()
 
   const marketingRole = userProfile?.marketing_role
-  const visibleNavItems = marketingRole === "bdm"
+  const visibleNavItems = isGlobalAdmin
+    ? navItems
+    : marketingRole === "bdm"
     ? navItems.filter(item => ["/marketing/dashboard", "/marketing/items", "/marketing/approvals"].includes(item.path))
     : marketingRole === "bdms"
     ? navItems.filter(item => ["/marketing/dashboard", "/marketing/items"].includes(item.path))
@@ -185,7 +187,7 @@ export default function MarketingSidebar() {
                   {displayName}
                 </p>
                 <span style={{ display: "inline-block", background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.3)", color: MKT.accent, fontSize: "10px", padding: "1px 7px", borderRadius: "6px", fontWeight: "600", marginTop: "2px" }}>
-                  {userProfile?.marketing_role || (role === "admin" ? "IT Admin" : "Marketing")}
+                  {userProfile?.marketing_role || ((role === "admin" || isGlobalAdmin) ? "IT Admin" : "Marketing")}
                 </span>
               </div>
             </div>
@@ -202,7 +204,7 @@ export default function MarketingSidebar() {
             <button
               onClick={() => {
                 setOpen(false)
-                const goesToDashboard = role === "admin" || ["marketing_admin", "marketing_manager"].includes(marketingRole)
+                const goesToDashboard = role === "admin" || isGlobalAdmin || ["marketing_admin", "marketing_manager"].includes(marketingRole)
                 navigate(goesToDashboard ? "/admin" : "/admin/assets")
               }}
               style={{ flex: 1, padding: "6px 4px", borderRadius: "7px", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)", color: "#60a5fa", fontSize: "11px", fontWeight: "600", cursor: "pointer", transition: "all 0.15s" }}

@@ -13,10 +13,15 @@ const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippine
 
 export default function EditAsset() {
   const { t } = useTranslation()
-  const { userProfile } = useAuth()
+  const { userProfile, isStandardUser, isGuest } = useAuth()
   const { currency } = useCurrency()
   const navigate = useNavigate()
   const { id } = useParams()
+
+  useEffect(() => {
+    if (isStandardUser || isGuest) navigate("/admin/assets", { replace: true })
+  }, [isStandardUser, isGuest, navigate])
+
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [success, setSuccess] = useState(false)

@@ -36,9 +36,14 @@ function AnimatedError({ message, onDismiss }) {
 
 export default function AddAsset() {
   const { t } = useTranslation()
-  const { userCountry, userProfile } = useAuth()
+  const { userCountry, userProfile, isStandardUser, isGuest } = useAuth()
   const { currency } = useCurrency()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isStandardUser || isGuest) navigate("/admin/assets", { replace: true })
+  }, [isStandardUser, isGuest, navigate])
+
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [assetName, setAssetName] = useState("")
