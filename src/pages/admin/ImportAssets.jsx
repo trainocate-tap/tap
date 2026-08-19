@@ -124,6 +124,7 @@ export default function ImportAssets() {
 
       const assets = []
       const seenSerials = new Set()
+      const seenAssetTags = new Set()
 
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i]
@@ -161,13 +162,21 @@ export default function ImportAssets() {
         }
         seenSerials.add(uniqueId)
 
+        // Duplicate asset_tag within this same import batch — make it unique by
+        // appending the serial number, e.g. "...laptop" + "MP1HD42" -> "...laptop-MP1HD42"
+        let finalAssetTag = assetTag
+        if (finalAssetTag && seenAssetTags.has(finalAssetTag)) {
+          finalAssetTag = `${finalAssetTag}-${serial || uniqueId}`
+        }
+        if (finalAssetTag) seenAssetTags.add(finalAssetTag)
+
         assets.push({
           name: name.trim(),
           brand_model: brandModel || null,
           serial_number: uniqueId,
           assigned_user: usage || null,
           department: department || null,
-          asset_tag: assetTag || null,
+          asset_tag: finalAssetTag || null,
           remarks: remarks || null,
           category,
           status,

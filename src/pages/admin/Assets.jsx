@@ -132,14 +132,25 @@ export default function Assets() {
   }, [showAssignDropdown])
 
   const fetchAssets = async () => {
-    let assetQuery = supabase.from("assets").select("*").order("created_at", { ascending: false })
-    if (userCountry && !isGlobalAdmin) assetQuery = assetQuery.eq("country", userCountry)
-    if (isMyAssetsView) assetQuery = assetQuery.eq("assigned_user", userProfile?.name || "")
-    const [{ data: a }, { data: m }] = await Promise.all([
-      assetQuery,
-      supabase.from("maintenance_schedules").select("asset_id, status, scheduled_date"),
-    ])
-    setAssets(a || [])
+    const maintPromise = supabase.from("maintenance_schedules").select("asset_id, status, scheduled_date")
+
+    // Supabase caps each request at 1000 rows by default — page through with
+    // .range() until a page comes back short, then combine into one array.
+    const PAGE_SIZE = 1000
+    let allAssets = []
+    let from = 0
+    while (true) {
+      let assetQuery = supabase.from("assets").select("*").order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1)
+      if (userCountry && !isGlobalAdmin) assetQuery = assetQuery.eq("country", userCountry)
+      if (isMyAssetsView) assetQuery = assetQuery.eq("assigned_user", userProfile?.name || "")
+      const { data: page } = await assetQuery
+      if (page?.length) allAssets = allAssets.concat(page)
+      if (!page || page.length < PAGE_SIZE) break
+      from += PAGE_SIZE
+    }
+
+    const { data: m } = await maintPromise
+    setAssets(allAssets)
     const byAsset = {}
     ;(m || []).forEach(r => {
       if (!byAsset[r.asset_id]) byAsset[r.asset_id] = []
