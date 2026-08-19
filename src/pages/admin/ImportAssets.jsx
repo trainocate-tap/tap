@@ -149,6 +149,10 @@ export default function ImportAssets() {
           ? parseFloat(row[11])
           : null
         const purchaseDate = excelDateToISO(typeof row[12] === "string" ? row[12].trim() : row[12])
+        const usefulLife = row[13] !== undefined && row[13] !== null && row[13] !== ""
+          ? parseFloat(row[13])
+          : 5
+        const country = row[14] ? String(row[14]).trim() : (userCountry || "Singapore")
 
         // No usable serial — fall back to asset tag, then a name+row synthetic id, as the unique identifier
         let uniqueId = serial || assetTag || `${name.trim()}_ROW${i + 1}`
@@ -167,12 +171,12 @@ export default function ImportAssets() {
           remarks: remarks || null,
           category,
           status,
-          country: userCountry || "Singapore",
-          location: location || userCountry || "Singapore",
+          country,
+          location: location || country,
           warranty_expiry: warrantyExpiry || null,
           purchase_price: Number.isNaN(purchasePrice) ? null : purchasePrice,
           purchase_date: purchaseDate || null,
-          useful_life: 5,
+          useful_life: Number.isNaN(usefulLife) ? 5 : usefulLife,
         })
       }
 
@@ -190,12 +194,12 @@ export default function ImportAssets() {
     const headers = [
       "Asset Name", "Brand / Model", "Serial Number", "Category", "Status", "Assigned User", "Department",
       "Asset Tag", "Remarks", "Location", "Warranty Expiry", "Purchase Price", "Purchase Date",
-      "Useful Life (years)",
+      "Useful Life (years)", "Country",
     ]
     const example = [
       "MacBook Pro 14\"", "Apple MacBook Pro 14 2021", "SN123456789", "Laptop", "available", "John Tan", "Engineering",
       "AST-0001", "Assigned for development work", "Singapore", "2027-06-30", 2499, "2022-06-30",
-      5,
+      5, "India",
     ]
     const ws = XLSX.utils.aoa_to_sheet([headers, example])
     const wb = XLSX.utils.book_new()
