@@ -106,6 +106,7 @@ export default function Assets() {
   const [bulkModal, setBulkModal] = useState(null) // "assign" | "status" | "delete"
   const [bulkInput, setBulkInput] = useState("")
   const [bulkWorking, setBulkWorking] = useState(false)
+  const [bulkDeleteError, setBulkDeleteError] = useState("")
   const [assignUsers, setAssignUsers] = useState([])
   const [assignSearch, setAssignSearch] = useState("")
   const [showAssignDropdown, setShowAssignDropdown] = useState(false)
@@ -219,14 +220,35 @@ export default function Assets() {
 
   const handleBulkDelete = async () => {
     setBulkWorking(true)
+    setBulkDeleteError("")
     const ids = [...selected]
-    await Promise.all(ids.map(id => {
-      const a = assets.find(x => x.id === id)
-      return logHistory(id, "Deleted", `Asset "${a?.name}" bulk deleted`, userProfile?.name || userProfile?.email)
-    }))
-    await supabase.from("assets").delete().in("id", ids)
-    await fetchAssets()
-    setBulkModal(null); clearSelected(); setBulkWorking(false)
+    try {
+      // Logging one history row per asset doesn't scale for large batches —
+      // fall back to a single summary entry instead.
+      if (ids.length > 50) {
+        await logHistory(ids[0], "Deleted", `Bulk deleted ${ids.length} assets`, userProfile?.name || userProfile?.email)
+      } else {
+        await Promise.all(ids.map(id => {
+          const a = assets.find(x => x.id === id)
+          return logHistory(id, "Deleted", `Asset "${a?.name}" bulk deleted`, userProfile?.name || userProfile?.email)
+        }))
+      }
+
+      // Delete in batches of 100 to avoid Supabase limits on a single request.
+      const BATCH_SIZE = 100
+      for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+        const batch = ids.slice(i, i + BATCH_SIZE)
+        const { error } = await supabase.from("assets").delete().in("id", batch)
+        if (error) throw error
+      }
+
+      await fetchAssets()
+      setBulkModal(null); clearSelected()
+    } catch (err) {
+      setBulkDeleteError(err.message || "Failed to delete assets. Please try again.")
+    } finally {
+      setBulkWorking(false)
+    }
   }
 
   const handleSort = (col) => {
@@ -324,8 +346,13 @@ export default function Assets() {
                     <h3 className="text-white font-bold text-lg mt-1">Delete {selected.size} Asset{selected.size !== 1 ? "s" : ""}?</h3>
                     <p className="text-gray-400 text-sm mt-2">This will permanently delete all selected assets. This cannot be undone.</p>
                   </div>
+                  {bulkDeleteError && (
+                    <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-3 py-2 mb-4">
+                      ⚠️ {bulkDeleteError}
+                    </div>
+                  )}
                   <div className="flex gap-3">
-                    <button onClick={() => setBulkModal(null)}
+                    <button onClick={() => { setBulkModal(null); setBulkDeleteError("") }}
                       className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-medium transition-all">Cancel</button>
                     <button onClick={handleBulkDelete} disabled={bulkWorking}
                       className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-sm font-medium transition-all">
