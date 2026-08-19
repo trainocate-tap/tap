@@ -168,16 +168,29 @@ export default function Reports() {
 
   const fetchAll = async () => {
     setLoading(true)
-    let assetQuery = supabase.from("assets").select("*").order("name")
-    if (userCountry) assetQuery = assetQuery.eq("country", userCountry)
     const todayStr = new Date().toISOString().split("T")[0]
-    const [{ data: a }, { data: b }, { data: m }, { data: od }] = await Promise.all([
-      assetQuery,
+    const otherPromises = Promise.all([
       supabase.from("borrow_history").select("*, assets(name,serial_number,asset_tag)").order("borrowed_at", { ascending: false }),
       supabase.from("maintenance_schedules").select("*, assets(name,serial_number)").order("scheduled_date", { ascending: false }),
       supabase.from("borrow_history").select("*, assets(name,serial_number,asset_tag)").is("returned_at", null).not("due_date", "is", null).eq("status", "approved").lt("due_date", todayStr).order("due_date", { ascending: true }),
     ])
-    setAssets(a || [])
+
+    // Supabase caps each request at 1000 rows by default — page through with
+    // .range() until a page comes back short, then combine into one array.
+    const PAGE_SIZE = 1000
+    let allAssets = []
+    let from = 0
+    while (true) {
+      let assetQuery = supabase.from("assets").select("*").order("name").range(from, from + PAGE_SIZE - 1)
+      if (userCountry) assetQuery = assetQuery.eq("country", userCountry)
+      const { data: page } = await assetQuery
+      if (page?.length) allAssets = allAssets.concat(page)
+      if (!page || page.length < PAGE_SIZE) break
+      from += PAGE_SIZE
+    }
+
+    const [{ data: b }, { data: m }, { data: od }] = await otherPromises
+    setAssets(allAssets)
     setBorrows(b || [])
     setMaintenance(m || [])
     setOverdueBorrowsData(od || [])
