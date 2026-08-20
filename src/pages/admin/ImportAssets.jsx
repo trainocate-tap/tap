@@ -172,7 +172,8 @@ export default function ImportAssets() {
         // Duplicate asset_tag within this same import batch — make it unique by
         // appending the serial number, e.g. "...laptop" + "MP1HD42" -> "...laptop-MP1HD42"
         let finalAssetTag = assetTag
-        if (finalAssetTag && seenAssetTags.has(finalAssetTag)) {
+        const tagWasRenamed = Boolean(finalAssetTag && seenAssetTags.has(finalAssetTag))
+        if (tagWasRenamed) {
           finalAssetTag = `${finalAssetTag}-${serial || `ROW${i + 1}`}`
         }
         if (finalAssetTag) seenAssetTags.add(finalAssetTag)
@@ -193,6 +194,11 @@ export default function ImportAssets() {
           purchase_price: Number.isNaN(purchasePrice) ? null : purchasePrice,
           purchase_date: purchaseDate || null,
           useful_life: Number.isNaN(usefulLife) ? 5 : usefulLife,
+          // Internal-only flag — stripped out before sending to Supabase. Marks
+          // rows whose asset_tag was auto-renamed due to an in-batch duplicate,
+          // so the import step knows to INSERT rather than upsert-by-asset_tag
+          // (which would otherwise silently overwrite an unrelated existing row).
+          _tagRenamed: tagWasRenamed,
         })
       }
 
@@ -243,7 +249,7 @@ export default function ImportAssets() {
     const fileName = `Import_${new Date().toISOString().split("T")[0]}`
 
     for (let i = 0; i < data.length; i++) {
-      const item = data[i]
+      const { _tagRenamed, ...item } = data[i]
 
       if (importMode === "update" && item.serial_number) {
         const { data: existing } = await supabase
@@ -273,9 +279,15 @@ export default function ImportAssets() {
         }
       }
 
-      // Upsert on asset_tag — if a different row already has this asset_tag, update it
-      // instead of failing with a duplicate key error; otherwise this inserts as new.
-      const { error } = await supabase.from("assets").upsert([item], { onConflict: 'asset_tag' })
+      // If this row's asset_tag was auto-renamed to resolve an in-batch duplicate,
+      // it's a brand-new tag value that can't collide with an existing row — insert
+      // it directly rather than upserting, so it can never overwrite an unrelated
+      // existing asset that happens to share the same (renamed) tag by coincidence.
+      // Otherwise, upsert on asset_tag: if a different row already has this asset_tag,
+      // update it instead of failing with a duplicate key error; otherwise it inserts as new.
+      const { error } = _tagRenamed
+        ? await supabase.from("assets").insert([item])
+        : await supabase.from("assets").upsert([item], { onConflict: 'asset_tag' })
       if (!error) successCount++
       else { failCount++; errors.push({ Row: i + 2, Name: item.name, Serial: item.serial_number || "", Reason: error.message }) }
       setImportedCount(successCount)
