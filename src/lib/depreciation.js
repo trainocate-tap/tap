@@ -2,17 +2,16 @@ const DEFAULT_LIFESPAN_YEARS = 5
 
 // Whole months elapsed between two dates (a partial month doesn't count until
 // the day-of-month of `start` has been reached in the later month). If `end`
-// is the last day of its month, that month is treated as fully elapsed —
-// e.g. "as of Aug 31" counts August in full, since it's the report month —
-// regardless of the purchase day-of-month, so the decrement check is skipped
-// entirely in that case (it would otherwise cancel the bump for any start
-// date after the 1st of the month).
+// is the last day of its month AND the purchase was made on the 1st, that
+// month is treated as fully elapsed — e.g. a purchase on Jan 1, reported "as
+// of Aug 31", counts August in full. Mid-month purchases (day > 1) always use
+// the standard whole-month calculation with no month-end bonus.
 function monthsBetween(start, end) {
   const s = new Date(start)
   let e = new Date(end)
 
   const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
-  if (e.getDate() === lastDayOfEndMonth) {
+  if (e.getDate() === lastDayOfEndMonth && s.getDate() === 1) {
     e = new Date(e.getFullYear(), e.getMonth() + 1, 1)
     return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
   }
@@ -42,10 +41,10 @@ export function calcDepreciation(purchasePrice, purchaseDate, usefulLife, asOfDa
 
   return {
     originalPrice: price,
-    currentValue: Math.round(currentValue * 100) / 100,
-    accumulatedDepreciation: Math.round(depreciated * 100) / 100,
-    perYear: Math.round(monthlyDepreciation * 12 * 100) / 100,
-    perMonth: Math.round(monthlyDepreciation * 100) / 100,
+    currentValue: Math.round(currentValue),
+    accumulatedDepreciation: Math.round(depreciated),
+    perYear: Math.round(monthlyDepreciation * 12),
+    perMonth: Math.round(monthlyDepreciation),
     usefulLife: lifespanYears,
     percentDepreciated: Math.round(percentDepreciated * 10) / 10,
     percentRemaining: Math.round((100 - percentDepreciated) * 10) / 10,
