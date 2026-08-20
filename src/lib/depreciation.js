@@ -10,7 +10,11 @@ function monthsBetween(start, end) {
 
   const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
   if (e.getDate() === lastDayOfEndMonth) {
+    // Month-end case — that month is fully elapsed regardless of the purchase
+    // day-of-month, so skip the decrement check entirely (it would otherwise
+    // cancel out the bump for any start date after the 1st of the month).
     e = new Date(e.getFullYear(), e.getMonth() + 1, 1)
+    return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
   }
 
   let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
