@@ -1,10 +1,22 @@
 const DEFAULT_LIFESPAN_YEARS = 5
 
 // Whole months elapsed between two dates (a partial month doesn't count until
-// the day-of-month of `start` has been reached in the later month).
+// the day-of-month of `start` has been reached in the later month). If `end`
+// is the last day of its month, that month is treated as fully elapsed —
+// e.g. "as of Aug 31" counts August in full, since it's the report month —
+// regardless of the purchase day-of-month, so the decrement check is skipped
+// entirely in that case (it would otherwise cancel the bump for any start
+// date after the 1st of the month).
 function monthsBetween(start, end) {
   const s = new Date(start)
-  const e = new Date(end)
+  let e = new Date(end)
+
+  const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
+  if (e.getDate() === lastDayOfEndMonth) {
+    e = new Date(e.getFullYear(), e.getMonth() + 1, 1)
+    return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
+  }
+
   let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
   if (e.getDate() < s.getDate()) months -= 1
   return months
