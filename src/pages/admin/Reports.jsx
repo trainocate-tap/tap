@@ -266,7 +266,29 @@ export default function Reports() {
     if (reportType === "depreciation") {
       const asOfDate = new Date(depYear, depMonth, 0) // last day of selected month
       const rows = filteredAssets
-        .map(a => ({ ...a, dep: calcDepreciation(a.purchase_price, a.purchase_date, a.useful_life, asOfDate) }))
+        .map(a => {
+          const price = parseFloat(a.purchase_price)
+          const noPrice = !a.purchase_price || isNaN(price) || price <= 0
+          // calcDepreciation returns null for a $0/missing price — still include
+          // the asset (as long as it has a purchase date) showing $0 depreciation.
+          if (noPrice && a.purchase_date) {
+            const lifespanYears = parseFloat(a.useful_life) > 0 ? parseFloat(a.useful_life) : 5
+            return { ...a, dep: {
+              originalPrice: 0,
+              currentValue: 0,
+              accumulatedDepreciation: 0,
+              perYear: 0,
+              perMonth: 0,
+              usefulLife: lifespanYears,
+              percentDepreciated: 0,
+              percentRemaining: 0,
+              yearsOld: 0,
+              remainingYears: lifespanYears,
+              fullyDepreciated: false,
+            }}
+          }
+          return { ...a, dep: calcDepreciation(a.purchase_price, a.purchase_date, a.useful_life, asOfDate) }
+        })
         .filter(a => a.dep)
         .sort((a, b) => a.dep.percentRemaining - b.dep.percentRemaining)
       const totalOriginal = rows.reduce((s, a) => s + a.dep.originalPrice, 0)
