@@ -18,7 +18,6 @@ import { statusLabel } from "../../lib/statusLabel"
 const REPORT_TYPES = [
   { id: "inventory",       icon: "📦", label: "Full Asset Inventory",     desc: "Complete list of all assets" },
   { id: "warranty",        icon: "🛡️",  label: "Warranty Expiry",          desc: "Assets expiring in 30/60/90 days" },
-  { id: "department",      icon: "🏢", label: "Department Assets",        desc: "Assets grouped by department" },
   { id: "depreciation",    icon: "📉", label: "Asset Depreciation",       desc: "Value & depreciation per asset" },
   { id: "license",         icon: "📋", label: "License Usage",            desc: "License expiry tracking" },
   { id: "maintenance",     icon: "🔧", label: "Maintenance History",      desc: "Asset maintenance records" },
@@ -245,24 +244,6 @@ export default function Reports() {
       return { rows, chartData, stats: { total: rows.length, exp30, exp60, exp90 } }
     }
 
-    if (reportType === "department") {
-      const deptAssets = filteredAssets
-      const deptMap = deptAssets.reduce((acc, a) => {
-        const dept = a.department || "No Department"
-        if (!acc[dept]) acc[dept] = { total: 0, available: 0, assigned: 0, maintenance: 0, retired: 0, assets: [] }
-        acc[dept].total++
-        acc[dept][a.status] = (acc[dept][a.status] || 0) + 1
-        acc[dept].assets.push(a)
-        return acc
-      }, {})
-      const chartData = Object.entries(deptMap).map(([name, v]) => ({
-        name, total: v.total, available: v.available, assigned: v.assigned,
-      })).sort((a, b) => b.total - a.total).slice(0, 8)
-      const depts = Object.entries(deptMap).sort((a, b) => b[1].total - a[1].total)
-      const deptCount = depts.filter(([name]) => name !== "No Department").length
-      return { depts, chartData, stats: { deptCount, totalAssets: deptAssets.length } }
-    }
-
     if (reportType === "depreciation") {
       const asOfDate = new Date(depYear, depMonth, 0) // last day of selected month
       const rows = filteredAssets
@@ -429,15 +410,6 @@ export default function Reports() {
       })
     }
 
-    if (reportType === "department") {
-      const { depts } = reportData
-      autoTable(doc, {
-        startY: y, head: [["Department","Total","Unassigned","Assigned","Maintenance","Retired"]],
-        body: depts.map(([name, v]) => [name, v.total, v.available||0, v.assigned||0, v.maintenance||0, v.retired||0]),
-        theme: "striped", headStyles: { fillColor: [37,99,235] }, styles: { fontSize: 7 }, margin: { left: 14 },
-      })
-    }
-
     if (reportType === "depreciation") {
       const { rows, stats } = reportData
       doc.setFontSize(9)
@@ -547,11 +519,6 @@ export default function Reports() {
         "Asset Name": a.name, "Serial Number": a.serial_number||"", "Department": a.department||"",
         "Warranty Expiry": a.warranty_expiry,
         "Days Left": Math.ceil((new Date(a.warranty_expiry) - new Date()) / 86400000),
-      }))
-    } else if (reportType === "department") {
-      rows = (reportData.depts || []).map(([dept, v]) => ({
-        "Department": dept, "Total": v.total, "Unassigned": v.available||0,
-        "Assigned": v.assigned||0, "Maintenance": v.maintenance||0, "Retired": v.retired||0,
       }))
     } else if (reportType === "depreciation") {
       rows = (reportData.rows || []).map(a => ({
@@ -957,33 +924,6 @@ export default function Reports() {
                       return [a.name, a.warranty_expiry,
                         <span key="d" className={days <= 30 ? "text-red-400 font-semibold" : days <= 60 ? "text-yellow-400" : "text-green-400"}>{days}d</span>]
                     })} />
-                </>
-              )}
-
-              {/* ── DEPARTMENT ── */}
-              {reportType === "department" && reportData.stats && (
-                <>
-                  <div className="grid grid-cols-2 gap-3 mb-5">
-                    <StatCard label="Departments" value={reportData.stats.deptCount} color="blue" />
-                    <StatCard label="Total Assets" value={reportData.stats.totalAssets} color="purple" />
-                  </div>
-                  <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 mb-5" style={{ width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
-                    <p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-3">Assets by Department</p>
-                    <ResponsiveContainer width="100%" height={180}>
-                      <BarChart data={reportData.chartData} margin={{ left: 0, right: 8 }}>
-                        <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 9 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <Tooltip content={<DarkTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-                        <Legend wrapperStyle={{ color: "#9ca3af", fontSize: 11 }} />
-                        <Bar dataKey="available" name="Unassigned" stackId="a" fill="#22c55e" radius={[0,0,0,0]} />
-                        <Bar dataKey="assigned" name="Assigned" stackId="a" fill="#3b82f6" radius={[4,4,0,0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <ReportTable headers={["Department","Total","Unassigned","Assigned"]}
-                    rows={reportData.depts.map(([dept, v]) => [
-                      dept, v.total, v.available||0, v.assigned||0,
-                    ])} />
                 </>
               )}
 
