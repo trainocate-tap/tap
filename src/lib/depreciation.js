@@ -1,10 +1,20 @@
 const DEFAULT_LIFESPAN_YEARS = 5
 
 // Whole months elapsed between two dates (a partial month doesn't count until
-// the day-of-month of `start` has been reached in the later month).
+// the day-of-month of `start` has been reached in the later month). If `end`
+// is the last day of its month AND the purchase was made on the 1st, that
+// month is treated as fully elapsed — e.g. a purchase on Jan 1, reported "as
+// of Aug 31", counts August in full. Purchases made on any other day (day > 1)
+// always use the standard whole-month calculation with no month-end bonus.
 function monthsBetween(start, end) {
   const s = new Date(start)
-  const e = new Date(end)
+  let e = new Date(end)
+
+  const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
+  if (e.getDate() === lastDayOfEndMonth && s.getDate() === 1) {
+    e = new Date(e.getFullYear(), e.getMonth() + 1, 1)
+    return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
+  }
 
   let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
   if (e.getDate() < s.getDate()) months -= 1
