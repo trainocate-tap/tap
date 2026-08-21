@@ -8,16 +8,14 @@ const DEFAULT_LIFESPAN_YEARS = 5
 // always use the standard whole-month calculation with no month-end bonus.
 function monthsBetween(start, end) {
   const s = new Date(start)
-  let e = new Date(end)
-
-  const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
-  if (e.getDate() === lastDayOfEndMonth && s.getDate() === 1) {
-    e = new Date(e.getFullYear(), e.getMonth() + 1, 1)
-    return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
-  }
+  const e = new Date(end)
 
   let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
   if (e.getDate() < s.getDate()) months -= 1
+
+  const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
+  if (e.getDate() === lastDayOfEndMonth && s.getDate() === 1) months += 1
+
   return months
 }
 
