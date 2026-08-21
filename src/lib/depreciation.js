@@ -2,16 +2,16 @@ const DEFAULT_LIFESPAN_YEARS = 5
 
 // Whole months elapsed between two dates (a partial month doesn't count until
 // the day-of-month of `start` has been reached in the later month). If `end`
-// is the last day of its month AND the purchase was made on the 1st, that
+// is the last day of its month AND the purchase was made on the 1st-5th, that
 // month is treated as fully elapsed — e.g. a purchase on Jan 1, reported "as
-// of Aug 31", counts August in full. Mid-month purchases (day > 1) always use
+// of Aug 31", counts August in full. Purchases from the 6th onward always use
 // the standard whole-month calculation with no month-end bonus.
 function monthsBetween(start, end) {
   const s = new Date(start)
   let e = new Date(end)
 
   const lastDayOfEndMonth = new Date(e.getFullYear(), e.getMonth() + 1, 0).getDate()
-  if (e.getDate() === lastDayOfEndMonth && s.getDate() === 1) {
+  if (e.getDate() === lastDayOfEndMonth && s.getDate() <= 5) {
     e = new Date(e.getFullYear(), e.getMonth() + 1, 1)
     return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
   }
@@ -41,10 +41,10 @@ export function calcDepreciation(purchasePrice, purchaseDate, usefulLife, asOfDa
 
   return {
     originalPrice: price,
-    currentValue: Math.round(currentValue),
-    accumulatedDepreciation: Math.round(depreciated),
-    perYear: Math.round(monthlyDepreciation * 12),
-    perMonth: Math.round(monthlyDepreciation),
+    currentValue,
+    accumulatedDepreciation: depreciated,
+    perYear: monthlyDepreciation * 12,
+    perMonth: monthlyDepreciation,
     usefulLife: lifespanYears,
     percentDepreciated: Math.round(percentDepreciated * 10) / 10,
     percentRemaining: Math.round((100 - percentDepreciated) * 10) / 10,
