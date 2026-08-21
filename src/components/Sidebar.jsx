@@ -8,6 +8,7 @@ import NotificationBell from "./NotificationBell"
 const roleColors = {
   global_admin: "bg-purple-500/20 text-purple-400 border border-purple-500/30",
   admin: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+  management: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
   standard_user: "bg-green-500/20 text-green-400 border border-green-500/30",
   guest: "bg-gray-500/20 text-gray-400 border border-gray-500/30",
 }
@@ -15,6 +16,7 @@ const roleColors = {
 const roleLabels = {
   global_admin: "🌍 Global Admin",
   admin: "👑 Admin",
+  management: "📊 Management",
   standard_user: "👤 Standard User",
   guest: "👁 Guest",
 }
@@ -24,7 +26,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const [counts, setCounts] = useState({ assets: 0, openIssues: 0, pendingRequests: 0, activeBorrows: 0 })
   const { t } = useTranslation()
-  const { userProfile, role, isStandardUser, isMarketing, isMarketingOnly, canManageMarketing, isGlobalAdmin, isGuest } = useAuth()
+  const { userProfile, role, isStandardUser, isManagement, isMarketing, isMarketingOnly, canManageMarketing, isGlobalAdmin, isGuest } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -102,6 +104,16 @@ export default function Sidebar() {
   // Standard User (and non-admin marketing users viewing the IT module): My Assets, Borrow/Return, Issues only
   if (isStandardUser || isMarketingOnly) {
     navItems = standardUserNavItems
+  }
+
+  // Management: standard user access plus Asset Requests (to review/approve)
+  if (isManagement) {
+    navItems = [
+      dashItem, assetsItem,
+      { label: "Asset Requests", path: "/admin/requests", count: counts.pendingRequests },
+      ...standardUserNavItems,
+      reportsItem, guideItem,
+    ]
   }
 
   // Admin (base role), global admin, or a non-admin marketing user with an elevated

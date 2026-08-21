@@ -26,17 +26,19 @@ function SuccessToast({ message }) {
   )
 }
 
-const ROLES = ["admin", "standard_user", "guest"]
+const ROLES = ["admin", "management", "standard_user", "guest"]
 const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippines", "Vietnam", "Taiwan", "Hong Kong", "India", "Japan", "Sri Lanka", "Gulf (UAE)", "United States"]
 
 const roleColors = {
   admin: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  management: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   standard_user: "bg-green-500/20 text-green-400 border-green-500/30",
   guest: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 }
 
 const roleLabels = {
   admin: "Admin",
+  management: "Management",
   standard_user: "Standard User",
   guest: "Guest",
 }
@@ -649,6 +651,7 @@ const emailMap = {}
                   >
                     <option value="standard_user">Standard User</option>
                     <option value="guest">Guest</option>
+                    <option value="management">Management</option>
                     <option value="admin">Admin</option>
                     <option value="global_admin">Global Admin</option>
                   </select>
@@ -890,6 +893,7 @@ const emailMap = {}
                 >
                   <option value="standard_user">Standard User — view and submit requests</option>
                   <option value="guest">Guest — view assets and reports only</option>
+                  <option value="management">Management — view and approve requests</option>
                   <option value="admin">Admin — full control</option>
                   <option value="global_admin">Global Admin — full control across all countries</option>
                 </select>
@@ -952,6 +956,7 @@ const emailMap = {}
         {ROLES.map(r => (
           <span key={r} className={`text-xs px-2 md:px-3 py-0.5 md:py-1 rounded-full border font-medium ${roleColors[r]}`}>
             {r === "admin" && "👑 "}
+            {r === "management" && "📊 "}
             {r === "standard_user" && "👤 "}
             {r === "guest" && "👁 "}
             {roleLabels[r]}
@@ -1031,6 +1036,7 @@ const emailMap = {}
                       }`}
                     >
                       {r === "admin" && "👑"}
+                      {r === "management" && "📊"}
                       {r === "standard_user" && "👤"}
                       {r === "guest" && "👁"}
                       <span className="ml-0.5 hidden md:inline">{roleLabels[r]}</span>
