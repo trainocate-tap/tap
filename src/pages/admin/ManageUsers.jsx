@@ -27,7 +27,15 @@ function SuccessToast({ message }) {
 }
 
 const ROLES = ["admin", "management", "standard_user", "guest"]
-const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippines", "Vietnam", "Taiwan", "Hong Kong", "India", "Japan", "Sri Lanka", "Gulf (UAE)", "United States"]
+const COUNTRIES = ["Singapore", "Malaysia", "Thailand", "Indonesia", "Philippines", "Vietnam", "Taiwan", "Hong Kong", "India", "Japan", "Sri Lanka", "Gulf (UAE)", "United States", "Canada"]
+
+const ROLE_LEVELS = {
+  guest: 1,
+  standard_user: 2,
+  management: 3,
+  admin: 4,
+  global_admin: 5,
+}
 
 const roleColors = {
   admin: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -69,7 +77,19 @@ function AnimatedError({ message, onDismiss }) {
 export default function ManageUsers() {
   const { t } = useTranslation()
   const { userProfile, isAdmin, isGlobalAdmin } = useAuth()
-  const adminCountry = userProfile?.country || "Singapore"
+  const adminCountries = isGlobalAdmin
+    ? []
+    : (
+        Array.isArray(userProfile?.countries) && userProfile.countries.length
+          ? userProfile.countries
+          : [userProfile?.country || "Singapore"]
+      )
+
+  const adminCountry = adminCountries[0] || "Singapore"
+
+  const assignableCountries = isGlobalAdmin
+    ? COUNTRIES
+    : adminCountries.filter(Boolean)
 
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -77,13 +97,13 @@ export default function ManageUsers() {
   const [creating, setCreating] = useState(false)
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "standard_user", country: adminCountry, department: "" })
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "standard_user", countries: [], department: "" })
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [editTarget, setEditTarget] = useState(null)
-  const [editForm, setEditForm] = useState({ name: "", role: "standard_user", country: "Singapore", marketing_access: false, marketing_role: "" })
+  const [editForm, setEditForm] = useState({ name: "", role: "standard_user", countries: ["Singapore"], marketing_access: false, marketing_role: "" })
   const [saving, setSaving] = useState(false)
   const [detailUser, setDetailUser] = useState(null)
   const [detailAssets, setDetailAssets] = useState([])
@@ -105,9 +125,13 @@ export default function ManageUsers() {
 
   const fetchUsers = async () => {
     let userQuery = supabase.from("user_profiles").select("*").order("created_at", { ascending: true })
-    if (!isGlobalAdmin) userQuery = userQuery.eq("country", adminCountry)
+    if (!isGlobalAdmin) {
+      userQuery = userQuery
+        .overlaps("countries", adminCountries)
+        .neq("role", "global_admin")
+    }
     let assetsQuery = supabase.from("assets").select("assigned_user")
-    if (!isGlobalAdmin) assetsQuery = assetsQuery.eq("country", adminCountry)
+    if (!isGlobalAdmin) assetsQuery = assetsQuery.in("country", adminCountries)
     const [{ data: profileData }, { data: authData }, { data: assetsData }] = await Promise.all([
       userQuery,
       supabase.rpc("get_auth_users"),
@@ -165,12 +189,67 @@ const emailMap = {}
   }, [error])
 
   const handleRoleChange = async (userId, newRole) => {
-    if (userId === userProfile?.id && newRole !== "admin") {
-      alert("You cannot demote yourself from admin.")
+    if (userId === userProfile?.id) {
+      alert("You cannot change your own role.")
       return
     }
-    await supabase.from("user_profiles").update({ role: newRole }).eq("id", userId)
-    setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u))
+
+    const targetUser = users.find(u => u.id === userId)
+    if (!targetUser) return
+
+    if (targetUser.role === "global_admin" && !isGlobalAdmin) {
+      showError("You do not have permission to manage a Global Admin.")
+      return
+    }
+
+    if (newRole === "global_admin" && !isGlobalAdmin) {
+      showError("Only a Global Admin can assign the Global Admin role.")
+      return
+    }
+
+    const currentLevel = ROLE_LEVELS[targetUser.role] || 0
+    const newLevel = ROLE_LEVELS[newRole] || 0
+
+    if (newLevel >= currentLevel) {
+      alert("You can only change a user to a lower role.")
+      return
+    }
+
+    let countries = Array.isArray(targetUser.countries) && targetUser.countries.length
+      ? targetUser.countries
+      : [targetUser.country || "Singapore"]
+
+    if (newRole === "global_admin") {
+      countries = []
+    } else if (newRole === "admin" || newRole === "management") {
+      countries = countries.slice(0, 2)
+    } else {
+      countries = countries.slice(0, 1)
+    }
+
+    if (newRole !== "global_admin" && countries.some(c => !assignableCountries.includes(c))) {
+      showError("You can only assign countries available to your account.")
+      return
+    }
+
+    const updatePayload = {
+      role: newRole,
+      country: newRole === "global_admin" ? null : countries[0],
+      countries,
+    }
+
+    const { error: updateErr } = await supabase
+      .from("user_profiles")
+      .update(updatePayload)
+      .eq("id", userId)
+
+    if (updateErr) {
+      showError(`Failed to change role: ${updateErr.message}`)
+      return
+    }
+
+    setUsers(users.map(u => u.id === userId ? { ...u, ...updatePayload } : u))
+    showSuccess(`User role changed to ${roleLabels[newRole] || newRole}.`)
   }
 
   const handleCreateUser = async (e) => {
@@ -179,6 +258,30 @@ const emailMap = {}
     if (!form.email?.trim()) { showError("Please enter an email address."); return }
     if (!form.name?.trim())  { showError("Please enter the user's name."); return }
     if (!form.password || form.password.length < 8) { showError("Password must be at least 8 characters."); return }
+
+    if (form.role === "global_admin" && !isGlobalAdmin) {
+      showError("Only a Global Admin can create a Global Admin.")
+      return
+    }
+
+    const selectedCountries = form.role === "global_admin" ? [] : (form.countries || [])
+    const maxCountries = form.role === "admin" || form.role === "management" ? 2 : 1
+
+    if (form.role !== "global_admin" && selectedCountries.length === 0) {
+      showError("Please select at least one country.")
+      return
+    }
+
+    if (form.role !== "global_admin" && selectedCountries.length > maxCountries) {
+      showError(`This role can have a maximum of ${maxCountries} countr${maxCountries !== 1 ? "ies" : "y"}.`)
+      return
+    }
+
+    if (form.role !== "global_admin" && selectedCountries.some(country => !assignableCountries.includes(country))) {
+      showError("You can only assign countries available to your account.")
+      return
+    }
+
     setCreating(true)
 
     try {
@@ -193,7 +296,8 @@ const emailMap = {}
           password: form.password,
           name: form.name,
           role: form.role,
-          country: form.country || "Singapore",
+          country: form.role === "global_admin" ? null : (form.countries?.[0] || "Singapore"),
+          countries: form.role === "global_admin" ? [] : (form.countries || []),
         },
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -217,7 +321,7 @@ const emailMap = {}
       }
 
       const createdName = form.name || form.email
-      setForm({ name: "", email: "", password: "", role: "standard_user", country: adminCountry, department: "" })
+      setForm({ name: "", email: "", password: "", role: "standard_user", countries: [], department: "" })
       setShowForm(false)
       showSuccess(`✅ Account created for ${createdName}! Welcome email sent.`)
       fetchUsers()
@@ -233,6 +337,10 @@ const emailMap = {}
   }
 
   const handleViewUser = async (u) => {
+    if (u.role === "global_admin" && !isGlobalAdmin) {
+      showError("You do not have permission to view a Global Admin.")
+      return
+    }
     setDetailUser(u)
     setDetailAssets([])
     setDetailLoading(true)
@@ -241,7 +349,7 @@ const emailMap = {}
       .select("id, name, asset_tag, category, status")
       .ilike("assigned_user", u.name || u.email)
       .eq("status", "assigned")
-    if (!isGlobalAdmin) detailAssetsQuery = detailAssetsQuery.eq("country", adminCountry)
+    if (!isGlobalAdmin) detailAssetsQuery = detailAssetsQuery.in("country", adminCountries)
     const { data } = await detailAssetsQuery
     setDetailAssets(data || [])
     setDetailLoading(false)
@@ -274,7 +382,7 @@ const emailMap = {}
       .select("id, name, serial_number, category")
       .eq("status", "borrowed")
       .ilike("assigned_user", u.name || u.email)
-    if (!isGlobalAdmin) preparedAssetsQuery = preparedAssetsQuery.eq("country", adminCountry)
+    if (!isGlobalAdmin) preparedAssetsQuery = preparedAssetsQuery.in("country", adminCountries)
     const { data: prepared } = await preparedAssetsQuery
     setDetailPreparedAssets(prepared || [])
     setDetailPreparedAssetsLoading(false)
@@ -299,10 +407,20 @@ const emailMap = {}
   }
 
   const handleEditUser = (u) => {
+    if (u.role === "global_admin" && !isGlobalAdmin) {
+      showError("You do not have permission to edit a Global Admin.")
+      return
+    }
+
     setEditForm({
       name: u.name || "",
       role: u.role || "standard_user",
-      country: u.country || "Singapore",
+      countries:
+        u.role === "global_admin"
+          ? []
+          : (Array.isArray(u.countries) && u.countries.length
+              ? u.countries
+              : [u.country || "Singapore"]),
       marketing_access: !!u.marketing_access,
       marketing_role: u.marketing_role || "",
     })
@@ -316,16 +434,107 @@ const emailMap = {}
     setForm(f => ({ ...f, password: pwd }))
   }
 
+  const toggleFormCountry = (country) => {
+    if (!assignableCountries.includes(country)) return
+
+    setForm(prev => {
+      const selected = prev.countries || []
+      const isSelected = selected.includes(country)
+
+      if (isSelected) {
+        return {
+          ...prev,
+          countries: selected.filter(c => c !== country),
+        }
+      }
+
+      const maxCountries =
+        prev.role === "admin" || prev.role === "management" ? 2 : 1
+
+      if (selected.length >= maxCountries) return prev
+
+      return {
+        ...prev,
+        countries: [...selected, country],
+      }
+    })
+  }
+
+  const toggleEditCountry = (country) => {
+    if (!assignableCountries.includes(country)) return
+
+    setEditForm(prev => {
+      const selected = prev.countries || []
+      const isSelected = selected.includes(country)
+
+      if (isSelected) {
+        return {
+          ...prev,
+          countries: selected.filter(c => c !== country),
+        }
+      }
+
+      const maxCountries =
+        prev.role === "admin" || prev.role === "management" ? 2 : 1
+
+      if (selected.length >= maxCountries) return prev
+
+      return {
+        ...prev,
+        countries: [...selected, country],
+      }
+    })
+  }
+
   const handleSaveEdit = async () => {
     if (!editTarget) return
     setSaving(true)
     try {
-      const updatePayload = {
-        name: editForm.name,
-        role: editForm.role,
-        country: editForm.country,
-        marketing_access: editForm.marketing_access,
-        marketing_role: editForm.marketing_access ? (editForm.marketing_role || null) : null,
+      let updatePayload
+
+      if (editForm.role === "global_admin") {
+        if (!isGlobalAdmin) {
+          throw new Error("Only a Global Admin can assign the Global Admin role.")
+        }
+
+        updatePayload = {
+          name: editForm.name,
+          role: "global_admin",
+          country: null,
+          countries: [],
+          marketing_access: editForm.marketing_access,
+          marketing_role: editForm.marketing_access ? (editForm.marketing_role || null) : null,
+        }
+      } else if (editForm.role === "admin" || editForm.role === "management") {
+        const selectedCountries = (editForm.countries?.length ? editForm.countries : ["Singapore"]).slice(0, 2)
+
+        if (selectedCountries.some(country => !assignableCountries.includes(country))) {
+          throw new Error("You can only assign countries available to your account.")
+        }
+
+        updatePayload = {
+          name: editForm.name,
+          role: editForm.role,
+          country: selectedCountries[0],
+          countries: selectedCountries,
+          marketing_access: editForm.marketing_access,
+          marketing_role: editForm.marketing_access ? (editForm.marketing_role || null) : null,
+        }
+      } else {
+        const selectedCountry = editForm.countries?.[0] || "Singapore"
+
+        if (!assignableCountries.includes(selectedCountry)) {
+          throw new Error("You can only assign countries available to your account.")
+        }
+
+        updatePayload = {
+          name: editForm.name,
+          role: editForm.role,
+          country: selectedCountry,
+          countries: [selectedCountry],
+          marketing_access: editForm.marketing_access,
+          marketing_role: editForm.marketing_access ? (editForm.marketing_role || null) : null,
+        }
       }
       const { error: updateErr } = await supabase.from("user_profiles").update(updatePayload).eq("id", editTarget.id)
 
@@ -360,19 +569,23 @@ const emailMap = {}
 
       const normalise = (obj) => {
         const out = {}
-        for (const k of Object.keys(obj)) out[k.trim().toLowerCase()] = String(obj[k]).trim()
+        for (const k of Object.keys(obj)) {
+          out[k.trim().toLowerCase()] = String(obj[k]).trim()
+        }
         return out
       }
+
       const rows = raw.map(normalise)
 
       const col = (row, ...names) => {
-        for (const n of names) if (row[n] !== undefined && row[n] !== "") return row[n]
+        for (const n of names) {
+          if (row[n] !== undefined && row[n] !== "") return row[n]
+        }
         return ""
       }
 
       const { data: sessionData } = await supabase.auth.getSession()
       const session = sessionData?.session
-
       if (!session?.access_token) {
         throw new Error("Session expired — please log out and log in again")
       }
@@ -382,28 +595,76 @@ const emailMap = {}
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i]
-        const name  = col(row, "full name", "name", "fullname")
+        const name = col(row, "full name", "name", "fullname")
         const email = col(row, "email", "e-mail", "email address")
         const rawRole = col(row, "role").toLowerCase()
-        const role  = rawRole === "admin" ? "admin"
-                    : rawRole === "standard_user" || rawRole === "standard" || rawRole === "it" ? "standard_user"
-                    : rawRole === "guest" || rawRole === "view" || rawRole === "viewer" ? "guest"
+        const role =
+          rawRole === "global_admin" || rawRole === "global admin"
+            ? "global_admin"
+            : rawRole === "admin"
+              ? "admin"
+              : rawRole === "management" || rawRole === "manager"
+                ? "management"
+                : rawRole === "standard_user" || rawRole === "standard" || rawRole === "it"
+                  ? "standard_user"
+                  : rawRole === "guest" || rawRole === "view" || rawRole === "viewer"
+                    ? "guest"
                     : "standard_user"
-        const rawCountry = col(row, "country")
-        const country = COUNTRIES.includes(rawCountry) ? rawCountry : (rawCountry ? "Other" : adminCountry)
 
         if (!email || !email.includes("@")) {
           failed.push({ row: i + 2, email: email || "(blank)", reason: "Invalid or missing email" })
           continue
         }
 
-        // Pre-check: skip only if email truly exists in user_profiles
+        if (role === "global_admin" && !isGlobalAdmin) {
+          failed.push({ row: i + 2, email, reason: "Only a Global Admin can import a Global Admin" })
+          continue
+        }
+
+        const rawCountry = col(row, "country")
+        const rawCountry2 = col(row, "country 2", "country2", "second country")
+
+        if (rawCountry && !COUNTRIES.includes(rawCountry)) {
+          failed.push({ row: i + 2, email, reason: "Invalid country" })
+          continue
+        }
+
+        if (rawCountry2 && !COUNTRIES.includes(rawCountry2)) {
+          failed.push({ row: i + 2, email, reason: "Invalid second country" })
+          continue
+        }
+
+        let countries = []
+
+        if (role === "global_admin") {
+          countries = []
+        } else {
+          const country = rawCountry || adminCountry
+          const country2 = rawCountry2 && rawCountry2 !== country ? rawCountry2 : null
+
+          countries = [country]
+
+          if ((role === "admin" || role === "management") && country2) {
+            countries.push(country2)
+          }
+
+          if (countries.some(c => !assignableCountries.includes(c))) {
+            failed.push({
+              row: i + 2,
+              email,
+              reason: "You can only assign countries available to your account",
+            })
+            continue
+          }
+        }
+
         const normalizedEmail = email.trim().toLowerCase()
         const { data: existing } = await supabase
           .from("user_profiles")
           .select("id, email")
           .ilike("email", normalizedEmail)
           .maybeSingle()
+
         if (existing) {
           failed.push({ row: i + 2, email, reason: "Account already exists (skipped)" })
           continue
@@ -413,16 +674,23 @@ const emailMap = {}
 
         try {
           const { data: fnData, error: fnError } = await supabase.functions.invoke("create-user", {
-            body: { email, password: tempPassword, name, role, country },
+            body: {
+              email,
+              password: tempPassword,
+              name,
+              role,
+              country: role === "global_admin" ? null : countries[0],
+              countries,
+            },
             headers: { Authorization: `Bearer ${session.access_token}` },
           })
 
-          // Edge fn always returns 200; errors are in fnData.error
           const errMsg = fnData?.error || (fnError ? "Edge function unreachable" : null)
           if (errMsg) {
             failed.push({ row: i + 2, email, reason: errMsg })
             continue
           }
+
           ok++
         } catch (err) {
           failed.push({ row: i + 2, email, reason: err.message || "Unknown error" })
@@ -430,11 +698,18 @@ const emailMap = {}
       }
 
       setImportResult({ ok, failed })
+
       if (ok > 0) {
         showSuccess(`${ok} user${ok !== 1 ? "s" : ""} imported!`)
         fetchUsers()
         if (userProfile?.id) {
-          createNotification(userProfile.id, "📥 Users Imported", `${ok} user${ok !== 1 ? "s" : ""} imported successfully via Excel`, "success", userProfile?.country)
+          createNotification(
+            userProfile.id,
+            "📥 Users Imported",
+            `${ok} user${ok !== 1 ? "s" : ""} imported successfully via Excel`,
+            "success",
+            userProfile?.country
+          )
         }
       }
     } catch (err) {
@@ -445,6 +720,10 @@ const emailMap = {}
   }
 
   const handleDeleteUser = (u) => {
+    if (u.role === "global_admin" && !isGlobalAdmin) {
+      showError("You do not have permission to delete a Global Admin.")
+      return
+    }
     if (u.id === userProfile?.id) {
       alert("You cannot delete your own account.")
       return
@@ -463,7 +742,7 @@ const emailMap = {}
       let unassignQuery = supabase.from("assets")
         .update({ assigned_user: null, status: "available" })
         .eq("assigned_user", deleteTarget.name)
-      if (!isGlobalAdmin) unassignQuery = unassignQuery.eq("country", adminCountry)
+      if (!isGlobalAdmin) unassignQuery = unassignQuery.in("country", adminCountries)
       await unassignQuery
 
       setUsers(users.filter(x => x.id !== deleteTarget.id))
@@ -646,27 +925,58 @@ const emailMap = {}
                   <label className="text-gray-400 text-xs mb-1 block">Role</label>
                   <select
                     value={editForm.role}
-                    onChange={e => setEditForm(f => ({ ...f, role: e.target.value }))}
+                    onChange={e => {
+                      const role = e.target.value
+                      setEditForm(prev => ({
+                        ...prev,
+                        role,
+                        countries:
+                          role === "global_admin"
+                            ? []
+                            : (prev.countries || []).slice(0, role === "admin" || role === "management" ? 2 : 1),
+                      }))
+                    }}
                     className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
                   >
                     <option value="standard_user">Standard User</option>
                     <option value="guest">Guest</option>
                     <option value="management">Management</option>
                     <option value="admin">Admin</option>
+                    {isGlobalAdmin && (
                     <option value="global_admin">Global Admin</option>
+                  )}
                   </select>
                 </div>
 
                 {/* Country */}
                 <div>
-                  <label className="text-gray-400 text-xs mb-1 block">Country</label>
-                  <select
-                    value={editForm.country}
-                    onChange={e => setEditForm(f => ({ ...f, country: e.target.value }))}
-                    className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
-                  >
-                    {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  <label className="text-gray-400 text-xs mb-1 block">Country Access</label>
+                  {editForm.role === "global_admin" ? (
+                    <div className="w-full bg-purple-500/10 text-purple-300 rounded-lg px-3 py-2.5 border border-purple-500/30 text-sm">
+                      🌏 All countries
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        {assignableCountries.map(country => {
+                          const selected = editForm.countries?.includes(country)
+                          return (
+                            <button
+                              key={country}
+                              type="button"
+                              onClick={() => toggleEditCountry(country)}
+                              className={`px-3 py-2 rounded-lg border text-sm text-left transition-all ${selected ? "bg-blue-500/20 border-blue-500 text-blue-400" : "bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600"}`}
+                            >
+                              {selected ? "✓ " : ""}{country}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <p className="text-gray-600 text-xs mt-2">
+                        {editForm.role === "admin" || editForm.role === "management" ? "Select up to 2 countries." : "Select 1 country."}
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Marketing Access toggle */}
@@ -779,7 +1089,7 @@ const emailMap = {}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              setForm({ name: "", email: "", password: "", role: "standard_user", country: adminCountry, department: "" })
+              setForm({ name: "", email: "", password: "", role: "standard_user", countries: [], department: "" })
               setShowForm(v => !v)
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium"
@@ -826,7 +1136,7 @@ const emailMap = {}
               </div>
             )}
             <div className="mt-3 pt-3 border-t border-gray-800">
-              <p className="text-gray-600 text-xs">Expected columns: <span className="text-gray-400">Full Name · Email · Department · Role (admin/standard_user/guest) · Country (optional)</span></p>
+              <p className="text-gray-600 text-xs">Expected columns: <span className="text-gray-400">Full Name · Email · Department · Role · Country (optional) · Country 2 (optional)</span></p>
             </div>
           </motion.div>
         )}
@@ -888,14 +1198,26 @@ const emailMap = {}
                 <label className="text-gray-400 text-sm mb-2 block">{t("userRole")}</label>
                 <select
                   value={form.role}
-                  onChange={e => setForm({ ...form, role: e.target.value })}
+                  onChange={e => {
+                    const role = e.target.value
+                    setForm(prev => ({
+                      ...prev,
+                      role,
+                      countries:
+                        role === "global_admin"
+                          ? []
+                          : (prev.countries || []).slice(0, role === "admin" || role === "management" ? 2 : 1),
+                    }))
+                  }}
                   className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
                 >
                   <option value="standard_user">Standard User — view and submit requests</option>
                   <option value="guest">Guest — view assets and reports only</option>
                   <option value="management">Management — view and approve requests</option>
                   <option value="admin">Admin — full control</option>
-                  <option value="global_admin">Global Admin — full control across all countries</option>
+                  {isGlobalAdmin && (
+                    <option value="global_admin">Global Admin — full control across all countries</option>
+                  )}
                 </select>
               </div>
               <div>
@@ -909,20 +1231,32 @@ const emailMap = {}
                 />
               </div>
               <div>
-                <label className="text-gray-400 text-sm mb-2 block">Country</label>
-                {isGlobalAdmin ? (
-                  <select
-                    value={form.country}
-                    onChange={e => setForm({ ...form, country: e.target.value })}
-                    className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
-                  >
-                    {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                ) : (
-                  <div className="w-full bg-gray-800/50 text-gray-300 rounded-lg px-4 py-3 border border-gray-700 text-sm flex items-center justify-between">
-                    <span>{form.country}</span>
-                    <span className="text-gray-600 text-xs">🌏 Your region</span>
+                <label className="text-gray-400 text-sm mb-2 block">Country Access</label>
+                {form.role === "global_admin" ? (
+                  <div className="w-full bg-purple-500/10 text-purple-300 rounded-lg px-4 py-3 border border-purple-500/30 text-sm">
+                    🌏 All countries
                   </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      {assignableCountries.map(country => {
+                        const selected = form.countries?.includes(country)
+                        return (
+                          <button
+                            key={country}
+                            type="button"
+                            onClick={() => toggleFormCountry(country)}
+                            className={`px-3 py-2 rounded-lg border text-sm text-left transition-all ${selected ? "bg-blue-500/20 border-blue-500 text-blue-400" : "bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600"}`}
+                          >
+                            {selected ? "✓ " : ""}{country}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <p className="text-gray-600 text-xs mt-2">
+                      {form.role === "admin" || form.role === "management" ? "Select up to 2 countries." : "Select 1 country."}
+                    </p>
+                  </>
                 )}
               </div>
             </div>
@@ -1007,8 +1341,10 @@ const emailMap = {}
                     )}
                   </p>
                   <p className="text-gray-500 text-xs truncate">{u.email}</p>
-                  {u.country && (
-                    <p className="text-gray-600 text-xs mt-0.5">🌏 {u.country}</p>
+                  {(u.countries?.length || u.country) && (
+                    <p className="text-gray-600 text-xs mt-0.5">
+                      🌏 {Array.isArray(u.countries) && u.countries.length ? u.countries.join(" · ") : u.country}
+                    </p>
                   )}
                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
                     <p className="text-gray-600 text-xs">
@@ -1138,7 +1474,9 @@ const emailMap = {}
                 </div>
                 <div className="flex justify-between py-2 border-b border-gray-800">
                   <span className="text-gray-500 text-sm">Country</span>
-                  <span className="text-white text-sm font-medium">🌏 {detailUser.country || "—"}</span>
+                  <span className="text-white text-sm font-medium">
+                    🌏 {Array.isArray(detailUser.countries) && detailUser.countries.length ? detailUser.countries.join(" · ") : (detailUser.country || "—")}
+                  </span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-gray-800">
                   <span className="text-gray-500 text-sm">Last Login</span>
