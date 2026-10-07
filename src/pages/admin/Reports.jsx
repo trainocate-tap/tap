@@ -134,7 +134,7 @@ function pdfFooter(doc) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Reports() {
-  const { userCountry, profileLoading } = useAuth()
+  const { userCountry, userCountries, isGlobalAdmin, role, profileLoading } = useAuth()
   const { symbol: currencySymbol } = useCurrency()
   const [reportType, setReportType] = useState("inventory")
   const [assets, setAssets] = useState([])
@@ -151,7 +151,7 @@ export default function Reports() {
   const [productIdFilter, setProductIdFilter] = useState("")
   const [productIds, setProductIds] = useState(DEFAULT_PRODUCT_IDS)
 
-  useEffect(() => { if (!profileLoading) fetchAll() }, [profileLoading, userCountry])
+  useEffect(() => { if (!profileLoading) fetchAll() }, [profileLoading, userCountry, userCountries?.join("|"), isGlobalAdmin, role])
   useEffect(() => { fetchProductIds() }, [])
 
   const fetchProductIds = async () => {
@@ -179,9 +179,24 @@ export default function Reports() {
     const PAGE_SIZE = 1000
     let allAssets = []
     let from = 0
+
+    // Asset visibility follows the same multi-country rules as All Assets:
+    // Global Admin -> all countries
+    // Management -> all countries selected in user_profiles.countries
+    // Other roles -> their assigned country (or countries, if available)
+    const accessCountries = Array.isArray(userCountries) && userCountries.length
+      ? userCountries
+      : (userCountry ? [userCountry] : [])
+
     while (true) {
       let assetQuery = supabase.from("assets").select("*").order("name").range(from, from + PAGE_SIZE - 1)
-      if (userCountry) assetQuery = assetQuery.eq("country", userCountry)
+
+      // Do not apply a country filter for Global Admin.
+      // For every other role, use the complete assigned-country list.
+      if (!isGlobalAdmin && accessCountries.length) {
+        assetQuery = assetQuery.in("country", accessCountries)
+      }
+
       const { data: page } = await assetQuery
       if (page?.length) allAssets = allAssets.concat(page)
       if (!page || page.length < PAGE_SIZE) break
