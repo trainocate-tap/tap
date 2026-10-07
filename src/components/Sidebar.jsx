@@ -32,9 +32,12 @@ export default function Sidebar() {
   useEffect(() => {
     if (!userProfile) return
     const fetchCounts = async () => {
-      const country = userProfile.country
+      const countries = Array.isArray(userProfile.countries) && userProfile.countries.length
+        ? userProfile.countries
+        : (userProfile.country ? [userProfile.country] : [])
 
-      let assetsQuery = supabase.from("assets").select("id", { count: "exact", head: true }).eq("country", country)
+      let assetsQuery = supabase.from("assets").select("id", { count: "exact", head: true })
+      if (countries.length && !isGlobalAdmin) assetsQuery = assetsQuery.in("country", countries)
       let issuesQuery = supabase.from("issues").select("id", { count: "exact", head: true }).eq("status", "open")
       let borrowsQuery = supabase.from("borrow_history").select("id", { count: "exact", head: true }).eq("status", "approved").is("returned_at", null)
 
@@ -94,9 +97,12 @@ export default function Sidebar() {
   const adminOnlyItems = [
     { label: t("addAsset"), path: "/admin/add-asset" },
     { label: t("importAssets"), path: "/admin/import" },
-    { label: t("manageUsersTitle"), path: "/admin/users" },
     { label: "Settings", path: "/admin/settings" },
   ]
+
+  // Manage Users is available only to Management and Global Admin.
+  // Normal Admin must not see this option.
+  const manageUsersItem = { label: t("manageUsersTitle"), path: "/admin/users" }
 
   // Guest: Dashboard, All Assets, Reports, User Guide only
   let navItems = [dashItem, assetsItem, reportsItem, guideItem]
@@ -118,13 +124,13 @@ export default function Sidebar() {
 
   // Admin (base role), global admin, or a non-admin marketing user with an elevated
   // marketing role (marketing_admin / marketing_manager) viewing the IT module: full access
-  if (canManageMarketing || isGlobalAdmin) {
+  if ((canManageMarketing && !isManagement) || isGlobalAdmin) {
     navItems = [
       dashItem, assetsItem,
       adminOnlyItems[0], scannerItem, adminOnlyItems[1],
       ...standardItems,
       reportsItem, historyItem, guideItem,
-      adminOnlyItems[2], adminOnlyItems[3],
+      ...(isGlobalAdmin ? [manageUsersItem] : []), adminOnlyItems[2],
     ]
   }
 
